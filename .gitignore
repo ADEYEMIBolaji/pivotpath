@@ -1,0 +1,19 @@
+# dependencies
+node_modules/
+
+# Next.js
+.next/
+out/
+
+# env — never commit real keys
+.env
+.env.local
+.env.*.local
+
+# PivotPath session store (local only)
+.sessions/
+
+# misc
+.DS_Store
+*.log
+npm-debug.log*

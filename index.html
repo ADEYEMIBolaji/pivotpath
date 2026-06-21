@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PivotPath — Career Transition Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='6' fill='%230F1923'/%3E%3Ccircle cx='5' cy='18.5' r='2.3' fill='%23E8A838'/%3E%3Cpath d='M5 18.5 H13 V9' stroke='%23E8A838' stroke-width='2.2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M9.6 11.5 L13 7 L16.4 11.5' stroke='%23E8A838' stroke-width='2.2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<style>
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{margin:0;background:#0F1923;font-family:'DM Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;overflow-x:hidden;}
+  ::selection{background:#E8A838;color:#0F1923;}
+  a{color:inherit;text-decoration:none;}
+  @keyframes ppDash{from{stroke-dashoffset:60;}to{stroke-dashoffset:0;}}
+  @keyframes ppPulse{0%,100%{opacity:.5;}50%{opacity:1;}}
+  @keyframes ppRise{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+  .pp-maprow:hover{background:var(--bgHover)!important;}
+</style>
+</head>
+<body>
+
+<div style="background:#F2EDE4;color:#0F1923;font-family:'DM Sans',system-ui,sans-serif;width:100%;">
+
+  <!-- ===== NAV ===== -->
+  <header style="position:sticky;top:0;z-index:50;background:rgba(15,25,35,0.96);backdrop-filter:blur(12px);border-bottom:1px solid rgba(242,237,228,0.12);">
+    <nav style="max-width:1240px;margin:0 auto;padding:18px 32px;display:flex;align-items:center;justify-content:space-between;gap:24px;">
+      <a href="#top" style="display:flex;align-items:center;gap:13px;">
+        <span style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:#E8A838;border-radius:10px;flex:none;box-shadow:0 4px 14px -4px rgba(232,168,56,0.6);">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="5" cy="18.5" r="2.3" fill="#0F1923"></circle>
+            <path d="M5 18.5 H13 V9" stroke="#0F1923" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"></path>
+            <path d="M9.6 11.5 L13 7 L16.4 11.5" stroke="#0F1923" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+        </span>
+        <span style="display:flex;flex-direction:column;line-height:1;">
+          <span style="font-family:'Newsreader',serif;font-size:22px;font-weight:600;letter-spacing:-0.01em;color:#F2EDE4;">PivotPath</span>
+          <span style="font-family:'DM Mono',monospace;font-size:8.5px;letter-spacing:0.24em;text-transform:uppercase;color:#7C8893;margin-top:4px;">Transition Intelligence</span>
+        </span>
+      </a>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end;">
+        <a href="#how" style="font-size:14px;color:#9AA7B0;padding:8px 14px;">How it works</a>
+        <a href="#map" style="font-size:14px;color:#9AA7B0;padding:8px 14px;">Translation Map</a>
+        <a href="#proof" style="font-size:14px;color:#9AA7B0;padding:8px 14px;">Results</a>
+        <a href="#start" style="font-size:14px;font-weight:600;color:#0F1923;background:#E8A838;padding:11px 20px;border-radius:2px;">Start free</a>
+      </div>
+    </nav>
+  </header>
+
+  <!-- ===== HERO ===== -->
+  <section id="top" style="position:relative;background:#0F1923;color:#F2EDE4;overflow:hidden;">
+    <div aria-hidden="true" style="position:absolute;inset:0;background-image:linear-gradient(rgba(242,237,228,0.05) 1px,transparent 1px),linear-gradient(90deg,rgba(242,237,228,0.05) 1px,transparent 1px);background-size:64px 64px;-webkit-mask-image:radial-gradient(ellipse 90% 70% at 70% 35%,#000 30%,transparent 78%);mask-image:radial-gradient(ellipse 90% 70% at 70% 35%,#000 30%,transparent 78%);"></div>
+    <div style="position:relative;max-width:1240px;margin:0 auto;padding:clamp(64px,9vw,120px) 32px clamp(72px,9vw,120px);display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:clamp(40px,6vw,80px);align-items:center;">
+      <div style="min-width:0;">
+        <div style="font-family:'DM Mono',monospace;font-size:12px;letter-spacing:0.22em;color:#E8A838;text-transform:uppercase;margin-bottom:26px;">Career Transition Intelligence</div>
+        <h1 style="font-family:'Newsreader',serif;font-weight:500;font-size:clamp(40px,5.6vw,72px);line-height:1.02;letter-spacing:-0.02em;margin:0 0 26px;color:#F2EDE4;text-wrap:balance;">You're not underqualified.<br>You're <em style="font-style:italic;color:#E8A838;">untranslated.</em></h1>
+        <p style="font-size:clamp(17px,1.5vw,20px);line-height:1.55;color:#B9C2C9;max-width:540px;margin:0 0 36px;">PivotPath reads the experience you already have and rewrites it in the language your target field hires for — then scores exactly what's left to close. No fabrication. No fluff.</p>
+        <div style="display:flex;flex-wrap:wrap;gap:14px;align-items:center;">
+          <a href="#start" style="font-size:16px;font-weight:600;color:#0F1923;background:#E8A838;padding:16px 30px;border-radius:2px;display:inline-flex;align-items:center;gap:10px;">Start free<svg width="20" height="12" viewBox="0 0 20 12" fill="none" aria-hidden="true"><line x1="0" y1="6" x2="15" y2="6" stroke="#0F1923" stroke-width="1.8"></line><path d="M13 1.5 L18.5 6 L13 10.5" stroke="#0F1923" stroke-width="1.8" fill="none" stroke-linejoin="round" stroke-linecap="round"></path></svg></a>
+          <a href="#map" style="font-size:16px;font-weight:500;color:#F2EDE4;padding:16px 24px;border:1px solid rgba(242,237,228,0.24);border-radius:2px;">See a real translation</a>
+        </div>
+        <p style="font-family:'DM Mono',monospace;font-size:12.5px;color:#7C8893;margin:30px 0 0;letter-spacing:0.02em;">Built for mid-career pivoters — not lateral movers.</p>
+      </div>
+
+      <!-- hero translation preview -->
+      <div style="min-width:0;background:#16242F;border:1px solid rgba(242,237,228,0.12);border-radius:4px;padding:clamp(22px,2.6vw,30px);box-shadow:0 30px 70px -30px rgba(0,0,0,0.6);animation:ppRise .7s ease both;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;padding-bottom:16px;border-bottom:1px solid rgba(242,237,228,0.1);">
+          <span style="font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:#7C8893;">Translation Preview</span>
+          <span style="font-family:'DM Mono',monospace;font-size:11px;color:#E8A838;">ICU Nurse → PM</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:18px;">
+          <div style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:14px;">
+            <div style="font-size:13.5px;line-height:1.4;color:#B9C2C9;">Managed ICU triage under pressure</div>
+            <svg width="40" height="12" viewBox="0 0 40 12" fill="none" aria-hidden="true" style="flex:none;"><line x1="0" y1="6" x2="32" y2="6" stroke="#E8A838" stroke-width="1.4" stroke-dasharray="60" style="animation:ppDash 1.1s ease .2s both;"></line><path d="M30 2 L36 6 L30 10" stroke="#E8A838" stroke-width="1.4" fill="none" stroke-linejoin="round" stroke-linecap="round"></path></svg>
+            <div style="font-size:13.5px;line-height:1.4;color:#F2EDE4;font-weight:600;">Prioritisation under constraint</div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:14px;">
+            <div style="font-size:13.5px;line-height:1.4;color:#B9C2C9;">Authored treatment protocols</div>
+            <svg width="40" height="12" viewBox="0 0 40 12" fill="none" aria-hidden="true" style="flex:none;"><line x1="0" y1="6" x2="32" y2="6" stroke="#E8A838" stroke-width="1.4" stroke-dasharray="60" style="animation:ppDash 1.1s ease .35s both;"></line><path d="M30 2 L36 6 L30 10" stroke="#E8A838" stroke-width="1.4" fill="none" stroke-linejoin="round" stroke-linecap="round"></path></svg>
+            <div style="font-size:13.5px;line-height:1.4;color:#F2EDE4;font-weight:600;">PRD &amp; process documentation</div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:14px;">
+            <div style="font-size:13.5px;line-height:1.4;color:#B9C2C9;">Coordinated multi-dept rounds</div>
+            <svg width="40" height="12" viewBox="0 0 40 12" fill="none" aria-hidden="true" style="flex:none;"><line x1="0" y1="6" x2="32" y2="6" stroke="#E8A838" stroke-width="1.4" stroke-dasharray="60" style="animation:ppDash 1.1s ease .5s both;"></line><path d="M30 2 L36 6 L30 10" stroke="#E8A838" stroke-width="1.4" fill="none" stroke-linejoin="round" stroke-linecap="round"></path></svg>
+            <div style="font-size:13.5px;line-height:1.4;color:#F2EDE4;font-weight:600;">Cross-functional leadership</div>
+          </div>
+        </div>
+        <div style="margin-top:24px;padding-top:18px;border-top:1px solid rgba(242,237,228,0.1);display:flex;align-items:center;justify-content:space-between;gap:12px;">
+          <span style="font-size:12.5px;color:#7C8893;">Pivot Readiness</span>
+          <div style="display:flex;align-items:center;gap:10px;flex:1;max-width:200px;">
+            <div style="flex:1;height:6px;background:rgba(242,237,228,0.12);border-radius:3px;overflow:hidden;"><div style="width:67%;height:100%;background:#2E6B6B;"></div></div>
+            <span style="font-family:'DM Mono',monospace;font-size:13px;font-weight:500;color:#F2EDE4;">67<span style="color:#7C8893;">/100</span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== THESIS BAND ===== -->
+  <section style="background:#0F1923;color:#F2EDE4;border-top:1px solid rgba(242,237,228,0.08);">
+    <div style="max-width:1000px;margin:0 auto;padding:clamp(56px,7vw,96px) 32px;text-align:center;">
+      <p style="font-family:'Newsreader',serif;font-weight:400;font-size:clamp(24px,3.2vw,38px);line-height:1.32;letter-spacing:-0.01em;color:#F2EDE4;margin:0;text-wrap:balance;">Job platforms are built for people moving sideways. The filters reject career changers on a title before a human ever reads the work. <em style="font-style:italic;color:#E8A838;">The experience is there — it's just written in the wrong language.</em></p>
+    </div>
+  </section>
+
+  <!-- ===== HOW IT WORKS ===== -->
+  <section id="how" style="background:#F2EDE4;color:#0F1923;">
+    <div style="max-width:1240px;margin:0 auto;padding:clamp(64px,8vw,110px) 32px;">
+      <div style="display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:clamp(40px,5vw,64px);">
+        <div style="max-width:560px;">
+          <div style="font-family:'DM Mono',monospace;font-size:12px;letter-spacing:0.2em;color:#2E6B6B;text-transform:uppercase;margin-bottom:18px;">How it works</div>
+          <h2 style="font-family:'Newsreader',serif;font-weight:500;font-size:clamp(30px,4vw,48px);line-height:1.06;letter-spacing:-0.02em;margin:0;text-wrap:balance;">Five steps from stuck to in motion</h2>
+        </div>
+        <p style="font-size:16px;line-height:1.55;color:#4A5560;max-width:360px;margin:0;">One honest pass over your background. Every step ends with a clear next action — never a dead end.</p>
+      </div>
+
+      <div style="display:grid;grid-template-columns:auto auto 1fr;align-items:start;gap:clamp(18px,3vw,40px);padding:clamp(24px,3vw,36px) 0;border-top:1px solid rgba(15,25,35,0.14);">
+        <div style="font-family:'DM Mono',monospace;font-size:13px;color:#9AA0A0;padding-top:6px;">01</div>
+        <div style="font-family:'Newsreader',serif;font-weight:500;font-size:clamp(22px,2.4vw,30px);letter-spacing:-0.01em;color:#0F1923;min-width:clamp(140px,16vw,200px);display:flex;align-items:center;gap:14px;">Ingest<svg width="34" height="12" viewBox="0 0 34 12" fill="none" aria-hidden="true" style="flex:none;opacity:.85;"><line x1="0" y1="6" x2="26" y2="6" stroke="#E8A838" stroke-width="1.5"></line><path d="M24 2 L30 6 L24 10" stroke="#E8A838" stroke-width="1.5" fill="none" stroke-linejoin="round" stroke-linecap="round"></path></svg></div>
+        <p style="font-size:clamp(15px,1.3vw,17px);line-height:1.6;color:#4A5560;margin:0;max-width:560px;padding-top:4px;">Drop in your résumé or paste a LinkedIn profile. We extract titles, tenures and accomplishments — messy formatting and non-linear histories included.</p>
+      </div>
+      <div style="display:grid;grid-template-columns:auto auto 1fr;align-items:start;gap:clamp(18px,3vw,40px);padding:clamp(24px,3vw,36px) 0;border-top:1px solid rgba(15,25,35,0.14);">
+        <div style="font-family:'DM Mono',monospace;font-size:13px;color:#9AA0A0;padding-top:6px;">02</div>
+        <div style="font-family:'Newsreader',serif;font-weight:500;font-size:clamp(22px,2.4vw,30px);letter-spacing:-0.01em;color:#0F1923;min-width:clamp(140px,16vw,200px);display:flex;align-items:center;gap:14px;">Translate<svg width="34" height="12" viewBox="0 0 34 12" fill="none" aria-hidden="true" style="flex:none;opacity:.85;"><line x1="0" y1="6" x2="26" y2="6" stroke="#E8A838" stroke-width="1.5"></line><path d="M24 2 L30 6 L24 10" stroke="#E8A838" stroke-width="1.5" fill="none" stroke-linejoin="round" stroke-linecap="round"></path></svg></div>
+        <p style="font-size:clamp(15px,1.3vw,17px);line-height:1.6;color:#4A5560;margin:0;max-width:560px;padding-top:4px;">Every line is mapped to the vocabulary, frameworks and action verbs your target field actually uses. You see your old work in the new language, side by side.</p>
+      </div>
+      <div style="display:grid;grid-template-columns:auto auto 1fr;align-items:start;gap:clamp(18px,3vw,40px);padding:clamp(24px,3vw,36px) 0;border-top:1px solid rgba(15,25,35,0.14);">
+        <div style="font-family:'DM Mono',monospace;font-size:13px;color:#9AA0A0;padding-top:6px;">03</div>
+        <div style="font-family:'Newsreader',serif;font-weight:500;font-size:clamp(22px,2.4vw,30px);letter-spacing:-0.01em;color:#0F1923;min-width:clamp(140px,16vw,200px);display:flex;align-items:center;gap:14px;">Score<svg width="34" height="12" viewBox="0 0 34 12" fill="none" aria-hidden="true" style="flex:none;opacity:.85;"><line x1="0" y1="6" x2="26" y2="6" stroke="#E8A838" stroke-width="1.5"></line><path d="M24 2 L30 6 L24 10" stroke="#E8A838" stroke-width="1.5" fill="none" stroke-linejoin="round" stroke-linecap="round"></path></svg></div>
+        <p style="font-size:clamp(15px,1.3vw,17px);line-height:1.6;color:#4A5560;margin:0;max-width:560px;padding-top:4px;">An honest Pivot Readiness Score, with a confidence band — never false precision. Disqualifying gaps, closable gaps and noise are clearly separated.</p>
+      </div>
+      <div style="display:grid;grid-template-columns:auto auto 1fr;align-items:start;gap:clamp(18px,3vw,40px);padding:clamp(24px,3vw,36px) 0;border-top:1px solid rgba(15,25,35,0.14);">
+        <div style="font-family:'DM Mono',monospace;font-size:13px;color:#9AA0A0;padding-top:6px;">04</div>
+        <div style="font-family:'Newsreader',serif;font-weight:500;font-size:clamp(22px,2.4vw,30px);letter-spacing:-0.01em;color:#0F1923;min-width:clamp(140px,16vw,200px);display:flex;align-items:center;gap:14px;">Rewrite<svg width="34" height="12" viewBox="0 0 34 12" fill="none" aria-hidden="true" style="flex:none;opacity:.85;"><line x1="0" y1="6" x2="26" y2="6" stroke="#E8A838" stroke-width="1.5"></line><path d="M24 2 L30 6 L24 10" stroke="#E8A838" stroke-width="1.5" fill="none" stroke-linejoin="round" stroke-linecap="round"></path></svg></div>
+        <p style="font-size:clamp(15px,1.3vw,17px);line-height:1.6;color:#4A5560;margin:0;max-width:560px;padding-top:4px;">A repositioned résumé in the new field's language. Every bullet is traceable to something true — a reframe of real experience, not embellishment.</p>
+      </div>
+      <div style="display:grid;grid-template-columns:auto auto 1fr;align-items:start;gap:clamp(18px,3vw,40px);padding:clamp(24px,3vw,36px) 0;border-top:1px solid rgba(15,25,35,0.14);">
+        <div style="font-family:'DM Mono',monospace;font-size:13px;color:#9AA0A0;padding-top:6px;">05</div>
+        <div style="font-family:'Newsreader',serif;font-weight:500;font-size:clamp(22px,2.4vw,30px);letter-spacing:-0.01em;color:#0F1923;min-width:clamp(140px,16vw,200px);display:flex;align-items:center;gap:14px;">Apply<svg width="34" height="12" viewBox="0 0 34 12" fill="none" aria-hidden="true" style="flex:none;opacity:.85;"><line x1="0" y1="6" x2="26" y2="6" stroke="#E8A838" stroke-width="1.5"></line><path d="M24 2 L30 6 L24 10" stroke="#E8A838" stroke-width="1.5" fill="none" stroke-linejoin="round" stroke-linecap="round"></path></svg></div>
+        <p style="font-size:clamp(15px,1.3vw,17px);line-height:1.6;color:#4A5560;margin:0;max-width:560px;padding-top:4px;">Where to apply, which bridge roles to target first, and a 30-day plan. You never leave a screen without a clear next action.</p>
+      </div>
+      <div style="border-top:1px solid rgba(15,25,35,0.14);"></div>
+    </div>
+  </section>
+
+  <!-- ===== TRANSLATION MAP ===== -->
+  <section id="map" style="background:#0F1923;color:#F2EDE4;">
+    <div style="max-width:1180px;margin:0 auto;padding:clamp(64px,8vw,110px) 32px;">
+      <div style="text-align:center;max-width:680px;margin:0 auto clamp(40px,5vw,60px);">
+        <div style="font-family:'DM Mono',monospace;font-size:12px;letter-spacing:0.2em;color:#E8A838;text-transform:uppercase;margin-bottom:18px;">Skills Translation Map</div>
+        <h2 style="font-family:'Newsreader',serif;font-weight:500;font-size:clamp(30px,4vw,48px);line-height:1.06;letter-spacing:-0.02em;margin:0 0 18px;text-wrap:balance;">A sample pivot, line by line</h2>
+        <p style="font-size:16px;line-height:1.55;color:#B9C2C9;margin:0;">Eight years in an ICU, read in the language of product management. Not analogies — the actual job.</p>
+      </div>
+
+      <!-- pivot header -->
+      <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:clamp(14px,2vw,26px);margin-bottom:30px;">
+        <div style="background:#16242F;border:1px solid rgba(242,237,228,0.14);border-radius:3px;padding:14px 22px;text-align:left;">
+          <div style="font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.14em;color:#7C8893;text-transform:uppercase;">From</div>
+          <div style="font-size:18px;font-weight:600;color:#F2EDE4;margin-top:3px;">ICU Nurse · 8 yrs</div>
+        </div>
+        <svg width="56" height="16" viewBox="0 0 56 16" fill="none" aria-hidden="true"><circle cx="5" cy="8" r="3.5" fill="#E8A838"></circle><line x1="10" y1="8" x2="44" y2="8" stroke="#E8A838" stroke-width="1.8"></line><path d="M42 3 L50 8 L42 13" stroke="#E8A838" stroke-width="1.8" fill="none" stroke-linejoin="round" stroke-linecap="round"></path></svg>
+        <div style="background:#16242F;border:1px solid rgba(232,168,56,0.45);border-radius:3px;padding:14px 22px;text-align:left;">
+          <div style="font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.14em;color:#7C8893;text-transform:uppercase;">To</div>
+          <div style="font-size:18px;font-weight:600;color:#F2EDE4;margin-top:3px;">Product Manager</div>
+        </div>
+        <div style="background:#16242F;border:1px solid rgba(46,107,107,0.55);border-radius:3px;padding:14px 22px;text-align:left;">
+          <div style="font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.14em;color:#7C8893;text-transform:uppercase;">Readiness</div>
+          <div style="font-size:18px;font-weight:600;color:#5FB0A6;margin-top:3px;">67<span style="color:#7C8893;font-weight:400;">/100 · medium confidence</span></div>
+        </div>
+      </div>
+
+      <!-- table -->
+      <div style="background:#F2EDE4;border-radius:4px;overflow:hidden;box-shadow:0 30px 80px -40px rgba(0,0,0,0.7);">
+        <div style="display:grid;grid-template-columns:1.1fr auto 1.1fr 160px;gap:0;background:#0F1923;color:#F2EDE4;">
+          <div style="padding:16px 24px;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.16em;text-transform:uppercase;color:#9AA7B0;">Your experience</div>
+          <div style="padding:16px 8px;"></div>
+          <div style="padding:16px 24px;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.16em;text-transform:uppercase;color:#E8A838;">In Product Management</div>
+          <div style="padding:16px 24px;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.16em;text-transform:uppercase;color:#9AA7B0;text-align:right;">Confidence</div>
+        </div>
+
+        <div class="pp-maprow" style="--bgHover:#E0EBE6;display:grid;grid-template-columns:1.1fr auto 1.1fr 160px;gap:0;align-items:center;border-top:1px solid rgba(15,25,35,0.1);background:#EAF1EE;">
+          <div style="padding:clamp(16px,1.8vw,22px) 24px;font-size:15px;line-height:1.45;color:#3B4650;">Managed ICU patient triage under time pressure</div>
+          <div style="padding:0 4px;display:flex;justify-content:center;"><svg width="38" height="12" viewBox="0 0 38 12" fill="none" aria-hidden="true"><line x1="0" y1="6" x2="30" y2="6" stroke="#2E6B6B" stroke-width="1.5"></line><path d="M28 2 L34 6 L28 10" stroke="#2E6B6B" stroke-width="1.5" fill="none" stroke-linejoin="round" stroke-linecap="round"></path></svg></div>
+          <div style="padding:clamp(16px,1.8vw,22px) 24px;font-size:15px;line-height:1.45;color:#0F1923;font-weight:600;">Prioritisation under constraint — ruthless triage of competing demands</div>
+          <div style="padding:clamp(16px,1.8vw,22px) 24px;text-align:right;"><span style="display:inline-block;font-family:'DM Mono',monospace;font-size:10.5px;letter-spacing:0.1em;text-transform:uppercase;padding:5px 10px;border-radius:2px;color:#1E5A4E;background:#DCEBE5;border:1px solid #9ECBBE;white-space:nowrap;">High</span></div>
+        </div>
+        <div class="pp-maprow" style="--bgHover:#E0EBE6;display:grid;grid-template-columns:1.1fr auto 1.1fr 160px;gap:0;align-items:center;border-top:1px solid rgba(15,25,35,0.1);background:#EAF1EE;">
+          <div style="padding:clamp(16px,1.8vw,22px) 24px;font-size:15px;line-height:1.45;color:#3B4650;">Authored and maintained treatment protocols</div>
+          <div style="padding:0 4px;display:flex;justify-content:center;"><svg width="38" height="12" viewBox="0 0 38 12" fill="none" aria-hidden="true"><line x1="0" y1="6" x2="30" y2="6" stroke="#2E6B6B" stroke-width="1.5"></line><path d="M28 2 L34 6 L28 10" stroke="#2E6B6B" stroke-width="1.5" fill="none" stroke-linejoin="round" stroke-linecap="round"></path></svg></div>
+          <div style="padding:clamp(16px,1.8vw,22px) 24px;font-size:15px;line-height:1.45;color:#0F1923;font-weight:600;">Process documentation, SOP &amp; PRD writing</div>
+          <div style="padding:clamp(16px,1.8vw,22px) 24px;text-align:right;"><span style="display:inline-block;font-family:'DM Mono',monospace;font-size:10.5px;letter-spacing:0.1em;text-transform:uppercase;padding:5px 10px;border-radius:2px;color:#1E5A4E;background:#DCEBE5;border:1px solid #9ECBBE;white-space:nowrap;">High</span></div>
+        </div>
+        <div class="pp-maprow" style="--bgHover:#E0EBE6;display:grid;grid-template-columns:1.1fr auto 1.1fr 160px;gap:0;align-items:center;border-top:1px solid rgba(15,25,35,0.1);background:#EAF1EE;">
+          <div style="padding:clamp(16px,1.8vw,22px) 24px;font-size:15px;line-height:1.45;color:#3B4650;">Coordinated multi-department patient rounds</div>
+          <div style="padding:0 4px;display:flex;justify-content:center;"><svg width="38" height="12" viewBox="0 0 38 12" fill="none" aria-hidden="true"><line x1="0" y1="6" x2="30" y2="6" stroke="#2E6B6B" stroke-width="1.5"></line><path d="M28 2 L34 6 L28 10" stroke="#2E6B6B" stroke-width="1.5" fill="none" stroke-linejoin="round" stroke-linecap="round"></path></svg></div>
+          <div style="padding:clamp(16px,1.8vw,22px) 24px;font-size:15px;line-height:1.45;color:#0F1923;font-weight:600;">Cross-functional collaboration &amp; stakeholder alignment</div>
+          <div style="padding:clamp(16px,1.8vw,22px) 24px;text-align:right;"><span style="display:inline-block;font-family:'DM Mono',monospace;font-size:10.5px;letter-spacing:0.1em;text-transform:uppercase;padding:5px 10px;border-radius:2px;color:#1E5A4E;background:#DCEBE5;border:1px solid #9ECBBE;white-space:nowrap;">High</span></div>
+        </div>
+        <div class="pp-maprow" style="--bgHover:#F7E9CB;display:grid;grid-template-columns:1.1fr auto 1.1fr 160px;gap:0;align-items:center;border-top:1px solid rgba(15,25,35,0.1);background:#FBF1DC;">
+          <div style="padding:clamp(16px,1.8vw,22px) 24px;font-size:15px;line-height:1.45;color:#3B4650;">Tracked patient outcomes over time</div>
+          <div style="padding:0 4px;display:flex;justify-content:center;"><svg width="38" height="12" viewBox="0 0 38 12" fill="none" aria-hidden="true"><line x1="0" y1="6" x2="30" y2="6" stroke="#E8A838" stroke-width="1.5"></line><path d="M28 2 L34 6 L28 10" stroke="#E8A838" stroke-width="1.5" fill="none" stroke-linejoin="round" stroke-linecap="round"></path></svg></div>
+          <div style="padding:clamp(16px,1.8vw,22px) 24px;font-size:15px;line-height:1.45;color:#0F1923;font-weight:600;">Metrics ownership &amp; longitudinal outcome thinking</div>
+          <div style="padding:clamp(16px,1.8vw,22px) 24px;text-align:right;"><span style="display:inline-block;font-family:'DM Mono',monospace;font-size:10.5px;letter-spacing:0.1em;text-transform:uppercase;padding:5px 10px;border-radius:2px;color:#9A6A14;background:#F7E6C4;border:1px solid #E0BD79;white-space:nowrap;">Partial</span></div>
+        </div>
+        <div class="pp-maprow" style="--bgHover:#F7E9CB;display:grid;grid-template-columns:1.1fr auto 1.1fr 160px;gap:0;align-items:center;border-top:1px solid rgba(15,25,35,0.1);background:#FBF1DC;">
+          <div style="padding:clamp(16px,1.8vw,22px) 24px;font-size:15px;line-height:1.45;color:#3B4650;">Trained and onboarded new nursing staff</div>
+          <div style="padding:0 4px;display:flex;justify-content:center;"><svg width="38" height="12" viewBox="0 0 38 12" fill="none" aria-hidden="true"><line x1="0" y1="6" x2="30" y2="6" stroke="#E8A838" stroke-width="1.5"></line><path d="M28 2 L34 6 L28 10" stroke="#E8A838" stroke-width="1.5" fill="none" stroke-linejoin="round" stroke-linecap="round"></path></svg></div>
+          <div style="padding:clamp(16px,1.8vw,22px) 24px;font-size:15px;line-height:1.45;color:#0F1923;font-weight:600;">Team enablement, documentation &amp; onboarding</div>
+          <div style="padding:clamp(16px,1.8vw,22px) 24px;text-align:right;"><span style="display:inline-block;font-family:'DM Mono',monospace;font-size:10.5px;letter-spacing:0.1em;text-transform:uppercase;padding:5px 10px;border-radius:2px;color:#9A6A14;background:#F7E6C4;border:1px solid #E0BD79;white-space:nowrap;">Partial</span></div>
+        </div>
+        <div class="pp-maprow" style="--bgHover:#F4F0E7;display:grid;grid-template-columns:1.1fr auto 1.1fr 160px;gap:0;align-items:center;border-top:1px solid rgba(15,25,35,0.1);background:#FBF9F4;">
+          <div style="padding:clamp(16px,1.8vw,22px) 24px;font-size:15px;line-height:1.45;color:#3B4650;">No software product shipped end-to-end</div>
+          <div style="padding:0 4px;display:flex;justify-content:center;"><svg width="38" height="12" viewBox="0 0 38 12" fill="none" aria-hidden="true"><line x1="0" y1="6" x2="30" y2="6" stroke="#B6AE9E" stroke-width="1.5"></line><path d="M28 2 L34 6 L28 10" stroke="#B6AE9E" stroke-width="1.5" fill="none" stroke-linejoin="round" stroke-linecap="round"></path></svg></div>
+          <div style="padding:clamp(16px,1.8vw,22px) 24px;font-size:15px;line-height:1.45;color:#0F1923;font-weight:600;">Direct product-delivery evidence — not yet shown</div>
+          <div style="padding:clamp(16px,1.8vw,22px) 24px;text-align:right;"><span style="display:inline-block;font-family:'DM Mono',monospace;font-size:10.5px;letter-spacing:0.1em;text-transform:uppercase;padding:5px 10px;border-radius:2px;color:#5A6470;background:#ECE7DC;border:1px solid #C9C1B2;white-space:nowrap;">Needs framing</span></div>
+        </div>
+      </div>
+
+      <!-- summary callout -->
+      <div style="margin-top:26px;background:#16242F;border:1px solid rgba(46,107,107,0.4);border-left:3px solid #2E6B6B;border-radius:4px;padding:clamp(22px,2.6vw,30px) clamp(24px,3vw,36px);display:flex;flex-wrap:wrap;align-items:center;gap:18px;justify-content:space-between;">
+        <p style="font-family:'Newsreader',serif;font-size:clamp(20px,2.2vw,26px);line-height:1.3;margin:0;color:#F2EDE4;">You have <span style="color:#5FB0A6;">8 of 12</span> core PM competencies — more than you think.</p>
+        <span style="font-family:'DM Mono',monospace;font-size:12.5px;color:#7C8893;">4 left to close · 3 are learnable in &lt; 3 months</span>
+      </div>
+
+      <!-- gap scorecard -->
+      <div style="margin-top:clamp(40px,5vw,60px);">
+        <h3 style="font-family:'Newsreader',serif;font-weight:500;font-size:clamp(22px,2.6vw,32px);letter-spacing:-0.01em;margin:0 0 8px;color:#F2EDE4;text-align:center;">The gap, told honestly</h3>
+        <p style="text-align:center;font-size:15px;color:#B9C2C9;margin:0 0 30px;">What's missing, why it matters, and what it actually costs you.</p>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;">
+
+          <div style="background:#16242F;border:1px solid rgba(242,237,228,0.12);border-top:3px solid #C7553B;border-radius:4px;padding:24px;display:flex;flex-direction:column;gap:14px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+              <span style="font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:#C7553B;">Disqualifying</span>
+              <span style="font-family:'DM Mono',monospace;font-size:11px;color:#7C8893;">1 item</span>
+            </div>
+            <div style="padding-top:14px;border-top:1px solid rgba(242,237,228,0.08);">
+              <div style="font-size:15px;font-weight:600;color:#F2EDE4;margin-bottom:5px;">No product-shipping evidence</div>
+              <div style="font-size:13.5px;line-height:1.5;color:#9AA7B0;">Required by &gt;70% of PM job descriptions and not yet translatable from your background. Close with one end-to-end case study before targeting senior roles.</div>
+            </div>
+          </div>
+
+          <div style="background:#16242F;border:1px solid rgba(242,237,228,0.12);border-top:3px solid #E8A838;border-radius:4px;padding:24px;display:flex;flex-direction:column;gap:14px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+              <span style="font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:#E8A838;">Closable</span>
+              <span style="font-family:'DM Mono',monospace;font-size:11px;color:#7C8893;">3 items</span>
+            </div>
+            <div style="padding-top:14px;border-top:1px solid rgba(242,237,228,0.08);">
+              <div style="font-size:15px;font-weight:600;color:#F2EDE4;margin-bottom:5px;">SQL &amp; basic data querying</div>
+              <div style="font-size:13.5px;line-height:1.5;color:#9AA7B0;">Learnable in ~3 weeks. Enough to read dashboards and ask analysts the right questions.</div>
+            </div>
+            <div style="padding-top:14px;border-top:1px solid rgba(242,237,228,0.08);">
+              <div style="font-size:15px;font-weight:600;color:#F2EDE4;margin-bottom:5px;">Product analytics tooling</div>
+              <div style="font-size:13.5px;line-height:1.5;color:#9AA7B0;">Amplitude or Mixpanel fundamentals. A weekend of guided practice covers interview-level fluency.</div>
+            </div>
+            <div style="padding-top:14px;border-top:1px solid rgba(242,237,228,0.08);">
+              <div style="font-size:15px;font-weight:600;color:#F2EDE4;margin-bottom:5px;">A shipped case study</div>
+              <div style="font-size:13.5px;line-height:1.5;color:#9AA7B0;">Reframe a protocol redesign as a product spec — scope, tradeoffs, outcome.</div>
+            </div>
+          </div>
+
+          <div style="background:#16242F;border:1px solid rgba(242,237,228,0.12);border-top:3px solid #2E6B6B;border-radius:4px;padding:24px;display:flex;flex-direction:column;gap:14px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+              <span style="font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:#2E6B6B;">Nice-to-have</span>
+              <span style="font-family:'DM Mono',monospace;font-size:11px;color:#7C8893;">2 items</span>
+            </div>
+            <div style="padding-top:14px;border-top:1px solid rgba(242,237,228,0.08);">
+              <div style="font-size:15px;font-weight:600;color:#F2EDE4;margin-bottom:5px;">Figma familiarity</div>
+              <div style="font-size:13.5px;line-height:1.5;color:#9AA7B0;">Listed often, rarely filtered on. Comfort reading mockups is enough at entry.</div>
+            </div>
+            <div style="padding-top:14px;border-top:1px solid rgba(242,237,228,0.08);">
+              <div style="font-size:15px;font-weight:600;color:#F2EDE4;margin-bottom:5px;">A/B testing vocabulary</div>
+              <div style="font-size:13.5px;line-height:1.5;color:#9AA7B0;">Useful framing, not a blocker. Pick it up on the job.</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== SOCIAL PROOF ===== -->
+  <section id="proof" style="background:#F2EDE4;color:#0F1923;">
+    <div style="max-width:1180px;margin:0 auto;padding:clamp(64px,8vw,110px) 32px;">
+      <div style="max-width:600px;margin-bottom:clamp(40px,5vw,56px);">
+        <div style="font-family:'DM Mono',monospace;font-size:12px;letter-spacing:0.2em;color:#2E6B6B;text-transform:uppercase;margin-bottom:18px;">From people who were stuck</div>
+        <h2 style="font-family:'Newsreader',serif;font-weight:500;font-size:clamp(30px,4vw,48px);line-height:1.06;letter-spacing:-0.02em;margin:0;text-wrap:balance;">It didn't pump them up. It told them the truth — then what to do with it.</h2>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;">
+
+        <figure style="background:#FBF9F4;border:1px solid rgba(15,25,35,0.1);border-radius:4px;padding:clamp(26px,2.6vw,34px);margin:0;display:flex;flex-direction:column;gap:22px;">
+          <blockquote style="font-family:'Newsreader',serif;font-size:clamp(18px,1.6vw,21px);line-height:1.45;color:#1A2733;margin:0;">“I'd been rejected 40 times. PivotPath didn't cheerlead — it showed me the two gaps actually killing me, and both were closable in a month.”</blockquote>
+          <figcaption style="display:flex;align-items:center;gap:14px;margin-top:auto;">
+            <div style="display:flex;align-items:center;gap:8px;font-family:'DM Mono',monospace;font-size:12px;color:#2E6B6B;">
+              <span>ICU Nurse</span>
+              <svg width="26" height="9" viewBox="0 0 26 9" fill="none" aria-hidden="true"><line x1="0" y1="4.5" x2="19" y2="4.5" stroke="#E8A838" stroke-width="1.4"></line><path d="M17 1 L22 4.5 L17 8" stroke="#E8A838" stroke-width="1.4" fill="none" stroke-linejoin="round" stroke-linecap="round"></path></svg>
+              <span style="color:#0F1923;font-weight:500;">Associate PM</span>
+            </div>
+          </figcaption>
+          <div style="font-size:13px;color:#6A747E;border-top:1px solid rgba(15,25,35,0.1);padding-top:14px;">Maya R. · now at a health-tech startup</div>
+        </figure>
+
+        <figure style="background:#FBF9F4;border:1px solid rgba(15,25,35,0.1);border-radius:4px;padding:clamp(26px,2.6vw,34px);margin:0;display:flex;flex-direction:column;gap:22px;">
+          <blockquote style="font-family:'Newsreader',serif;font-size:clamp(18px,1.6vw,21px);line-height:1.45;color:#1A2733;margin:0;">“The translation map was the first time someone explained why my experience counted. I stopped apologising for my background in interviews.”</blockquote>
+          <figcaption style="display:flex;align-items:center;gap:14px;margin-top:auto;">
+            <div style="display:flex;align-items:center;gap:8px;font-family:'DM Mono',monospace;font-size:12px;color:#2E6B6B;">
+              <span>Logistics Coord.</span>
+              <svg width="26" height="9" viewBox="0 0 26 9" fill="none" aria-hidden="true"><line x1="0" y1="4.5" x2="19" y2="4.5" stroke="#E8A838" stroke-width="1.4"></line><path d="M17 1 L22 4.5 L17 8" stroke="#E8A838" stroke-width="1.4" fill="none" stroke-linejoin="round" stroke-linecap="round"></path></svg>
+              <span style="color:#0F1923;font-weight:500;">Ops Analyst</span>
+            </div>
+          </figcaption>
+          <div style="font-size:13px;color:#6A747E;border-top:1px solid rgba(15,25,35,0.1);padding-top:14px;">David O. · 11 weeks to first offer</div>
+        </figure>
+
+        <figure style="background:#FBF9F4;border:1px solid rgba(15,25,35,0.1);border-radius:4px;padding:clamp(26px,2.6vw,34px);margin:0;display:flex;flex-direction:column;gap:22px;">
+          <blockquote style="font-family:'Newsreader',serif;font-size:clamp(18px,1.6vw,21px);line-height:1.45;color:#1A2733;margin:0;">“It told me my first target was a stretch and handed me three bridge roles instead. I'm in one now, on the track I wanted.”</blockquote>
+          <figcaption style="display:flex;align-items:center;gap:14px;margin-top:auto;">
+            <div style="display:flex;align-items:center;gap:8px;font-family:'DM Mono',monospace;font-size:12px;color:#2E6B6B;">
+              <span>Teacher</span>
+              <svg width="26" height="9" viewBox="0 0 26 9" fill="none" aria-hidden="true"><line x1="0" y1="4.5" x2="19" y2="4.5" stroke="#E8A838" stroke-width="1.4"></line><path d="M17 1 L22 4.5 L17 8" stroke="#E8A838" stroke-width="1.4" fill="none" stroke-linejoin="round" stroke-linecap="round"></path></svg>
+              <span style="color:#0F1923;font-weight:500;">L&amp;D Specialist</span>
+            </div>
+          </figcaption>
+          <div style="font-size:13px;color:#6A747E;border-top:1px solid rgba(15,25,35,0.1);padding-top:14px;">Priya S. · SaaS, 200-person team</div>
+        </figure>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FINAL CTA ===== -->
+  <section id="start" style="background:#0F1923;color:#F2EDE4;position:relative;overflow:hidden;">
+    <div aria-hidden="true" style="position:absolute;inset:0;background-image:linear-gradient(rgba(242,237,228,0.05) 1px,transparent 1px),linear-gradient(90deg,rgba(242,237,228,0.05) 1px,transparent 1px);background-size:64px 64px;-webkit-mask-image:radial-gradient(ellipse 70% 80% at 50% 50%,#000 20%,transparent 75%);mask-image:radial-gradient(ellipse 70% 80% at 50% 50%,#000 20%,transparent 75%);"></div>
+    <div style="position:relative;max-width:780px;margin:0 auto;padding:clamp(72px,9vw,120px) 32px;text-align:center;">
+      <svg width="84" height="20" viewBox="0 0 84 20" fill="none" aria-hidden="true" style="margin-bottom:30px;"><circle cx="7" cy="10" r="5" fill="#E8A838"></circle><line x1="14" y1="10" x2="66" y2="10" stroke="#E8A838" stroke-width="2"></line><path d="M63 4 L73 10 L63 16" stroke="#E8A838" stroke-width="2" fill="none" stroke-linejoin="round" stroke-linecap="round"></path></svg>
+      <h2 style="font-family:'Newsreader',serif;font-weight:500;font-size:clamp(34px,5vw,60px);line-height:1.04;letter-spacing:-0.02em;margin:0 0 22px;text-wrap:balance;">Stop reapplying with the same résumé.</h2>
+      <p style="font-size:clamp(17px,1.6vw,20px);line-height:1.55;color:#B9C2C9;max-width:520px;margin:0 auto 38px;">Run one honest translation of your background. See your readiness score, your real gaps, and a repositioned résumé in the language your new field hires for.</p>
+      <div style="display:flex;flex-wrap:wrap;gap:14px;justify-content:center;align-items:center;">
+        <a href="#top" style="font-size:17px;font-weight:600;color:#0F1923;background:#E8A838;padding:18px 38px;border-radius:2px;display:inline-flex;align-items:center;gap:10px;">Start free<svg width="20" height="12" viewBox="0 0 20 12" fill="none" aria-hidden="true"><line x1="0" y1="6" x2="15" y2="6" stroke="#0F1923" stroke-width="1.8"></line><path d="M13 1.5 L18.5 6 L13 10.5" stroke="#0F1923" stroke-width="1.8" fill="none" stroke-linejoin="round" stroke-linecap="round"></path></svg></a>
+      </div>
+      <p style="font-family:'DM Mono',monospace;font-size:12.5px;color:#7C8893;margin:26px 0 0;letter-spacing:0.02em;">Free to translate · email to save your results · no card</p>
+    </div>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer style="background:#0B121A;color:#7C8893;border-top:1px solid rgba(242,237,228,0.08);">
+    <div style="max-width:1240px;margin:0 auto;padding:40px 32px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:18px;">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <span style="display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;background:#E8A838;border-radius:9px;flex:none;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="5" cy="18.5" r="2.3" fill="#0F1923"></circle>
+            <path d="M5 18.5 H13 V9" stroke="#0F1923" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"></path>
+            <path d="M9.6 11.5 L13 7 L16.4 11.5" stroke="#0F1923" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+        </span>
+        <span style="display:flex;flex-direction:column;line-height:1.1;">
+          <span style="font-family:'Newsreader',serif;font-size:18px;font-weight:600;color:#F2EDE4;">PivotPath</span>
+          <span style="font-family:'DM Mono',monospace;font-size:8px;letter-spacing:0.22em;text-transform:uppercase;color:#5A6470;margin-top:3px;">You're not underqualified. You're untranslated.</span>
+        </span>
+      </div>
+      <span style="font-size:13px;">Career transition intelligence · © 2026</span>
+    </div>
+  </footer>
+
+</div>
+</body>
+</html>

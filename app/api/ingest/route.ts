@@ -1,0 +1,80 @@
+/**
+ * POST /api/ingest
+ *
+ * Accepts:
+ *   - multipart/form-data  { file: File, source: 'upload' }
+ *   - application/json     { text: string, source: 'paste' | 'linkedin' }
+ *
+ * Returns: ApiResult<ParsedProfile>
+ */
+
+import { NextRequest, NextResponse } from 'next/server'
+import { runIngest } from '@/lib/pipeline'
+import type { ApiResult, ParsedProfile } from '@/lib/types'
+
+export const runtime = 'nodejs'
+export const maxDuration = 60
+
+async function extractText(file: File): Promise<string> {
+  const bytes = await file.arrayBuffer()
+  const buffer = Buffer.from(bytes)
+
+  if (file.name.endsWith('.pdf') || file.type === 'application/pdf') {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const pdfParse = require('pdf-parse') as (b: Buffer) => Promise<{ text: string }>
+    const result = await pdfParse(buffer)
+    return result.text
+  }
+
+  if (
+    file.name.endsWith('.docx') ||
+    file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+  ) {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const mammoth = require('mammoth') as {
+      extractRawText: (opts: { buffer: Buffer }) => Promise<{ value: string }>
+    }
+    const result = await mammoth.extractRawText({ buffer })
+    return result.value
+  }
+
+  // Plain text fallback
+  return buffer.toString('utf-8')
+}
+
+export async function POST(req: NextRequest): Promise<NextResponse<ApiResult<ParsedProfile>>> {
+  try {
+    let rawText: string
+    let source: ParsedProfile['source']
+
+    const contentType = req.headers.get('content-type') ?? ''
+
+    if (contentType.includes('multipart/form-data')) {
+      const form = await req.formData()
+      const file = form.get('file')
+      if (!file || typeof file === 'string') {
+        return NextResponse.json({ ok: false, error: 'No file provided' }, { status: 400 })
+      }
+      rawText = await extractText(file as File)
+      source = 'upload'
+    } else {
+      const body = (await req.json()) as { text?: string; source?: ParsedProfile['source'] }
+      if (!body.text?.trim()) {
+        return NextResponse.json({ ok: false, error: 'No text provided' }, { status: 400 })
+      }
+      rawText = body.text
+      source = body.source ?? 'paste'
+    }
+
+    if (rawText.trim().length < 50) {
+      return NextResponse.json({ ok: false, error: 'Document appears empty or too short to parse' }, { status: 422 })
+    }
+
+    const profile = await runIngest(rawText, source)
+    return NextResponse.json({ ok: true, data: profile })
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err)
+    console.error('[/api/ingest]', message)
+    return NextResponse.json({ ok: false, error: message }, { status: 500 })
+  }
+}
