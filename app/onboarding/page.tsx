@@ -470,9 +470,10 @@ function Step3({
 }: {
   profile: ParsedProfile
   target: TargetRole
-  onConfirm: (profile: ParsedProfile) => void
+  onConfirm: (profile: ParsedProfile, provider: 'claude' | 'grok') => void
 }) {
   const [profile, setProfile] = useState(initialProfile)
+  const [provider, setProvider] = useState<'claude' | 'grok'>('claude')
 
   function updateBullet(roleIdx: number, bulletIdx: number, text: string) {
     setProfile((p) => {
@@ -608,9 +609,45 @@ function Step3({
         </div>
       </div>
 
+      {/* Model selector */}
+      <div className="mt-8 mb-4">
+        <p className="font-mono text-[10.5px] tracking-[0.08em] uppercase text-pp-text-faint mb-3">AI model</p>
+        <div
+          className="flex gap-0 p-[3px] rounded-pp-m"
+          style={{ background: 'rgba(242,237,228,0.07)', border: '1px solid rgba(242,237,228,0.1)' }}
+        >
+          {([
+            { id: 'claude', label: 'Claude (Anthropic)', badge: 'Default' },
+            { id: 'grok', label: 'Grok (xAI)', badge: 'Beta' },
+          ] as const).map(({ id, label, badge }) => (
+            <button
+              key={id}
+              onClick={() => setProvider(id)}
+              className={cn(
+                'flex-1 py-[9px] px-4 rounded-pp text-[13px] font-medium transition-all flex items-center justify-center gap-2',
+                provider === id
+                  ? 'bg-offwhite/10 text-offwhite shadow-sm'
+                  : 'text-pp-text-faint hover:text-pp-text-muted',
+              )}
+            >
+              {label}
+              <span
+                className="text-[10px] font-mono px-1.5 py-0.5 rounded"
+                style={{
+                  background: provider === id ? 'rgba(232,168,56,0.2)' : 'rgba(242,237,228,0.08)',
+                  color: provider === id ? '#E8A838' : 'rgba(242,237,228,0.35)',
+                }}
+              >
+                {badge}
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
+
       <button
-        onClick={() => onConfirm(profile)}
-        className="mt-8 w-full py-[14px] rounded-pp font-semibold text-[15px] bg-amber text-navy hover:bg-amber/90 shadow-pp-amber transition-all"
+        onClick={() => onConfirm(profile, provider)}
+        className="w-full py-[14px] rounded-pp font-semibold text-[15px] bg-amber text-navy hover:bg-amber/90 shadow-pp-amber transition-all"
       >
         Run my analysis →
       </button>
@@ -626,7 +663,7 @@ const STAGE_LABELS: Record<string, string> = {
   strategy: 'Building your transition strategy…',
 }
 
-function AnalysisProgress({ stageKey }: { stageKey: string }) {
+function AnalysisProgress({ stageKey, provider }: { stageKey: string; provider: 'claude' | 'grok' }) {
   const stageOrder = ['translate', 'rewrite', 'strategy']
   const currentIdx = stageOrder.indexOf(stageKey)
 
@@ -637,8 +674,11 @@ function AnalysisProgress({ stageKey }: { stageKey: string }) {
         <p className="font-display text-[26px] font-medium text-offwhite text-center mb-2">
           Analysing your pivot…
         </p>
-        <p className="text-[14px] text-pp-text-muted text-center mb-10">
+        <p className="text-[14px] text-pp-text-muted text-center mb-1">
           {STAGE_LABELS[stageKey] ?? 'Working…'}
+        </p>
+        <p className="text-[11.5px] font-mono text-pp-text-ghost text-center mb-10">
+          {provider === 'grok' ? 'Powered by Grok · xAI' : 'Powered by Claude · Anthropic'}
         </p>
 
         <div className="space-y-3">
@@ -692,6 +732,7 @@ export default function OnboardingPage() {
   const [target, setTarget] = useState<TargetRole | null>(null)
   const [analysisStage, setAnalysisStage] = useState('translate')
   const [analysisError, setAnalysisError] = useState<string | null>(null)
+  const [provider, setProvider] = useState<'claude' | 'grok'>('claude')
 
   // Called after step 1 — triggers ingest while user fills step 2
   const pendingIngestRef = useRef<Promise<ParsedProfile | null> | null>(null)
@@ -741,15 +782,16 @@ export default function OnboardingPage() {
     setWizardStep(3)
   }
 
-  async function handleStep3(confirmedProfile: ParsedProfile) {
+  async function handleStep3(confirmedProfile: ParsedProfile, chosenProvider: 'claude' | 'grok') {
     if (!target) return
+    setProvider(chosenProvider)
     setWizardStep('running')
 
     try {
       const res = await fetch('/api/analyse', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ profile: confirmedProfile, target }),
+        body: JSON.stringify({ profile: confirmedProfile, target, provider: chosenProvider }),
       })
 
       if (!res.body) throw new Error('No response stream')
@@ -785,7 +827,7 @@ export default function OnboardingPage() {
     }
   }
 
-  if (wizardStep === 'running') return <AnalysisProgress stageKey={analysisStage} />
+  if (wizardStep === 'running') return <AnalysisProgress stageKey={analysisStage} provider={provider} />
 
   if (wizardStep === 'error') {
     return (

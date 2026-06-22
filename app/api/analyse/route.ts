@@ -13,7 +13,7 @@
 
 import { NextRequest } from 'next/server'
 import { randomUUID } from 'crypto'
-import { runTranslate, runRewrite, runStrategy } from '@/lib/pipeline'
+import { runTranslate, runRewrite, runStrategy, type Provider } from '@/lib/pipeline'
 import { saveSession } from '@/lib/session-store'
 import type { ParsedProfile, TargetRole, AnalysisSession } from '@/lib/types'
 
@@ -27,11 +27,13 @@ function encode(payload: SSEPayload): Uint8Array {
 }
 
 export async function POST(req: NextRequest): Promise<Response> {
-  const { profile, target, sessionId: existingId } = (await req.json()) as {
+  const { profile, target, sessionId: existingId, provider: rawProvider } = (await req.json()) as {
     profile: ParsedProfile
     target: TargetRole
     sessionId?: string
+    provider?: string
   }
+  const provider: Provider = rawProvider === 'grok' ? 'grok' : 'claude'
 
   const sessionId = existingId ?? randomUUID()
 
@@ -40,17 +42,17 @@ export async function POST(req: NextRequest): Promise<Response> {
       try {
         // ── Translate + Score ───────────────────────────────────────────────
         controller.enqueue(encode({ stage: 'translate', status: 'running' }))
-        const { translationMap, gapScorecard } = await runTranslate(profile, target)
+        const { translationMap, gapScorecard } = await runTranslate(profile, target, provider)
         controller.enqueue(encode({ stage: 'translate', status: 'done', data: { translationMap, gapScorecard } }))
 
         // ── Rewrite ──────────────────────────────────────────────────────────
         controller.enqueue(encode({ stage: 'rewrite', status: 'running' }))
-        const resume = await runRewrite(profile, target, translationMap)
+        const resume = await runRewrite(profile, target, translationMap, provider)
         controller.enqueue(encode({ stage: 'rewrite', status: 'done', data: resume }))
 
         // ── Strategy ─────────────────────────────────────────────────────────
         controller.enqueue(encode({ stage: 'strategy', status: 'running' }))
-        const strategy = await runStrategy(profile, target, translationMap, gapScorecard)
+        const strategy = await runStrategy(profile, target, translationMap, gapScorecard, provider)
         controller.enqueue(encode({ stage: 'strategy', status: 'done', data: strategy }))
 
         // ── Persist ───────────────────────────────────────────────────────────

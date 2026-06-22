@@ -9,7 +9,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { runIngest } from '@/lib/pipeline'
+import { runIngest, type Provider } from '@/lib/pipeline'
 import type { ApiResult, ParsedProfile } from '@/lib/types'
 
 export const runtime = 'nodejs'
@@ -46,6 +46,7 @@ export async function POST(req: NextRequest): Promise<NextResponse<ApiResult<Par
   try {
     let rawText: string
     let source: ParsedProfile['source']
+    let provider: Provider = 'claude'
 
     const contentType = req.headers.get('content-type') ?? ''
 
@@ -58,19 +59,20 @@ export async function POST(req: NextRequest): Promise<NextResponse<ApiResult<Par
       rawText = await extractText(file as File)
       source = 'upload'
     } else {
-      const body = (await req.json()) as { text?: string; source?: ParsedProfile['source'] }
+      const body = (await req.json()) as { text?: string; source?: ParsedProfile['source']; provider?: string }
       if (!body.text?.trim()) {
         return NextResponse.json({ ok: false, error: 'No text provided' }, { status: 400 })
       }
       rawText = body.text
       source = body.source ?? 'paste'
+      provider = body.provider === 'grok' ? 'grok' : 'claude'
     }
 
     if (rawText.trim().length < 50) {
       return NextResponse.json({ ok: false, error: 'Document appears empty or too short to parse' }, { status: 422 })
     }
 
-    const profile = await runIngest(rawText, source)
+    const profile = await runIngest(rawText, source, provider)
     return NextResponse.json({ ok: true, data: profile })
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err)
