@@ -473,7 +473,7 @@ function Step3({
   onConfirm: (profile: ParsedProfile, provider: 'claude' | 'grok') => void
 }) {
   const [profile, setProfile] = useState(initialProfile)
-  const [provider, setProvider] = useState<'claude' | 'grok'>('grok')
+  const [provider, setProvider] = useState<'claude' | 'grok'>('claude')
 
   function updateBullet(roleIdx: number, bulletIdx: number, text: string) {
     setProfile((p) => {
@@ -732,32 +732,32 @@ export default function OnboardingPage() {
   const [target, setTarget] = useState<TargetRole | null>(null)
   const [analysisStage, setAnalysisStage] = useState('translate')
   const [analysisError, setAnalysisError] = useState<string | null>(null)
-  const [provider, setProvider] = useState<'claude' | 'grok'>('grok')
+  const [provider, setProvider] = useState<'claude' | 'grok'>('claude')
 
   // Called after step 1 — triggers ingest while user fills step 2
-  const pendingIngestRef = useRef<Promise<ParsedProfile | null> | null>(null)
+  const pendingIngestRef = useRef<Promise<{ profile: ParsedProfile | null; error: string | null }> | null>(null)
 
   async function handleStep1(raw: { mode: InputMode; file?: File; text?: string }) {
-    // Start ingest in background
-    pendingIngestRef.current = (async (): Promise<ParsedProfile | null> => {
+    pendingIngestRef.current = (async () => {
       try {
         let res: Response
         if (raw.file) {
           const form = new FormData()
           form.append('file', raw.file)
+          form.append('provider', provider)
           res = await fetch('/api/ingest', { method: 'POST', body: form })
         } else {
           res = await fetch('/api/ingest', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ text: raw.text, source: raw.mode }),
+            body: JSON.stringify({ text: raw.text, source: raw.mode, provider }),
           })
         }
-        const json = await res.json()
-        if (!json.ok) throw new Error(json.error)
-        return json.data as ParsedProfile
+        const json = await res.json() as { ok: boolean; data?: ParsedProfile; error?: string }
+        if (!json.ok) return { profile: null, error: json.error ?? 'Unknown error from server' }
+        return { profile: json.data ?? null, error: null }
       } catch (e) {
-        return null
+        return { profile: null, error: e instanceof Error ? e.message : String(e) }
       }
     })()
 
@@ -769,14 +769,15 @@ export default function OnboardingPage() {
     setIngestLoading(true)
     setIngestError(null)
 
-    const parsed = await pendingIngestRef.current
+    const result = await pendingIngestRef.current
     setIngestLoading(false)
 
-    if (!parsed) {
-      setIngestError('Failed to parse your background. Please try pasting the text instead.')
+    if (!result?.profile) {
+      setIngestError(result?.error ?? 'Failed to parse your background.')
       setWizardStep(1)
       return
     }
+    const parsed = result.profile
 
     setProfile(parsed)
     setWizardStep(3)
