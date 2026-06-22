@@ -151,12 +151,10 @@ class FileJobStore implements JobStore {
 // ─── Postgres store ───────────────────────────────────────────────────────────
 
 class PgJobStore implements JobStore {
-  private pool: import('pg').Pool
-
-  constructor(connectionString: string) {
+  private get pool() {
+    // Use the shared singleton pool from lib/db to avoid duplicate connections
     // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const { Pool } = require('pg') as typeof import('pg')
-    this.pool = new Pool({ connectionString })
+    return (require('../db') as typeof import('../db')).getPool()
   }
 
   async upsert(job: Omit<CanonicalJob, 'id'> & { id?: string }): Promise<string> {
@@ -287,8 +285,6 @@ let _store: JobStore | null = null
 
 export function getJobStore(): JobStore {
   if (_store) return _store
-  _store = process.env.DATABASE_URL
-    ? new PgJobStore(process.env.DATABASE_URL)
-    : new FileJobStore()
+  _store = process.env.DATABASE_URL ? new PgJobStore() : new FileJobStore()
   return _store
 }

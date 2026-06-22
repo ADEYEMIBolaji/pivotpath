@@ -28,7 +28,7 @@ export default async function StrategyBriefDynamicPage({
   params: Promise<{ sessionId: string }>
 }) {
   const { sessionId } = await params
-  const session = getSession(sessionId)
+  const session = await getSession(sessionId)
   if (!session?.strategy) notFound()
 
   const { strategy, target, profile, translationMap } = session

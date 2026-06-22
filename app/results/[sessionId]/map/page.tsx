@@ -97,7 +97,7 @@ export default async function TranslationMapPage({
   params: Promise<{ sessionId: string }>
 }) {
   const { sessionId } = await params
-  const session = getSession(sessionId)
+  const session = await getSession(sessionId)
   if (!session?.translationMap) notFound()
 
   const { translationMap, gapScorecard, profile, target } = session

@@ -49,7 +49,7 @@ export async function GET(req: NextRequest): Promise<NextResponse<JobsApiRespons
     const remoteOnly = searchParams.get('remoteOnly') === 'true'
     const sort       = (searchParams.get('sort') ?? 'fit') as 'fit' | 'date'
 
-    const session = sessionId ? getSession(sessionId) : null
+    const session = sessionId ? await getSession(sessionId) : null
 
     // Build keywords from the session's target role
     const keywords = session?.target

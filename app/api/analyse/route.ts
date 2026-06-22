@@ -67,7 +67,7 @@ export async function POST(req: NextRequest): Promise<Response> {
           createdAt: now,
           updatedAt: now,
         }
-        saveSession(sessionId, session)
+        await saveSession(sessionId, session)
 
         controller.enqueue(encode({ stage: 'complete', sessionId }))
       } catch (err) {

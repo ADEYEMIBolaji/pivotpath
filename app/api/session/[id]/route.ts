@@ -9,7 +9,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> },
 ): Promise<NextResponse<ApiResult<AnalysisSession>>> {
   const { id } = await params
-  const session = getSession(id)
+  const session = await getSession(id)
   if (!session) {
     return NextResponse.json({ ok: false, error: 'Session not found' }, { status: 404 })
   }
