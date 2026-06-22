@@ -124,7 +124,7 @@ async function callLLM<T>(
 export async function runIngest(
   rawText: string,
   source: ParsedProfile['source'],
-  provider: Provider = 'claude',
+  provider: Provider = 'grok',
 ): Promise<ParsedProfile> {
   const parsed = await callLLM<Omit<ParsedProfile, 'source' | 'rawText'>>(
     provider,
@@ -149,7 +149,7 @@ interface TranslateOutput {
 export async function runTranslate(
   profile: ParsedProfile,
   target: TargetRole,
-  provider: Provider = 'claude',
+  provider: Provider = 'grok',
 ): Promise<{ translationMap: TranslationMapResult; gapScorecard: GapScorecardResult }> {
   const output = await callLLM<TranslateOutput>(
     provider,
@@ -176,7 +176,7 @@ export async function runRewrite(
   profile: ParsedProfile,
   target: TargetRole,
   translationMap: TranslationMapResult,
-  provider: Provider = 'claude',
+  provider: Provider = 'grok',
 ): Promise<RepositionedResume> {
   return callLLM<RepositionedResume>(
     provider,
@@ -193,7 +193,7 @@ export async function runStrategy(
   target: TargetRole,
   translationMap: TranslationMapResult,
   gapScorecard: GapScorecardResult,
-  provider: Provider = 'claude',
+  provider: Provider = 'grok',
 ): Promise<StrategyBrief> {
   return callLLM<StrategyBrief>(
     provider,

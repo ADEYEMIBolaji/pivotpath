@@ -473,7 +473,7 @@ function Step3({
   onConfirm: (profile: ParsedProfile, provider: 'claude' | 'grok') => void
 }) {
   const [profile, setProfile] = useState(initialProfile)
-  const [provider, setProvider] = useState<'claude' | 'grok'>('claude')
+  const [provider, setProvider] = useState<'claude' | 'grok'>('grok')
 
   function updateBullet(roleIdx: number, bulletIdx: number, text: string) {
     setProfile((p) => {
@@ -732,7 +732,7 @@ export default function OnboardingPage() {
   const [target, setTarget] = useState<TargetRole | null>(null)
   const [analysisStage, setAnalysisStage] = useState('translate')
   const [analysisError, setAnalysisError] = useState<string | null>(null)
-  const [provider, setProvider] = useState<'claude' | 'grok'>('claude')
+  const [provider, setProvider] = useState<'claude' | 'grok'>('grok')
 
   // Called after step 1 — triggers ingest while user fills step 2
   const pendingIngestRef = useRef<Promise<ParsedProfile | null> | null>(null)
