@@ -17,3 +17,7 @@ out/
 .DS_Store
 *.log
 npm-debug.log*
+
+# Job store
+.jobs/
+

@@ -261,10 +261,16 @@ export default async function TranslationMapPage({
           </div>
           <div className="flex items-center gap-3 flex-shrink-0">
             <Link
+              href={`/results/${sessionId}/jobs`}
+              className="text-[13.5px] font-medium text-pp-ink-para hover:text-pp-ink transition-colors px-4 py-2.5"
+            >
+              Matched jobs
+            </Link>
+            <Link
               href={`/results/${sessionId}/strategy`}
               className="text-[13.5px] font-medium text-pp-ink-para hover:text-pp-ink transition-colors px-4 py-2.5"
             >
-              View strategy brief
+              Strategy brief
             </Link>
             <Link
               href={`/results/${sessionId}/resume`}
