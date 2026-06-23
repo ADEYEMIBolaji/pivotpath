@@ -557,7 +557,12 @@ function FooterSection() {
             </span>
           </span>
         </div>
-        <span className="text-[13px]">Career transition intelligence · © 2026</span>
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-[13px]">
+          <span>Career transition intelligence · © 2026</span>
+          <span style={{ color: 'rgba(242,237,228,0.2)' }}>·</span>
+          <a href="/legal/privacy" className="hover:text-pp-text-muted transition-colors">Privacy policy</a>
+          <a href="/legal/terms" className="hover:text-pp-text-muted transition-colors">Terms of service</a>
+        </div>
       </div>
     </footer>
   )

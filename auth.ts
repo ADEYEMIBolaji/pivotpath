@@ -3,13 +3,32 @@ import Google from 'next-auth/providers/google'
 import Credentials from 'next-auth/providers/credentials'
 import { compare } from 'bcryptjs'
 
-async function getUserByEmail(email: string) {
+type DbUser = { id: string; email: string; name: string | null; image: string | null; password_hash: string | null }
+
+async function getUserByEmail(email: string): Promise<DbUser | null> {
   if (!process.env.DATABASE_URL) return null
   try {
     const { query } = await import('./lib/db')
-    const rows = await query<{ id: string; email: string; name: string | null; image: string | null; password_hash: string | null }>(
-      'SELECT id, email, name, image, password_hash FROM users WHERE email = $1',
-      [email],
+    const rows = await query<DbUser>('SELECT id, email, name, image, password_hash FROM users WHERE email = $1', [email])
+    return rows[0] ?? null
+  } catch {
+    return null
+  }
+}
+
+async function upsertOAuthUser(email: string, name: string | null, image: string | null): Promise<DbUser | null> {
+  if (!process.env.DATABASE_URL) return null
+  try {
+    const { query } = await import('./lib/db')
+    const rows = await query<DbUser>(
+      `INSERT INTO users (email, name, image, email_verified)
+       VALUES ($1, $2, $3, NOW())
+       ON CONFLICT (email) DO UPDATE
+         SET name  = COALESCE(users.name, EXCLUDED.name),
+             image = COALESCE(users.image, EXCLUDED.image),
+             updated_at = NOW()
+       RETURNING id, email, name, image, password_hash`,
+      [email, name, image],
     )
     return rows[0] ?? null
   } catch {
@@ -51,12 +70,26 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   },
 
   callbacks: {
+    async signIn({ user, account }) {
+      // Persist OAuth users (Google etc.) into the users table on first sign-in
+      if (account?.provider !== 'credentials' && user.email) {
+        const dbUser = await upsertOAuthUser(user.email, user.name ?? null, user.image ?? null)
+        if (dbUser) user.id = dbUser.id
+      }
+      return true
+    },
+
     async session({ session, token }) {
       if (token.sub) session.user.id = token.sub
+      if (token.name) session.user.name = token.name as string
+      if (token.picture) session.user.image = token.picture as string
       return session
     },
-    async jwt({ token, user }) {
+
+    async jwt({ token, user, trigger, session }) {
       if (user?.id) token.sub = user.id
+      // Allow session.update() to refresh name in token
+      if (trigger === 'update' && session?.name) token.name = session.name
       return token
     },
   },

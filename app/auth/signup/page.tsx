@@ -12,6 +12,7 @@ export default function SignUpPage() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [agreedToTerms, setAgreedToTerms] = useState(false)
   const [loading, setLoading] = useState(false)
   const [googleLoading, setGoogleLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -152,23 +153,34 @@ export default function SignUpPage() {
               )}
             </div>
 
+            {/* Consent checkbox */}
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={agreedToTerms}
+                onChange={e => setAgreedToTerms(e.target.checked)}
+                className="mt-[3px] flex-shrink-0 w-4 h-4 rounded accent-amber"
+              />
+              <span className="text-[12.5px] text-pp-text-faint leading-[1.55]">
+                I agree to the{' '}
+                <Link href="/legal/terms" target="_blank" className="text-amber hover:text-amber/80 underline underline-offset-2">Terms of service</Link>
+                {' '}and{' '}
+                <Link href="/legal/privacy" target="_blank" className="text-amber hover:text-amber/80 underline underline-offset-2">Privacy policy</Link>.
+                I understand my CV text will be processed by an AI provider.
+              </span>
+            </label>
+
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || !agreedToTerms}
               className={cn(
                 'w-full py-[13px] rounded-pp font-semibold text-[15px] transition-all mt-2',
-                loading ? 'bg-amber/50 text-navy/60 cursor-not-allowed' : 'bg-amber text-navy hover:bg-amber/90 shadow-pp-amber',
+                loading || !agreedToTerms ? 'bg-amber/40 text-navy/60 cursor-not-allowed' : 'bg-amber text-navy hover:bg-amber/90 shadow-pp-amber',
               )}
             >
               {loading ? 'Creating account…' : 'Create account'}
             </button>
           </form>
-
-          <p className="text-[12px] text-pp-text-ghost mt-5 text-center leading-[1.5]">
-            By creating an account you agree to our{' '}
-            <span className="text-pp-text-faint">Terms of Service</span> and{' '}
-            <span className="text-pp-text-faint">Privacy Policy</span>.
-          </p>
         </div>
 
         <p className="text-center text-[13.5px] text-pp-text-faint mt-5">

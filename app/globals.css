@@ -105,6 +105,59 @@
     -webkit-backdrop-filter: blur(12px);
   }
 
+  /* Legal prose typography */
+  .prose-pp h2 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #F2EDE4;
+    margin-bottom: 10px;
+    margin-top: 0;
+  }
+  .prose-pp p {
+    margin-bottom: 12px;
+  }
+  .prose-pp ul {
+    list-style: disc;
+    padding-left: 22px;
+    margin-bottom: 12px;
+  }
+  .prose-pp li {
+    margin-bottom: 6px;
+  }
+  .prose-pp a {
+    color: #E8A838;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .prose-pp a:hover {
+    color: rgba(232,168,56,0.8);
+  }
+  .prose-pp code {
+    font-family: ui-monospace, monospace;
+    font-size: 13px;
+    background: rgba(242,237,228,0.08);
+    padding: 1px 6px;
+    border-radius: 4px;
+  }
+  .prose-pp table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 12px;
+    font-size: 14px;
+  }
+  .prose-pp th {
+    text-align: left;
+    font-weight: 600;
+    color: #F2EDE4;
+    padding: 8px 12px;
+    border-bottom: 1px solid rgba(242,237,228,0.15);
+  }
+  .prose-pp td {
+    padding: 8px 12px;
+    border-bottom: 1px solid rgba(242,237,228,0.08);
+    vertical-align: top;
+  }
+
   /* Print utilities for the Strategy Brief */
   @media print {
     .pp-noprint {
