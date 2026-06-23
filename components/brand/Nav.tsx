@@ -88,16 +88,22 @@ export function Nav({ variant = 'landing', pivotLabel, exitLabel = 'Save & exit'
             <Link
               key={link.href}
               href={link.href}
-              className="text-[14px] text-pp-text-muted hover:text-offwhite transition-colors px-[14px] py-2"
+              className="text-[14px] text-pp-text-muted hover:text-offwhite transition-colors px-[14px] py-2 hidden sm:block"
             >
               {link.label}
             </Link>
           ))}
           <Link
-            href="/onboarding"
+            href="/auth/signin"
+            className="text-[14px] font-medium text-pp-text-muted hover:text-offwhite transition-colors px-4 py-[11px] rounded-pp"
+          >
+            Sign in
+          </Link>
+          <Link
+            href="/auth/signup"
             className="text-[14px] font-semibold text-navy bg-amber px-5 py-[11px] rounded-pp hover:bg-amber/90 transition-colors"
           >
-            Start free
+            Get started
           </Link>
         </div>
       </nav>

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { Newsreader, DM_Sans, DM_Mono } from 'next/font/google'
+import { SessionProvider } from '@/components/SessionProvider'
 import './globals.css'
 
 // ─── Font loading ─────────────────────────────────────────────────────────────
@@ -62,7 +63,9 @@ export default function RootLayout({
       lang="en"
       className={`${newsreader.variable} ${dmSans.variable} ${dmMono.variable}`}
     >
-      <body className="font-body antialiased">{children}</body>
+      <body className="font-body antialiased">
+        <SessionProvider>{children}</SessionProvider>
+      </body>
     </html>
   )
 }

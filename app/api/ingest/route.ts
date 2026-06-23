@@ -58,6 +58,8 @@ export async function POST(req: NextRequest): Promise<NextResponse<ApiResult<Par
       }
       rawText = await extractText(file as File)
       source = 'upload'
+      const providerField = form.get('provider')
+      if (providerField === 'grok') provider = 'grok'
     } else {
       const body = (await req.json()) as { text?: string; source?: ParsedProfile['source']; provider?: string }
       if (!body.text?.trim()) {
