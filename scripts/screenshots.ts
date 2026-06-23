@@ -27,7 +27,7 @@ void execSync // suppress unused import warning
 
 // ─── Config ───────────────────────────────────────────────────────────────────
 
-const WIDTHS = [1440, 834, 390] as const
+const WIDTHS = [1440, 390] as const
 const OUT_DIR = path.join(process.cwd(), 'screenshots')
 const SESSIONS_DIR = path.join(process.cwd(), '.sessions')
 const JOBS_DIR = path.join(process.cwd(), '.jobs')
@@ -376,23 +376,10 @@ function buildRoutes(sessionId: string): Shot[] {
 
     // ── 5. Results — Resume Editor ────────────────────────────────────────────
     {
-      label: 'Résumé Editor — normal view',
+      label: 'Résumé Editor',
       path: `/results/${sessionId}/resume`,
       slug: 'results-resume',
       section: '4 · Your pivot results',
-    },
-    {
-      label: 'Résumé Editor — diff / track-changes',
-      path: `/results/${sessionId}/resume`,
-      slug: 'results-resume-diff',
-      section: '4 · Your pivot results',
-      beforeShot: async (page) => {
-        const btn = page.getByRole('button', { name: /diff|track.changes|compare|before.+after/i })
-        if (await btn.isVisible({ timeout: 3000 }).catch(() => false)) {
-          await btn.click()
-          await page.waitForTimeout(500)
-        }
-      },
     },
 
     // ── 6. Results — Strategy Brief ───────────────────────────────────────────
@@ -405,47 +392,30 @@ function buildRoutes(sessionId: string): Shot[] {
 
     // ── 7. Matched Jobs ───────────────────────────────────────────────────────
     {
-      label: 'Matched Jobs — all sources',
+      label: 'Matched Jobs — with Apply buttons',
       path: `/results/${sessionId}/jobs`,
-      slug: 'results-jobs-all',
-      section: '5 · Matched jobs',
-    },
-    {
-      label: 'Matched Jobs — NHS Jobs filter',
-      path: `/results/${sessionId}/jobs`,
-      slug: 'results-jobs-nhs',
+      slug: 'results-jobs',
       section: '5 · Matched jobs',
       beforeShot: async (page) => {
-        // Wait for jobs to load then filter by NHS
-        await page.waitForTimeout(800)
-        const nhsBtn = page.getByRole('button', { name: /nhs/i })
-        if (await nhsBtn.isVisible({ timeout: 4000 }).catch(() => false)) {
-          await nhsBtn.click()
-          await page.waitForTimeout(500)
-        }
-      },
-    },
-    {
-      label: 'Matched Jobs — remote filter on',
-      path: `/results/${sessionId}/jobs`,
-      slug: 'results-jobs-remote',
-      section: '5 · Matched jobs',
-      beforeShot: async (page) => {
-        await page.waitForTimeout(800)
-        const remoteBtn = page.getByRole('button', { name: /remote/i })
-        if (await remoteBtn.isVisible({ timeout: 4000 }).catch(() => false)) {
-          await remoteBtn.click()
-          await page.waitForTimeout(500)
-        }
+        // Wait for jobs to load from the fixture store
+        await page.waitForTimeout(2000)
       },
     },
 
-    // ── 8. Settings (signed-in state) ─────────────────────────────────────────
+    // ── 8. Pricing ────────────────────────────────────────────────────────────
+    {
+      label: 'Pricing page',
+      path: '/pricing',
+      slug: 'pricing',
+      section: '6 · Pricing',
+    },
+
+    // ── 9. Settings (signed-in state) ─────────────────────────────────────────
     {
       label: 'Settings — signed in',
       path: '/settings',
       slug: 'settings-signed-in',
-      section: '6 · Account & settings',
+      section: '7 · Account & settings',
       // beforeShot signs in via demo credentials; called once before this shot group
     },
 
@@ -454,13 +424,13 @@ function buildRoutes(sessionId: string): Shot[] {
       label: 'Privacy Policy',
       path: '/legal/privacy',
       slug: 'legal-privacy',
-      section: '7 · Legal',
+      section: '8 · Legal',
     },
     {
       label: 'Terms of Service',
       path: '/legal/terms',
       slug: 'legal-terms',
-      section: '7 · Legal',
+      section: '8 · Legal',
     },
   ]
 }
@@ -532,33 +502,35 @@ function findFreePort(): Promise<number> {
   })
 }
 
-async function killExistingNextProcesses() {
-  // On Windows, kill any lingering Next.js dev processes that hold .next/trace
+function deleteNextScreenshotsDir() {
+  const dir = path.join(process.cwd(), '.next-screenshots')
+  if (!fs.existsSync(dir)) return
   try {
-    execSync('taskkill /F /IM node.exe /FI "WINDOWTITLE eq next dev*" 2>nul', { stdio: 'ignore', shell: true })
-  } catch { /* no processes to kill */ }
-  // Give them a moment to release file locks
-  await new Promise((r) => setTimeout(r, 1000))
+    fs.rmSync(dir, { recursive: true, force: true })
+    console.log('  ✓ Cleared .next-screenshots build dir')
+  } catch {
+    // File still locked — best effort
+    console.warn('  ⚠ .next-screenshots still locked — will attempt to continue')
+  }
 }
 
 async function startDevServer(port: number): Promise<ChildProcess> {
-  await killExistingNextProcesses()
-
   return new Promise((resolve, reject) => {
     // Strip DATABASE_URL → file-based stores (session + jobs)
     // Add SCREENSHOT_MODE=1 → enables demo auth bypass in auth.ts
-    const { DATABASE_URL: _drop, ...restEnv } = process.env
-    void _drop
-    const screenshotNextDir = '.next-screenshots'
     const proc = spawn('npx', ['next', 'dev', '--port', String(port)], {
       cwd: process.cwd(),
       env: {
-        ...restEnv,
+        ...process.env,
         PORT: String(port),
         SCREENSHOT_MODE: '1',
         NEXT_TELEMETRY_DISABLED: '1',
         // Use a separate build dir so it never conflicts with a running dev server's .next/trace lock
-        NEXT_DIST_DIR: screenshotNextDir,
+        NEXT_DIST_DIR: '.next-screenshots',
+        // Override DATABASE_URL to empty — forces file-based stores (.sessions/ .jobs/)
+        // even though .env.local has a real Postgres URL.
+        // Next.js respects process.env values already set over .env.local.
+        DATABASE_URL: '',
       },
       stdio: ['ignore', 'pipe', 'pipe'] as ['ignore', 'pipe', 'pipe'],
       shell: true,
@@ -717,11 +689,19 @@ async function main() {
 
   // 3. Start dev server
   const port = await findFreePort()
+  // Delete previous screenshot build dir to release any .next-screenshots/trace lock
+  deleteNextScreenshotsDir()
+
   console.log(`  → Starting Next.js dev on port ${port} (SCREENSHOT_MODE=1, no DATABASE_URL)…`)
   const server = await startDevServer(port)
 
   const cleanup = () => {
-    server.kill('SIGTERM')
+    // On Windows with shell:true, kill the entire process tree to release file locks
+    if (process.platform === 'win32' && server.pid) {
+      try { execSync(`taskkill /T /F /PID ${server.pid} 2>nul`, { stdio: 'ignore' }) } catch { /* already gone */ }
+    } else {
+      server.kill('SIGTERM')
+    }
     cleanupFixtures()
   }
   process.on('SIGINT', cleanup)

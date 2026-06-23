@@ -487,7 +487,7 @@ export default function JobsPage() {
         {!loading && !error && data && (
           <>
             {/* Grouped view (by bridge role) */}
-            {data.groups.length > 1 ? (
+            {(data.groups ?? []).length > 1 ? (
               <div className="space-y-10">
                 {data.groups.map((group) => (
                   <section key={group.bridgeRole}>

@@ -11,10 +11,12 @@
  * The full AnalysisSession is written to disk at the end.
  */
 
-import { NextRequest } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { randomUUID } from 'crypto'
 import { runTranslate, runRewrite, runStrategy, type Provider } from '@/lib/pipeline'
 import { saveSession } from '@/lib/session-store'
+import { checkPivotQuota, recordPivotUsage } from '@/lib/subscription'
+import { auth } from '@/auth'
 import type { ParsedProfile, TargetRole, AnalysisSession } from '@/lib/types'
 
 export const runtime = 'nodejs'
@@ -27,6 +29,15 @@ function encode(payload: SSEPayload): Uint8Array {
 }
 
 export async function POST(req: NextRequest): Promise<Response> {
+  // ── Quota check ───────────────────────────────────────────────────────────
+  const authSession = await auth()
+  if (authSession?.user?.id) {
+    const quota = await checkPivotQuota(authSession.user.id)
+    if (!quota.allowed) {
+      return NextResponse.json({ error: quota.reason, code: 'QUOTA_EXCEEDED', quota }, { status: 402 })
+    }
+  }
+
   const { profile, target, sessionId: existingId, provider: rawProvider } = (await req.json()) as {
     profile: ParsedProfile
     target: TargetRole
@@ -70,6 +81,11 @@ export async function POST(req: NextRequest): Promise<Response> {
           updatedAt: now,
         }
         await saveSession(sessionId, session)
+
+        // Record usage against the user's quota
+        if (authSession?.user?.id) {
+          await recordPivotUsage(authSession.user.id, provider)
+        }
 
         controller.enqueue(encode({ stage: 'complete', sessionId }))
       } catch (err) {
