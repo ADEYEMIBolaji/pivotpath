@@ -1,9 +1,9 @@
 import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
-  // Enable strict mode for better development warnings
   reactStrictMode: true,
-  // Allow SVG imports as React components in the future
+  // Allow screenshot script to use a separate build dir (avoids .next/trace lock conflicts)
+  distDir: process.env.NEXT_DIST_DIR ?? '.next',
   webpack(config) {
     return config
   },

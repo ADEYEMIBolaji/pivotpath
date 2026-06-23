@@ -21,4 +21,10 @@ npm-debug.log*
 # Job store
 .jobs/
 
+# Screenshot output (demo only — never commit)
+screenshots/
+
+# Separate Next.js build dir used during screenshot runs
+.next-screenshots/
+
 .vercel

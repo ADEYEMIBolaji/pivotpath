@@ -53,6 +53,15 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const password = credentials?.password as string
         if (!email || !password) return null
 
+        // Screenshot/demo mode: accept a hardcoded demo account
+        if (
+          process.env.SCREENSHOT_MODE === '1' &&
+          email === 'demo@screenshot.pivotpath' &&
+          password === 'screenshot-demo-2024'
+        ) {
+          return { id: 'demo-user-screenshot', email, name: 'Alex Johnson', image: null }
+        }
+
         const user = await getUserByEmail(email)
         if (!user?.password_hash) return null
 
