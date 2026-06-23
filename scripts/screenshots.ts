@@ -273,6 +273,13 @@ function buildRoutes(sessionId: string): Shot[] {
 
     // ── Static strategy page ──────────────────────────────────────────────────
     { label: 'Strategy (static)', path: '/results/strategy', slug: 'results-strategy-static' },
+
+    // ── Auth pages ────────────────────────────────────────────────────────────
+    { label: 'Sign In', path: '/auth/signin', slug: 'auth-signin' },
+    { label: 'Sign Up', path: '/auth/signup', slug: 'auth-signup' },
+
+    // ── Settings ──────────────────────────────────────────────────────────────
+    { label: 'Settings', path: '/settings', slug: 'settings' },
   ]
 }
 
