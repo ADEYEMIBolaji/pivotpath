@@ -11,6 +11,7 @@
 
 import fs from 'fs'
 import path from 'path'
+import { getPool } from '../db'
 import type { CanonicalJob, SavedJobRow, ApplicationEventRow, SourceName } from './types'
 
 // ─── Interface ────────────────────────────────────────────────────────────────
@@ -162,9 +163,8 @@ class FileJobStore implements JobStore {
 
 class PgJobStore implements JobStore {
   private get pool() {
-    // Use the shared singleton pool from lib/db to avoid duplicate connections
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    return (require('../db') as typeof import('../db')).getPool()
+    // Shared singleton pool from lib/db (lazy — getPool() creates it on first use)
+    return getPool()
   }
 
   async upsert(job: Omit<CanonicalJob, 'id'> & { id?: string }): Promise<string> {
