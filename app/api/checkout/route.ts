@@ -7,15 +7,16 @@
  *  - Validates the discount code (if any).
  *  - If the final price is £0 (100%-off code), the subscription is activated
  *    immediately and the code is redeemed.
- *  - Otherwise returns { requiresPayment: true } with the final price so the
- *    client can route to the (future) Stripe checkout. Card payment is not yet
- *    wired up, so paid plans return this state for now.
+ *  - Otherwise returns a Paddle payload (priceId, optional discountId, customer
+ *    email) so the client opens the Paddle overlay checkout. The subscription is
+ *    activated by the Paddle webhook once payment completes.
  */
 
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
-import { PLANS, type PlanId } from '@/lib/subscription'
+import { PLANS, activateSubscription, type PlanId } from '@/lib/subscription'
 import { validateDiscount, redeemDiscount } from '@/lib/discount'
+import { isPaddleConfigured, priceIdForPlan } from '@/lib/paddle'
 
 export const runtime = 'nodejs'
 
@@ -33,6 +34,7 @@ export async function POST(req: NextRequest) {
 
   let finalPrice = plan.price
   let appliedCode: string | undefined
+  let paddleDiscountId: string | undefined
 
   if (code) {
     const disc = await validateDiscount(code, plan.id)
@@ -41,37 +43,45 @@ export async function POST(req: NextRequest) {
     }
     finalPrice = disc.finalPrice ?? plan.price
     appliedCode = disc.code
+    paddleDiscountId = disc.paddleDiscountId
   }
 
-  // Free after discount → activate immediately
+  // Free after discount → activate immediately (no payment needed)
   if (finalPrice === 0) {
-    if (!process.env.DATABASE_URL) {
-      return NextResponse.json({ ok: false, error: 'Subscriptions are unavailable right now.' }, { status: 500 })
-    }
-    try {
-      const { query } = await import('@/lib/db')
-      const expires = new Date()
-      expires.setMonth(expires.getMonth() + plan.durationMonths)
-      await query(
-        `INSERT INTO subscriptions (user_id, plan, status, expires_at, payment_ref)
-         VALUES ($1, $2, 'active', $3, $4)`,
-        [session.user.id, plan.id, expires.toISOString(), appliedCode ? `discount:${appliedCode}` : 'comp'],
-      )
-      if (appliedCode) await redeemDiscount(appliedCode, session.user.id)
-      return NextResponse.json({ ok: true, activated: true, plan: plan.id })
-    } catch (err) {
-      console.error('[POST /api/checkout]', err)
+    const ok = await activateSubscription(
+      session.user.id,
+      plan.id,
+      appliedCode ? `comp:${appliedCode}:${session.user.id}` : `comp:${session.user.id}`,
+    )
+    if (!ok) {
       return NextResponse.json({ ok: false, error: 'Could not activate your plan.' }, { status: 500 })
     }
+    if (appliedCode) await redeemDiscount(appliedCode, session.user.id)
+    return NextResponse.json({ ok: true, activated: true, plan: plan.id })
   }
 
-  // Paid — Stripe not yet integrated
+  // Paid — hand off to Paddle checkout (if configured)
+  if (!isPaddleConfigured()) {
+    return NextResponse.json({
+      ok: true,
+      requiresPayment: true,
+      finalPrice,
+      appliedCode,
+      plan: plan.id,
+      message: 'Card payment isn’t live yet. Your plan and discount have been validated.',
+    })
+  }
+
   return NextResponse.json({
     ok: true,
-    requiresPayment: true,
-    finalPrice,
-    appliedCode,
-    plan: plan.id,
-    message: 'Card payment is coming soon. Your plan and discount have been validated.',
+    paddle: {
+      priceId: priceIdForPlan(plan.id),
+      discountId: paddleDiscountId,
+      email: session.user.email,
+      finalPrice,
+      plan: plan.id,
+      // customData is echoed back to us by the webhook to fulfil the order
+      customData: { userId: session.user.id, plan: plan.id, code: appliedCode ?? null },
+    },
   })
 }

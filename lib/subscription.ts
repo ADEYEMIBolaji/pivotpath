@@ -122,6 +122,47 @@ export async function checkPivotQuota(userId: string): Promise<QuotaResult> {
   }
 }
 
+/**
+ * Activates a subscription for a user. Used by:
+ *  - the comp-code path in /api/checkout (100%-off codes)
+ *  - the Paddle webhook once a payment completes
+ *
+ * Idempotent-ish: a duplicate webhook with the same paymentRef won't double-insert.
+ */
+export async function activateSubscription(
+  userId: string,
+  planId: PlanId,
+  paymentRef: string,
+): Promise<boolean> {
+  if (!process.env.DATABASE_URL) return false
+  const plan = PLANS[planId]
+  if (!plan || plan.id === 'free') return false
+  try {
+    const { query } = await import('./db')
+
+    // Skip if we've already processed this exact payment (webhook retries)
+    if (paymentRef) {
+      const existing = await query<{ id: string }>(
+        'SELECT id FROM subscriptions WHERE payment_ref = $1 LIMIT 1',
+        [paymentRef],
+      )
+      if (existing.length > 0) return true
+    }
+
+    const expires = new Date()
+    expires.setMonth(expires.getMonth() + plan.durationMonths)
+    await query(
+      `INSERT INTO subscriptions (user_id, plan, status, expires_at, payment_ref)
+       VALUES ($1, $2, 'active', $3, $4)`,
+      [userId, plan.id, expires.toISOString(), paymentRef],
+    )
+    return true
+  } catch (err) {
+    console.error('[activateSubscription]', err)
+    return false
+  }
+}
+
 export async function recordPivotUsage(
   userId: string,
   provider: string,

@@ -4,6 +4,7 @@ import { Suspense, useState, useEffect } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
+import { initializePaddle, type Paddle } from '@paddle/paddle-js'
 import { Logo } from '@/components/brand'
 import { cn } from '@/lib/utils'
 
@@ -34,6 +35,7 @@ function CheckoutInner() {
   const [submitting, setSubmitting] = useState(false)
   const [done, setDone] = useState<{ activated: boolean; message?: string } | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [paddle, setPaddle] = useState<Paddle | null>(null)
 
   // Require sign-in
   useEffect(() => {
@@ -41,6 +43,28 @@ function CheckoutInner() {
       router.replace(`/auth/signin?callbackUrl=${encodeURIComponent(`/checkout?plan=${planId}`)}`)
     }
   }, [status, router, planId])
+
+  // Returned from Paddle's hosted success redirect
+  useEffect(() => {
+    if (params.get('success') === '1') setDone({ activated: true })
+  }, [params])
+
+  // Initialise Paddle.js (only if a client token is configured)
+  useEffect(() => {
+    const token = process.env.NEXT_PUBLIC_PADDLE_CLIENT_TOKEN
+    if (!token) return
+    initializePaddle({
+      token,
+      environment: process.env.NEXT_PUBLIC_PADDLE_ENV === 'production' ? 'production' : 'sandbox',
+      eventCallback: (e) => {
+        // Fired when the overlay reports the checkout is complete. Fulfilment is
+        // handled by the webhook; here we just move the user to the success state.
+        if (e.name === 'checkout.completed') {
+          setDone({ activated: true })
+        }
+      },
+    }).then((p) => setPaddle(p ?? null)).catch(() => {})
+  }, [])
 
   const finalPrice = discount?.finalPrice ?? plan.price
 
@@ -76,9 +100,39 @@ function CheckoutInner() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ plan: planId, code: discount ? code : undefined }),
       })
-      const data = await res.json() as { ok: boolean; activated?: boolean; requiresPayment?: boolean; message?: string; error?: string }
+      const data = await res.json() as {
+        ok: boolean
+        activated?: boolean
+        requiresPayment?: boolean
+        message?: string
+        error?: string
+        paddle?: {
+          priceId?: string
+          discountId?: string
+          email?: string
+          customData?: Record<string, unknown>
+        }
+      }
       if (!data.ok) { setError(data.error ?? 'Something went wrong.'); return }
-      setDone({ activated: !!data.activated, message: data.message })
+
+      // Instant activation (100%-off comp code) — no payment needed
+      if (data.activated) { setDone({ activated: true }); return }
+
+      // Paid → open the Paddle overlay checkout
+      if (data.paddle?.priceId) {
+        if (!paddle) { setError('Payment is still loading — please try again in a moment.'); return }
+        paddle.Checkout.open({
+          items: [{ priceId: data.paddle.priceId, quantity: 1 }],
+          ...(data.paddle.discountId ? { discountId: data.paddle.discountId } : {}),
+          ...(data.paddle.email ? { customer: { email: data.paddle.email } } : {}),
+          customData: data.paddle.customData,
+          settings: { displayMode: 'overlay', theme: 'dark', successUrl: `${window.location.origin}/checkout?plan=${planId}&success=1` },
+        })
+        return
+      }
+
+      // Payment not yet live (Paddle not configured) — show the validated message
+      if (data.requiresPayment) { setDone({ activated: false, message: data.message }); return }
     } finally {
       setSubmitting(false)
     }

@@ -15,6 +15,8 @@ export interface DiscountResult {
   percentOff?: number
   originalPrice?: number  // pence
   finalPrice?: number     // pence
+  /** Paddle discount id (dsc_...) to apply at checkout, if this code maps to one */
+  paddleDiscountId?: string
 }
 
 export async function validateDiscount(rawCode: string, planId: PlanId): Promise<DiscountResult> {
@@ -39,8 +41,9 @@ export async function validateDiscount(rawCode: string, planId: PlanId): Promise
       redeemed_count: number
       expires_at: string | null
       active: boolean
+      paddle_discount_id: string | null
     }>(
-      'SELECT id, percent_off, plan, max_redemptions, redeemed_count, expires_at, active FROM discount_codes WHERE code = $1',
+      'SELECT id, percent_off, plan, max_redemptions, redeemed_count, expires_at, active, paddle_discount_id FROM discount_codes WHERE code = $1',
       [code],
     )
 
@@ -63,6 +66,7 @@ export async function validateDiscount(rawCode: string, planId: PlanId): Promise
       percentOff: dc.percent_off,
       originalPrice: plan.price,
       finalPrice,
+      paddleDiscountId: dc.paddle_discount_id ?? undefined,
     }
   } catch {
     return { valid: false, reason: 'Couldn’t check that code. Try again.' }
