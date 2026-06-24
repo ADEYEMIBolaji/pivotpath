@@ -79,10 +79,21 @@ export async function GET(req: NextRequest): Promise<NextResponse<JobsApiRespons
           bridgeRoleGroup: null,
         }))
 
+    // Recommend only roles worth applying to (good fit), not the whole market.
+    // `scored` is already fit-sorted; fall back to the top matches so the list
+    // is never empty even when nothing clears the bucket threshold.
+    const RECOMMEND_MIN = 8
+    const RECOMMEND_MAX = 40
+    let recommended = scored
+    if (session) {
+      const goodFit = scored.filter((j) => j.fitBucket !== 'neutral')
+      recommended = (goodFit.length >= RECOMMEND_MIN ? goodFit : scored).slice(0, RECOMMEND_MAX)
+    }
+
     // Apply sort
     const sorted = sort === 'date'
-      ? [...scored].sort((a, b) => new Date(b.postedAt).getTime() - new Date(a.postedAt).getTime())
-      : scored
+      ? [...recommended].sort((a, b) => new Date(b.postedAt).getTime() - new Date(a.postedAt).getTime())
+      : recommended
 
     // Attach saved state
     const withSaved = sorted.map((j) => ({ ...j, saved: savedIds.includes(j.id) }))

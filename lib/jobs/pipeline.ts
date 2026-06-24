@@ -220,6 +220,10 @@ export async function runIngestPipeline(query: JobQuery): Promise<IngestSummary>
   // 5. Upsert
   await upsertAll(verified)
 
+  // 5b. Shelf life — delete anything older than the cutoff straight from the DB
+  // so the table doesn't grow unbounded with expired postings.
+  const dbStaleRemoved = await getJobStore().deleteStale(MAX_AGE_DAYS)
+
   // Build bySource summary
   const bySrcSummary = Object.fromEntries(
     ADAPTERS.map((a) => [
@@ -236,7 +240,7 @@ export async function runIngestPipeline(query: JobQuery): Promise<IngestSummary>
     fetchedAt,
     totalFetched,
     duplicatesMerged,
-    staleRemoved,
+    staleRemoved: staleRemoved + dbStaleRemoved,
     deadLinksRemoved,
     bySource: bySrcSummary,
   }

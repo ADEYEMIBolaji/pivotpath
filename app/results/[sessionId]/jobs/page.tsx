@@ -411,7 +411,7 @@ export default function JobsPage() {
                 Roles that want your story
               </h1>
               <p className="text-[14px] text-pp-text-body">
-                Ranked by fit to your translated profile, not by employer prestige.
+                Hand-picked roles that fit your translated profile — the ones worth applying to first.
               </p>
             </div>
 
@@ -419,7 +419,7 @@ export default function JobsPage() {
               <div className="flex items-center gap-5 text-right">
                 <div>
                   <p className="font-display text-[28px] font-medium text-offwhite">{data.meta.total}</p>
-                  <p className="text-[12px] text-pp-text-faint">live listings</p>
+                  <p className="text-[12px] text-pp-text-faint">recommended</p>
                 </div>
                 <div
                   className="w-px h-10 self-center"
