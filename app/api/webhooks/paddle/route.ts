@@ -31,14 +31,16 @@ export async function POST(req: NextRequest) {
     // Verifies the signature and parses the payload
     event = await getPaddle().webhooks.unmarshal(rawBody, secret, signature)
   } catch (err) {
-    console.error('[paddle webhook] signature verification failed', err)
+    console.error('[paddle webhook] signature verification FAILED — check PADDLE_WEBHOOK_SECRET is the destination Secret key, not its id:', err)
     return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })
   }
 
   if (!event) return NextResponse.json({ ok: true })
 
-  // We only fulfil on a completed transaction (one-off purchase)
-  if (event.eventType === 'transaction.completed') {
+  console.log('[paddle webhook] received', event.eventType)
+
+  // Fulfil on completed OR paid (whichever Paddle sends first for a one-off)
+  if (event.eventType === 'transaction.completed' || event.eventType === 'transaction.paid') {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const data = event.data as any
     const customData = (data?.customData ?? {}) as { userId?: string; plan?: string; code?: string | null }
@@ -53,14 +55,16 @@ export async function POST(req: NextRequest) {
     const userId = customData.userId
     const paymentRef = `paddle:${data?.id ?? signature.slice(0, 24)}`
 
+    console.log('[paddle webhook] fulfilment', { userId: userId ?? null, plan: plan ?? null, hasCustomData: !!data?.customData })
+
     if (userId && plan) {
       const ok = await activateSubscription(userId, plan, paymentRef)
       if (ok && customData.code) {
         await redeemDiscount(customData.code, userId).catch(() => {})
       }
-      if (!ok) console.error('[paddle webhook] activation failed for', { userId, plan, paymentRef })
+      console.log('[paddle webhook] activation', ok ? 'OK' : 'FAILED', { userId, plan, paymentRef })
     } else {
-      console.error('[paddle webhook] missing userId/plan in customData', customData)
+      console.error('[paddle webhook] missing userId/plan — customData was:', JSON.stringify(data?.customData ?? null))
     }
   }
 
