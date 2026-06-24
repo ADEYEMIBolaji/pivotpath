@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Newsreader, DM_Sans, DM_Mono } from 'next/font/google'
 import { SessionProvider } from '@/components/SessionProvider'
+import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 
 // ─── Font loading ─────────────────────────────────────────────────────────────
@@ -65,6 +66,7 @@ export default function RootLayout({
     >
       <body className="font-body antialiased">
         <SessionProvider>{children}</SessionProvider>
+        <Analytics />
       </body>
     </html>
   )
