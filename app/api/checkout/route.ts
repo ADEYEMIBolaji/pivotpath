@@ -26,15 +26,17 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: false, error: 'Please sign in to continue.' }, { status: 401 })
   }
 
-  const { plan: planId, code } = (await req.json()) as { plan?: string; code?: string }
+  const { plan: planId, code, extend } = (await req.json()) as { plan?: string; code?: string; extend?: boolean }
   const plan = PLANS[planId as PlanId]
   if (!plan || plan.id === 'free') {
     return NextResponse.json({ ok: false, error: 'Invalid plan.' }, { status: 400 })
   }
 
-  // Prevent paying again while a plan is already active (avoids duplicate charges)
+  // If a plan is already active, block accidental re-purchase — unless the user
+  // explicitly chose to extend/upgrade (extend:true). Extending stacks the new
+  // term on top of their remaining time (handled in activateSubscription).
   const existing = await getActiveSubscription(session.user.id)
-  if (existing) {
+  if (existing && !extend) {
     return NextResponse.json({
       ok: false,
       alreadyActive: true,

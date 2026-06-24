@@ -127,7 +127,7 @@ export default function SettingsPage() {
   const [showDelete, setShowDelete] = useState(false)
   const [saveMsg, setSaveMsg] = useState<string | null>(null)
 
-  const [usage, setUsage] = useState<{ planName: string; planId: string; used: number; limit: number; remaining: number } | null>(null)
+  const [usage, setUsage] = useState<{ planName: string; planId: string; used: number; limit: number; remaining: number; expiresAt: string | null } | null>(null)
 
   useEffect(() => {
     fetch('/api/account/usage')
@@ -271,7 +271,10 @@ export default function SettingsPage() {
 
         {/* ── Plan & usage ── */}
         <Section title="Plan &amp; usage" description="Your subscription and how many pivot analyses you have left.">
-          <SettingRow label="Current plan">
+          <SettingRow
+            label="Current plan"
+            description={usage?.expiresAt ? `Active until ${new Date(usage.expiresAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}` : usage?.planId === 'free' ? 'Free tier — no expiry' : undefined}
+          >
             <span className="text-[12px] font-mono px-2.5 py-1 rounded-pp" style={{ background: 'rgba(46,107,107,0.2)', color: '#5FB0A6' }}>
               {usage ? usage.planName : '…'}
             </span>
@@ -316,6 +319,22 @@ export default function SettingsPage() {
                 </svg>
               </Link>
               <p className="text-[12px] text-pp-text-ghost mt-2">Paid plans include up to 7 analyses and faster job refresh.</p>
+            </div>
+          )}
+
+          {usage && usage.planId !== 'free' && (
+            <div className="pt-4">
+              <Link
+                href={`/checkout?plan=${usage.planId === '6month' ? '12month' : '12month'}`}
+                className="inline-flex items-center gap-2 px-5 py-[11px] rounded-pp font-semibold text-[14px] text-offwhite transition-colors"
+                style={{ background: 'rgba(242,237,228,0.08)', border: '1px solid rgba(242,237,228,0.18)' }}
+              >
+                Extend or upgrade
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                  <path d="M1 6h8M5.5 1.5L10 6l-4.5 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </Link>
+              <p className="text-[12px] text-pp-text-ghost mt-2">Add more time and analyses — your remaining time carries over.</p>
             </div>
           )}
         </Section>

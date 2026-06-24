@@ -38,6 +38,7 @@ function CheckoutInner() {
   const [paddle, setPaddle] = useState<Paddle | null>(null)
   const [activePlanName, setActivePlanName] = useState<string | null>(null)
   const [checkingAccess, setCheckingAccess] = useState(true)
+  const [extendMode, setExtendMode] = useState(false)
 
   // Require sign-in
   useEffect(() => {
@@ -111,7 +112,7 @@ function CheckoutInner() {
       const res = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ plan: planId, code: discount ? code : undefined }),
+        body: JSON.stringify({ plan: planId, code: discount ? code : undefined, extend: extendMode }),
       })
       const data = await res.json() as {
         ok: boolean
@@ -163,11 +164,12 @@ function CheckoutInner() {
     )
   }
 
-  // Already on an active plan — don't allow a second payment
-  if (activePlanName && !done) {
+  // Already on an active plan — don't allow an accidental second payment, but
+  // offer a deliberate extend/upgrade path.
+  if (activePlanName && !extendMode && !done) {
     return (
       <div className="min-h-screen bg-navy flex flex-col items-center justify-center px-6 py-16 text-center">
-        <div className="w-full max-w-[440px]">
+        <div className="w-full max-w-[460px]">
           <div className="w-14 h-14 rounded-full mx-auto mb-6 flex items-center justify-center" style={{ background: 'rgba(46,107,107,0.15)' }}>
             <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
               <path d="M7 13.5l4 4 8-9" stroke="#5FB0A6" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
@@ -175,9 +177,10 @@ function CheckoutInner() {
           </div>
           <h1 className="font-display text-[28px] font-medium text-offwhite mb-3">You already have an active plan</h1>
           <p className="text-[15px] text-pp-text-body mb-8">
-            No need to pay again — your plan is active and ready to use. You can start a new pivot or review your usage anytime.
+            No need to pay again — your plan is active and ready to use. If you’d like more analyses or more time,
+            you can extend or upgrade — any remaining time carries over.
           </p>
-          <div className="flex flex-col sm:flex-row gap-3">
+          <div className="flex flex-col sm:flex-row gap-3 mb-3">
             <Link href="/onboarding" className="flex-1 bg-amber text-navy px-6 py-[14px] rounded-pp font-semibold text-[15px] hover:bg-amber/90 transition-colors">
               Start a pivot
             </Link>
@@ -185,6 +188,12 @@ function CheckoutInner() {
               View plan &amp; usage
             </Link>
           </div>
+          <button
+            onClick={() => setExtendMode(true)}
+            className="text-[13.5px] text-amber hover:text-amber/80 transition-colors underline underline-offset-2"
+          >
+            Extend or upgrade my plan →
+          </button>
         </div>
       </div>
     )
@@ -235,8 +244,18 @@ function CheckoutInner() {
       </header>
 
       <main className="max-w-[480px] mx-auto px-5 sm:px-6 py-12 sm:py-16">
-        <p className="font-mono text-[11px] tracking-[0.1em] uppercase text-amber mb-3">Checkout</p>
-        <h1 className="font-display text-[30px] sm:text-[34px] font-medium text-offwhite mb-8">Confirm your plan</h1>
+        <p className="font-mono text-[11px] tracking-[0.1em] uppercase text-amber mb-3">
+          {extendMode ? 'Extend / upgrade' : 'Checkout'}
+        </p>
+        <h1 className="font-display text-[30px] sm:text-[34px] font-medium text-offwhite mb-8">
+          {extendMode ? 'Extend or upgrade your plan' : 'Confirm your plan'}
+        </h1>
+
+        {extendMode && (
+          <div className="rounded-pp-l px-5 py-4 mb-5 text-[13.5px] text-teal-light" style={{ background: 'rgba(46,107,107,0.1)', border: '1px solid rgba(46,107,107,0.3)' }}>
+            Your current plan stays active — this adds {plan.name === '6 months' ? '6 months' : '12 months'} (and a fresh set of analyses) on top of any time you have left.
+          </div>
+        )}
 
         {/* Plan summary */}
         <div className="rounded-pp-l p-6 mb-5" style={{ background: 'rgba(242,237,228,0.04)', border: '1px solid rgba(242,237,228,0.12)' }}>

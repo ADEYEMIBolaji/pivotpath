@@ -150,6 +150,11 @@ export async function checkPivotQuota(userId: string): Promise<QuotaResult> {
  *  - the comp-code path in /api/checkout (100%-off codes)
  *  - the Paddle webhook once a payment completes
  *
+ * Extend / upgrade behaviour: if the user already has an active plan, the new
+ * plan's duration is stacked on top of their remaining time (so unused time
+ * carries forward), and the usage window resets to now (granting the new
+ * plan's full analysis allowance).
+ *
  * Idempotent-ish: a duplicate webhook with the same paymentRef won't double-insert.
  */
 export async function activateSubscription(
@@ -172,11 +177,15 @@ export async function activateSubscription(
       if (existing.length > 0) return true
     }
 
-    const expires = new Date()
+    // Stack on top of any remaining time from a current active plan
+    const current = await getActiveSubscription(userId)
+    const base = current ? new Date(Math.max(Date.now(), new Date(current.expiresAt).getTime())) : new Date()
+    const expires = new Date(base)
     expires.setMonth(expires.getMonth() + plan.durationMonths)
+
     await query(
-      `INSERT INTO subscriptions (user_id, plan, status, expires_at, payment_ref)
-       VALUES ($1, $2, 'active', $3, $4)`,
+      `INSERT INTO subscriptions (user_id, plan, status, started_at, expires_at, payment_ref)
+       VALUES ($1, $2, 'active', NOW(), $3, $4)`,
       [userId, plan.id, expires.toISOString(), paymentRef],
     )
     return true
