@@ -59,8 +59,11 @@ export async function GET(req: NextRequest): Promise<NextResponse<JobsApiRespons
     await maybeRefresh(keywords)
 
     const store = getJobStore()
+    // Always score the FULL set (remote constraint aside) so the recommended
+    // list is computed once across all sources. The source filter is then just
+    // a view on that set — selecting Reed shows the Reed jobs within the
+    // recommended set, not a fresh top-N of only Reed.
     const rawJobs = await store.list({
-      sourceFilter: source ?? undefined,
       remoteOnly,
       maxAgeDays: 30,
     })
@@ -82,18 +85,31 @@ export async function GET(req: NextRequest): Promise<NextResponse<JobsApiRespons
     // Recommend only roles worth applying to (good fit), not the whole market.
     // `scored` is already fit-sorted; fall back to the top matches so the list
     // is never empty even when nothing clears the bucket threshold.
-    const RECOMMEND_MIN = 8
-    const RECOMMEND_MAX = 40
+    // Show all good-fit matches under "All sources" (capped high for safety);
+    // fall back to the top matches if nothing clears the bucket threshold.
+    const RECOMMEND_MIN = 12
+    const RECOMMEND_MAX = 100
     let recommended = scored
     if (session) {
       const goodFit = scored.filter((j) => j.fitBucket !== 'neutral')
-      recommended = (goodFit.length >= RECOMMEND_MIN ? goodFit : scored).slice(0, RECOMMEND_MAX)
+      recommended = (goodFit.length >= RECOMMEND_MIN ? goodFit : scored.slice(0, RECOMMEND_MIN)).slice(0, RECOMMEND_MAX)
     }
+
+    // Per-source counts within the recommended set (for the filter chips)
+    const bySource: Record<string, number> = {}
+    for (const j of recommended) {
+      for (const s of [j.primarySource, ...j.alsoListedOn]) bySource[s] = (bySource[s] ?? 0) + 1
+    }
+
+    // Source filter = a view on the recommended set
+    const viewed = source
+      ? recommended.filter((j) => j.primarySource === source || j.alsoListedOn.includes(source))
+      : recommended
 
     // Apply sort
     const sorted = sort === 'date'
-      ? [...recommended].sort((a, b) => new Date(b.postedAt).getTime() - new Date(a.postedAt).getTime())
-      : recommended
+      ? [...viewed].sort((a, b) => new Date(b.postedAt).getTime() - new Date(a.postedAt).getTime())
+      : viewed
 
     // Attach saved state
     const withSaved = sorted.map((j) => ({ ...j, saved: savedIds.includes(j.id) }))
@@ -101,7 +117,6 @@ export async function GET(req: NextRequest): Promise<NextResponse<JobsApiRespons
     const bridgeRoles = session?.strategy?.bridgeRoles ?? []
     const groups = groupByBridgeRole(withSaved, bridgeRoles)
 
-    const bySource = await store.countBySource()
     const duplicatesMerged = 0  // pipeline summary not persisted — would need a table
 
     return NextResponse.json({
