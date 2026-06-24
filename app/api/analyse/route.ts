@@ -70,7 +70,7 @@ export async function POST(req: NextRequest): Promise<Response> {
         const now = new Date().toISOString()
         const session: AnalysisSession = {
           id: sessionId,
-          userId: null,
+          userId: authSession?.user?.id ?? null,
           profile,
           target,
           translationMap,

@@ -128,11 +128,16 @@ export default function SettingsPage() {
   const [saveMsg, setSaveMsg] = useState<string | null>(null)
 
   const [usage, setUsage] = useState<{ planName: string; planId: string; used: number; limit: number; remaining: number; expiresAt: string | null } | null>(null)
+  const [pivots, setPivots] = useState<{ id: string; fromLabel: string; toLabel: string; readiness: number | null; createdAt: string }[] | null>(null)
 
   useEffect(() => {
     fetch('/api/account/usage')
       .then((r) => r.json())
       .then((d) => { if (d.ok) setUsage(d) })
+      .catch(() => {})
+    fetch('/api/account/sessions')
+      .then((r) => r.json())
+      .then((d) => { if (d.ok) setPivots(d.sessions) })
       .catch(() => {})
   }, [])
 
@@ -335,6 +340,46 @@ export default function SettingsPage() {
                 </svg>
               </Link>
               <p className="text-[12px] text-pp-text-ghost mt-2">Add more time and analyses — your remaining time carries over.</p>
+            </div>
+          )}
+        </Section>
+
+        {/* ── Your pivots ── */}
+        <Section title="Your pivots" description="Every analysis you run is saved here — pick up where you left off anytime.">
+          {pivots === null ? (
+            <p className="text-[13px] text-pp-text-faint py-2">Loading…</p>
+          ) : pivots.length === 0 ? (
+            <div className="py-2">
+              <p className="text-[13.5px] text-pp-text-faint mb-4">You haven&apos;t run a pivot yet.</p>
+              <Link href="/onboarding" className="inline-flex items-center gap-2 bg-amber text-navy px-5 py-[11px] rounded-pp font-semibold text-[14px] hover:bg-amber/90 transition-colors">
+                Start your first pivot
+              </Link>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {pivots.map((p) => (
+                <Link
+                  key={p.id}
+                  href={`/results/${p.id}/map`}
+                  className="flex items-center justify-between gap-4 px-4 py-3 rounded-pp transition-colors hover:bg-white/5"
+                  style={{ background: 'rgba(242,237,228,0.03)', border: '1px solid rgba(242,237,228,0.08)' }}
+                >
+                  <div className="min-w-0">
+                    <p className="text-[14px] text-offwhite truncate">
+                      <span className="text-pp-text-faint">{p.fromLabel}</span>
+                      <span className="text-amber mx-1.5">→</span>
+                      <span className="font-medium">{p.toLabel}</span>
+                    </p>
+                    <p className="text-[12px] text-pp-text-ghost mt-0.5">
+                      {new Date(p.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                      {p.readiness != null && ` · ${p.readiness}% ready`}
+                    </p>
+                  </div>
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="flex-shrink-0 text-pp-text-faint">
+                    <path d="M5 3l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </Link>
+              ))}
             </div>
           )}
         </Section>

@@ -108,3 +108,39 @@ export async function updateSession(id: string, patch: Partial<AnalysisSession>)
   if (!existing) throw new Error(`Session ${id} not found`)
   await saveSession(id, { ...existing, ...patch, updatedAt: new Date().toISOString() })
 }
+
+export interface SessionSummary {
+  id: string
+  fromLabel: string
+  toLabel: string
+  readiness: number | null
+  createdAt: string
+}
+
+/** Lightweight list of a user's past pivots, newest first (for the dashboard/settings). */
+export async function listSessionsByUser(userId: string): Promise<SessionSummary[]> {
+  if (!USE_PG) return []
+  try {
+    const { getPool } = await import('./db')
+    const pool = getPool()
+    const result = await pool.query(
+      `SELECT id, profile, target, translation_map, created_at
+       FROM sessions WHERE user_id = $1 ORDER BY created_at DESC LIMIT 50`,
+      [userId],
+    )
+    return result.rows.map((row: Record<string, unknown>) => {
+      const profile = row.profile as { headline?: string; roles?: { title?: string }[] } | null
+      const target = row.target as { title?: string } | null
+      const map = row.translation_map as { readiness?: { score?: number } } | null
+      return {
+        id: row.id as string,
+        fromLabel: profile?.headline ?? profile?.roles?.[0]?.title ?? 'Your background',
+        toLabel: target?.title ?? 'Target role',
+        readiness: map?.readiness?.score ?? null,
+        createdAt: row.created_at as string,
+      }
+    })
+  } catch {
+    return []
+  }
+}
