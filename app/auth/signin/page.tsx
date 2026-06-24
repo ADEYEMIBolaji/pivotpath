@@ -1,7 +1,7 @@
 'use client'
 
-import { Suspense, useState } from 'react'
-import { signIn } from 'next-auth/react'
+import { Suspense, useState, useEffect } from 'react'
+import { signIn, useSession } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Logo } from '@/components/brand'
@@ -11,6 +11,12 @@ function SignInForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const callbackUrl = searchParams.get('callbackUrl') ?? '/onboarding'
+  const { status } = useSession()
+
+  // Already signed in? Don't show the form — go straight where they were headed.
+  useEffect(() => {
+    if (status === 'authenticated') router.replace(callbackUrl)
+  }, [status, router, callbackUrl])
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')

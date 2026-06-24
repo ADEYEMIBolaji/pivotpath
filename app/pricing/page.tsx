@@ -153,7 +153,7 @@ export default function PricingPage() {
             <p className="text-[13.5px] text-pp-text-faint">1 free pivot analysis — no card required. See your Translation Map before you pay a penny.</p>
           </div>
           <Link
-            href="/auth/signup"
+            href="/onboarding"
             className="flex-shrink-0 px-6 py-[11px] rounded-pp text-[14px] font-semibold text-offwhite border transition-colors hover:border-offwhite/40 hover:text-offwhite"
             style={{ border: '1px solid rgba(242,237,228,0.2)' }}
           >
