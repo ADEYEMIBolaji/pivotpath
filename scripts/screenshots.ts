@@ -739,7 +739,8 @@ async function main() {
 
     for (const shot of routes) {
       // Settings page uses the signed-in browser context
-      const useAuthed = shot.slug.startsWith('settings')
+      // Settings and onboarding require an authenticated session
+      const useAuthed = shot.slug.startsWith('settings') || shot.slug.startsWith('onboarding')
 
       for (const width of WIDTHS) {
         // For auth-needing pages: reuse authed context

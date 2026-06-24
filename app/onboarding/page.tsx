@@ -3,6 +3,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 import { Logo, TranslationArrow } from '@/components/brand'
 import { cn } from '@/lib/utils'
 import { INDUSTRIES, FUNCTIONS, ROLES } from '@/lib/role-taxonomy'
@@ -54,7 +55,7 @@ function WizardShell({
             href="/"
             className="font-mono text-[11.5px] tracking-[0.06em] text-pp-text-faint hover:text-pp-text-muted transition-colors"
           >
-            Save &amp; exit
+            Exit
           </Link>
         </div>
       </header>
@@ -725,6 +726,15 @@ type WizardStep = 1 | 2 | 3 | 'running' | 'error' | 'quota'
 
 export default function OnboardingPage() {
   const router = useRouter()
+  const { status } = useSession()
+
+  // Require an account — the free trial (1 analysis) can only be enforced per-user.
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.replace(`/auth/signup?callbackUrl=${encodeURIComponent('/onboarding')}`)
+    }
+  }, [status, router])
+
   const [wizardStep, setWizardStep] = useState<WizardStep>(1)
   const [ingestLoading, setIngestLoading] = useState(false)
   const [ingestError, setIngestError] = useState<string | null>(null)
@@ -834,6 +844,15 @@ export default function OnboardingPage() {
       setAnalysisError(e instanceof Error ? e.message : String(e))
       setWizardStep('error')
     }
+  }
+
+  // While auth status resolves (or we're redirecting an anonymous visitor), show a loader
+  if (status !== 'authenticated') {
+    return (
+      <div className="min-h-screen bg-navy flex items-center justify-center">
+        <div className="w-6 h-6 rounded-full border-2 border-pp-text-ghost border-t-amber animate-spin" />
+      </div>
+    )
   }
 
   if (wizardStep === 'running') return <AnalysisProgress stageKey={analysisStage} provider={provider} />

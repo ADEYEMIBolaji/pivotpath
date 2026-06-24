@@ -24,7 +24,8 @@ npm-debug.log*
 # Screenshot output (demo only — never commit)
 screenshots/
 
-# Separate Next.js build dir used during screenshot runs
+# Separate Next.js build dirs used during screenshot runs / local verification
 .next-screenshots/
+.next-build/
 
 .vercel

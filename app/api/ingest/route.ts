@@ -20,10 +20,12 @@ async function extractText(file: File): Promise<string> {
   const buffer = Buffer.from(bytes)
 
   if (file.name.endsWith('.pdf') || file.type === 'application/pdf') {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const pdfParse = require('pdf-parse') as (b: Buffer) => Promise<{ text: string }>
-    const result = await pdfParse(buffer)
-    return result.text
+    // unpdf ships a serverless-safe pdf.js build (no DOMMatrix / browser APIs),
+    // unlike pdf-parse which crashes on Vercel's Node runtime.
+    const { extractText, getDocumentProxy } = await import('unpdf')
+    const pdf = await getDocumentProxy(new Uint8Array(bytes))
+    const { text } = await extractText(pdf, { mergePages: true })
+    return text
   }
 
   if (
