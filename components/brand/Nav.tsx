@@ -23,9 +23,9 @@ interface NavProps {
 }
 
 const LANDING_LINKS: NavLink[] = [
-  { href: '#how',     label: 'How it works'   },
-  { href: '#map',     label: 'Translation Map' },
-  { href: '#proof',   label: 'Results'         },
+  { href: '/#how',    label: 'How it works'    },
+  { href: '/#map',    label: 'Translation Map' },
+  { href: '/#proof',  label: 'Results'         },
   { href: '/pricing', label: 'Pricing'         },
 ]
 
