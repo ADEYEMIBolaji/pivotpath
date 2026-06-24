@@ -182,7 +182,13 @@ async function verifyLinks(
 
 async function upsertAll(jobs: CanonicalJob[]): Promise<void> {
   const store = getJobStore()
-  await Promise.all(jobs.filter((j) => !j.deadLink).map((j) => store.upsert(j)))
+  const live = jobs.filter((j) => !j.deadLink)
+  // Batch to avoid exhausting the Postgres connection pool (Neon) with ~150
+  // simultaneous upserts, which causes "timeout exceeded when trying to connect".
+  const BATCH = 5
+  for (let i = 0; i < live.length; i += BATCH) {
+    await Promise.all(live.slice(i, i + BATCH).map((j) => store.upsert(j)))
+  }
 }
 
 // ─── Public entry point ───────────────────────────────────────────────────────
