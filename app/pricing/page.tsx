@@ -16,7 +16,7 @@ function CheckIcon() {
 }
 
 const FEATURES_SHARED = [
-  'Full Translation Map — skills to PM language',
+  'Full Translation Map — your skills in your target field’s language',
   'AI-rewritten résumé with diff view',
   'Personalised career strategy brief',
   'Matched job listings with fit scores',
