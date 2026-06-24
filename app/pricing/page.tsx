@@ -183,8 +183,12 @@ export default function PricingPage() {
                 a: 'Yes. When your 6-month period is active, you can top up to 12 months and your remaining analyses and time carry forward.',
               },
               {
+                q: 'Can I get a refund?',
+                a: 'Yes — you can request a full refund within 14 days of purchase as long as you haven’t yet run a paid pivot analysis. Once you run a paid analysis the digital service is delivered and the fee is non-refundable. Your free analysis lets you try the quality before paying. See our Terms of Service for full details.',
+              },
+              {
                 q: 'Is payment secure?',
-                a: 'Payments are processed by Stripe — we never see or store your card details. The checkout is fully encrypted.',
+                a: 'Payments are processed by a secure third-party payment provider — we never see or store your card details. The checkout is fully encrypted.',
               },
             ].map(({ q, a }) => (
               <div key={q} className="border-b pb-6" style={{ borderColor: 'rgba(242,237,228,0.1)' }}>

@@ -106,7 +106,50 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2>8. Availability and changes</h2>
+            <h2>8. Payments and refunds</h2>
+            <p>
+              Paid plans are a <strong>one-off payment</strong> for a fixed access period (6 or 12 months).
+              There is no automatic renewal — you will never be charged again unless you choose to buy another plan.
+              Payments are processed by a third-party payment provider; we do not see or store your card details.
+            </p>
+            <p>
+              <strong>14-day cancellation right.</strong> Under the UK Consumer Contracts Regulations 2013,
+              consumers normally have 14 days to cancel a purchase. Because PivotPath is digital content
+              supplied immediately, the following applies:
+            </p>
+            <ul>
+              <li>
+                <strong>Full refund</strong> within 14 days of purchase <strong>provided you have not yet run a
+                paid pivot analysis</strong>. You can request this for any reason.
+              </li>
+              <li>
+                Once you run a paid pivot analysis, you are asking us to begin supplying the digital service
+                immediately. At that point the service is treated as delivered and the fee becomes
+                <strong> non-refundable</strong>, as permitted under the Regulations.
+              </li>
+              <li>
+                Your <strong>free analysis</strong> lets you evaluate the quality of the Service before paying,
+                so you can make an informed decision.
+              </li>
+              <li>
+                Access granted through a <strong>100%-off or complimentary code</strong> involves no payment and
+                is therefore non-refundable.
+              </li>
+            </ul>
+            <p>
+              <strong>Faulty or misdescribed service.</strong> Nothing here affects your statutory rights under
+              the Consumer Rights Act 2015. If the Service is faulty or does not work as described, you are
+              entitled to a repair, replacement, or refund — contact us and we will put it right.
+            </p>
+            <p>
+              <strong>How to request a refund.</strong> Email{' '}
+              <a href="mailto:billing@pivotpath.co">billing@pivotpath.co</a> from your account email address.
+              Approved refunds are returned to your original payment method, normally within 14 days.
+            </p>
+          </section>
+
+          <section>
+            <h2>9. Availability and changes</h2>
             <p>
               We aim to keep PivotPath available but do not guarantee uninterrupted access. We may modify,
               suspend, or discontinue features at any time. For material changes that affect existing users,
@@ -115,7 +158,7 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2>9. Intellectual property</h2>
+            <h2>10. Intellectual property</h2>
             <p>
               The PivotPath brand, logo, design, and software are our intellectual property. Nothing in
               these terms transfers ownership of any PivotPath intellectual property to you.
@@ -123,7 +166,7 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2>10. Limitation of liability</h2>
+            <h2>11. Limitation of liability</h2>
             <p>
               To the maximum extent permitted by applicable law, PivotPath shall not be liable for any
               indirect, incidental, special, consequential, or punitive damages arising from your use of
@@ -137,7 +180,7 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2>11. Data protection</h2>
+            <h2>12. Data protection</h2>
             <p>
               Our collection and use of your personal data is governed by our{' '}
               <Link href="/legal/privacy" className="text-amber hover:text-amber/80">Privacy Policy</Link>,
@@ -146,7 +189,7 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2>12. Governing law</h2>
+            <h2>13. Governing law</h2>
             <p>
               These terms are governed by the laws of England and Wales. Any disputes shall be subject
               to the exclusive jurisdiction of the courts of England and Wales.
@@ -154,7 +197,7 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2>13. Changes to these terms</h2>
+            <h2>14. Changes to these terms</h2>
             <p>
               We may update these terms from time to time. We will notify you by email at least 14 days
               before material changes take effect. Continuing to use the Service after changes take effect
@@ -163,7 +206,7 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2>14. Contact</h2>
+            <h2>15. Contact</h2>
             <p>
               Questions about these terms? Email us at{' '}
               <a href="mailto:legal@pivotpath.co">legal@pivotpath.co</a>.

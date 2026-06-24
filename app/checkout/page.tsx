@@ -218,7 +218,8 @@ function CheckoutInner() {
           {submitting ? 'Processing…' : finalPrice === 0 ? 'Activate my plan — free' : `Continue · ${fmt(finalPrice)}`}
         </button>
         <p className="text-[11.5px] text-pp-text-ghost text-center mt-3">
-          Secure · No auto-renewal · Cancel anytime
+          Secure · One-off payment · No auto-renewal ·{' '}
+          <Link href="/legal/terms" className="underline hover:text-pp-text-faint">14-day refund policy</Link>
         </p>
       </main>
     </div>
