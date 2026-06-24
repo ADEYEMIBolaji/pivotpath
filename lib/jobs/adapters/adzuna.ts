@@ -107,14 +107,16 @@ export const adzunaAdapter: SourceAdapter = {
         perPage: Math.min(query.maxResults ?? 50, 50),
         sourceName: 'adzuna',
       })
-      if (!listings) {
+      if (listings === null) {
         console.warn('[adzuna] ADZUNA_APP_ID/KEY not set — using mock data')
         return MOCK_ADZUNA
       }
       return listings
     } catch (err) {
-      console.warn('[adzuna] API failed, using mock data:', err)
-      return MOCK_ADZUNA
+      // Configured but the API failed — return nothing rather than placeholder
+      // mock jobs with example.com apply links.
+      console.warn('[adzuna] API failed:', err)
+      return []
     }
   },
 }

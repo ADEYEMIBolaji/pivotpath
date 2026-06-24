@@ -255,7 +255,7 @@ function JobCard({
 
 // ─── Filter bar ───────────────────────────────────────────────────────────────
 
-const ALL_SOURCES: SourceName[] = ['reed', 'adzuna', 'linkedin', 'otta', 'nhs', 'civil-service']
+const ALL_SOURCES: SourceName[] = ['reed', 'adzuna', 'nhs', 'civil-service']
 
 function FilterBar({
   source,

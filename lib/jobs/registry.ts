@@ -5,17 +5,15 @@
 
 import { reedAdapter } from './adapters/reed'
 import { adzunaAdapter } from './adapters/adzuna'
-import { linkedinAdapter } from './adapters/linkedin'
-import { ottaAdapter } from './adapters/otta'
 import { nhsAdapter } from './adapters/nhs'
 import { civilServiceAdapter } from './adapters/civil-service'
 import type { SourceAdapter } from './types'
 
+// LinkedIn and Otta have no free public API (mock-only with placeholder URLs),
+// so they're excluded — every active source below returns real, applyable jobs.
 export const ADAPTERS: SourceAdapter[] = [
   reedAdapter,
   adzunaAdapter,
-  linkedinAdapter,
-  ottaAdapter,
   nhsAdapter,
   civilServiceAdapter,
 ]

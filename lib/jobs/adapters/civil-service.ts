@@ -24,8 +24,8 @@ export const civilServiceAdapter: SourceAdapter = {
         perPage: Math.min(query.maxResults ?? 50, 50),
         sourceName: 'civil-service',
       })
-      if (!listings || listings.length === 0) {
-        console.warn('[civil-service] Adzuna unconfigured/empty — using mock data')
+      if (listings === null) {
+        console.warn('[civil-service] Adzuna not configured — using mock data')
         return MOCK_CIVIL_SERVICE
       }
       return listings

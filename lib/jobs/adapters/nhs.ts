@@ -24,8 +24,10 @@ export const nhsAdapter: SourceAdapter = {
         perPage: Math.min(query.maxResults ?? 50, 50),
         sourceName: 'nhs',
       })
-      if (!listings || listings.length === 0) {
-        console.warn('[nhs] Adzuna unconfigured/empty — using mock data')
+      // null = Adzuna not configured (dev without keys) → mock for local/demo.
+      // An empty real result is returned as-is (no placeholder example.com jobs).
+      if (listings === null) {
+        console.warn('[nhs] Adzuna not configured — using mock data')
         return MOCK_NHS
       }
       return listings
