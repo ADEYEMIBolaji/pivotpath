@@ -42,6 +42,16 @@ export interface JobStore {
   deleteStale(maxAgeDays: number): Promise<number>
 }
 
+// JSONB columns come back from pg already parsed (arrays/objects); file store
+// holds them as arrays too. Tolerate a stringified value just in case.
+function asArray(value: unknown): unknown[] {
+  if (Array.isArray(value)) return value
+  if (typeof value === 'string') {
+    try { const parsed = JSON.parse(value); return Array.isArray(parsed) ? parsed : [] } catch { return [] }
+  }
+  return []
+}
+
 // ─── File-based store ─────────────────────────────────────────────────────────
 
 const JOBS_DIR = path.join(process.cwd(), '.jobs')
@@ -206,7 +216,10 @@ class PgJobStore implements JobStore {
     if (remoteOnly) { params.push(true); conditions.push(`remote = $${params.length}`) }
     if (sourceFilter) {
       params.push(sourceFilter)
-      conditions.push(`(primary_source = $${params.length} OR also_listed_on @> $${params.length}::jsonb)`)
+      const pText = params.length
+      params.push(JSON.stringify(sourceFilter)) // jsonb scalar, e.g. '"nhs"'
+      const pJson = params.length
+      conditions.push(`(primary_source = $${pText} OR also_listed_on @> $${pJson}::jsonb)`)
     }
     const r = await this.pool.query(
       `SELECT * FROM jobs WHERE ${conditions.join(' AND ')} ORDER BY posted_at DESC`,
@@ -223,7 +236,7 @@ class PgJobStore implements JobStore {
       employer: row.employer as string,
       primarySource: row.primary_source as SourceName,
       primarySourceUrl: row.primary_source_url as string,
-      alsoListedOn: JSON.parse(row.also_listed_on as string) as SourceName[],
+      alsoListedOn: asArray(row.also_listed_on) as SourceName[],
       location: row.location as string,
       remote: row.remote as boolean | null,
       salaryMin: row.salary_min as number | null,
@@ -231,7 +244,7 @@ class PgJobStore implements JobStore {
       currency: 'GBP',
       postedAt: row.posted_at as string,
       descriptionText: row.description_text as string,
-      rawSkills: JSON.parse(row.raw_skills as string) as string[],
+      rawSkills: asArray(row.raw_skills) as string[],
       lastVerifiedAt: row.last_verified_at as string,
       lastRefreshedAt: row.last_refreshed_at as string,
       deadLink: row.dead_link as boolean,

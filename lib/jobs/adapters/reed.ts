@@ -8,6 +8,20 @@ import type { SourceAdapter, RawListing, JobQuery } from '../types'
 import { parseSalaryString, extractSkills } from '../normalise'
 import { MOCK_REED } from './mock-data'
 
+/** Reed returns dates as DD/MM/YYYY, which `new Date()` can't parse. */
+function parseReedDate(s: string): string {
+  if (s) {
+    const m = s.match(/^(\d{2})\/(\d{2})\/(\d{4})$/)
+    if (m) {
+      const d = new Date(`${m[3]}-${m[2]}-${m[1]}T00:00:00Z`)
+      if (!isNaN(d.getTime())) return d.toISOString()
+    }
+    const d = new Date(s)
+    if (!isNaN(d.getTime())) return d.toISOString()
+  }
+  return new Date().toISOString()
+}
+
 interface ReedJob {
   jobId: number
   jobTitle: string
@@ -71,7 +85,7 @@ export const reedAdapter: SourceAdapter = {
         salaryMin: salary.min,
         salaryMax: salary.max,
         currency: 'GBP',
-        postedAt: new Date(j.date).toISOString(),
+        postedAt: parseReedDate(j.date),
         descriptionText: j.jobDescription ?? '',
         rawSkills: extractSkills(j.jobDescription ?? ''),
       }
