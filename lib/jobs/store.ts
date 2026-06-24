@@ -45,6 +45,11 @@ export interface JobStore {
 
 // JSONB columns come back from pg already parsed (arrays/objects); file store
 // holds them as arrays too. Tolerate a stringified value just in case.
+// salary columns are INTEGER — coerce any float (e.g. hourly 14.77) safely
+function intOrNull(n: number | null | undefined): number | null {
+  return n == null || isNaN(n) ? null : Math.round(n)
+}
+
 function asArray(value: unknown): unknown[] {
   if (Array.isArray(value)) return value
   if (typeof value === 'string') {
@@ -195,7 +200,7 @@ class PgJobStore implements JobStore {
       [
         id, job.dedupKey, job.title, job.employer, job.primarySource,
         job.primarySourceUrl, JSON.stringify(job.alsoListedOn),
-        job.location, job.remote, job.salaryMin, job.salaryMax, job.currency,
+        job.location, job.remote, intOrNull(job.salaryMin), intOrNull(job.salaryMax), job.currency,
         job.postedAt, job.descriptionText, JSON.stringify(job.rawSkills),
         job.lastVerifiedAt, job.lastRefreshedAt, job.deadLink, now,
       ],
