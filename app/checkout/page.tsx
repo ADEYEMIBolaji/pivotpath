@@ -36,6 +36,8 @@ function CheckoutInner() {
   const [done, setDone] = useState<{ activated: boolean; message?: string } | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [paddle, setPaddle] = useState<Paddle | null>(null)
+  const [activePlanName, setActivePlanName] = useState<string | null>(null)
+  const [checkingAccess, setCheckingAccess] = useState(true)
 
   // Require sign-in
   useEffect(() => {
@@ -43,6 +45,17 @@ function CheckoutInner() {
       router.replace(`/auth/signin?callbackUrl=${encodeURIComponent(`/checkout?plan=${planId}`)}`)
     }
   }, [status, router, planId])
+
+  // Block re-purchase: if the user already has an active paid plan, don't let
+  // them pay again. (Server enforces this too, in /api/checkout.)
+  useEffect(() => {
+    if (status !== 'authenticated') return
+    fetch('/api/account/usage')
+      .then((r) => r.json())
+      .then((d) => { if (d.ok && d.planId && d.planId !== 'free') setActivePlanName(d.planName ?? 'your current') })
+      .catch(() => {})
+      .finally(() => setCheckingAccess(false))
+  }, [status])
 
   // Returned from Paddle's hosted success redirect
   useEffect(() => {
@@ -104,6 +117,7 @@ function CheckoutInner() {
         ok: boolean
         activated?: boolean
         requiresPayment?: boolean
+        alreadyActive?: boolean
         message?: string
         error?: string
         paddle?: {
@@ -113,6 +127,9 @@ function CheckoutInner() {
           customData?: Record<string, unknown>
         }
       }
+
+      // Already has an active plan — don't charge again
+      if (data.alreadyActive) { setActivePlanName('your current'); return }
       if (!data.ok) { setError(data.error ?? 'Something went wrong.'); return }
 
       // Instant activation (100%-off comp code) — no payment needed
@@ -138,10 +155,37 @@ function CheckoutInner() {
     }
   }
 
-  if (status === 'loading' || status === 'unauthenticated') {
+  if (status === 'loading' || status === 'unauthenticated' || checkingAccess) {
     return (
       <div className="min-h-screen bg-navy flex items-center justify-center">
         <div className="w-6 h-6 rounded-full border-2 border-pp-text-ghost border-t-amber animate-spin" />
+      </div>
+    )
+  }
+
+  // Already on an active plan — don't allow a second payment
+  if (activePlanName && !done) {
+    return (
+      <div className="min-h-screen bg-navy flex flex-col items-center justify-center px-6 py-16 text-center">
+        <div className="w-full max-w-[440px]">
+          <div className="w-14 h-14 rounded-full mx-auto mb-6 flex items-center justify-center" style={{ background: 'rgba(46,107,107,0.15)' }}>
+            <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
+              <path d="M7 13.5l4 4 8-9" stroke="#5FB0A6" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </div>
+          <h1 className="font-display text-[28px] font-medium text-offwhite mb-3">You already have an active plan</h1>
+          <p className="text-[15px] text-pp-text-body mb-8">
+            No need to pay again — your plan is active and ready to use. You can start a new pivot or review your usage anytime.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <Link href="/onboarding" className="flex-1 bg-amber text-navy px-6 py-[14px] rounded-pp font-semibold text-[15px] hover:bg-amber/90 transition-colors">
+              Start a pivot
+            </Link>
+            <Link href="/settings" className="flex-1 px-6 py-[14px] rounded-pp font-medium text-[15px] text-pp-text-muted transition-colors hover:text-offwhite" style={{ background: 'rgba(242,237,228,0.06)', border: '1px solid rgba(242,237,228,0.12)' }}>
+              View plan &amp; usage
+            </Link>
+          </div>
+        </div>
       </div>
     )
   }

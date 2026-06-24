@@ -63,6 +63,29 @@ export interface QuotaResult {
   planId: PlanId
 }
 
+export interface ActiveSubscription {
+  plan: PlanId
+  expiresAt: string
+}
+
+/** Returns the user's active paid subscription, or null if they're on the free tier. */
+export async function getActiveSubscription(userId: string): Promise<ActiveSubscription | null> {
+  if (!process.env.DATABASE_URL) return null
+  try {
+    const { query } = await import('./db')
+    const rows = await query<{ plan: PlanId; expires_at: string }>(
+      `SELECT plan, expires_at FROM subscriptions
+       WHERE user_id = $1 AND status = 'active' AND expires_at > NOW()
+       ORDER BY expires_at DESC LIMIT 1`,
+      [userId],
+    )
+    const sub = rows[0]
+    return sub ? { plan: sub.plan, expiresAt: sub.expires_at } : null
+  } catch {
+    return null
+  }
+}
+
 export async function checkPivotQuota(userId: string): Promise<QuotaResult> {
   if (!process.env.DATABASE_URL) {
     // File-based / dev mode: always allow (no subscription tracking)

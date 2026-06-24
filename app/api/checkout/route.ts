@@ -14,7 +14,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
-import { PLANS, activateSubscription, type PlanId } from '@/lib/subscription'
+import { PLANS, activateSubscription, getActiveSubscription, type PlanId } from '@/lib/subscription'
 import { validateDiscount, redeemDiscount } from '@/lib/discount'
 import { isPaddleConfigured, priceIdForPlan } from '@/lib/paddle'
 
@@ -30,6 +30,18 @@ export async function POST(req: NextRequest) {
   const plan = PLANS[planId as PlanId]
   if (!plan || plan.id === 'free') {
     return NextResponse.json({ ok: false, error: 'Invalid plan.' }, { status: 400 })
+  }
+
+  // Prevent paying again while a plan is already active (avoids duplicate charges)
+  const existing = await getActiveSubscription(session.user.id)
+  if (existing) {
+    return NextResponse.json({
+      ok: false,
+      alreadyActive: true,
+      plan: existing.plan,
+      expiresAt: existing.expiresAt,
+      error: 'You already have an active plan.',
+    }, { status: 409 })
   }
 
   let finalPrice = plan.price
