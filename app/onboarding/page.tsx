@@ -721,7 +721,7 @@ function AnalysisProgress({ stageKey, provider }: { stageKey: string; provider: 
 
 // ─── Main wizard ──────────────────────────────────────────────────────────────
 
-type WizardStep = 1 | 2 | 3 | 'running' | 'error'
+type WizardStep = 1 | 2 | 3 | 'running' | 'error' | 'quota'
 
 export default function OnboardingPage() {
   const router = useRouter()
@@ -795,6 +795,14 @@ export default function OnboardingPage() {
         body: JSON.stringify({ profile: confirmedProfile, target, provider: chosenProvider }),
       })
 
+      // Quota exceeded — free trial used up or plan limit reached
+      if (res.status === 402) {
+        const data = await res.json().catch(() => ({})) as { error?: string }
+        setAnalysisError(data.error ?? null)
+        setWizardStep('quota')
+        return
+      }
+
       if (!res.body) throw new Error('No response stream')
       const reader = res.body.getReader()
       const decoder = new TextDecoder()
@@ -841,6 +849,65 @@ export default function OnboardingPage() {
         >
           Try again
         </button>
+      </div>
+    )
+  }
+
+  if (wizardStep === 'quota') {
+    return (
+      <div className="min-h-screen bg-navy flex flex-col items-center justify-center px-6 py-16">
+        <div className="w-full max-w-[480px] text-center">
+          <div className="w-14 h-14 rounded-full mx-auto mb-6 flex items-center justify-center" style={{ background: 'rgba(232,168,56,0.15)' }}>
+            <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
+              <path d="M13 7v7l4 2" stroke="#E8A838" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              <circle cx="13" cy="13" r="10" stroke="#E8A838" strokeWidth="1.6" />
+            </svg>
+          </div>
+          <h1 className="font-display text-[30px] font-medium text-offwhite mb-3">You&apos;ve used your free pivot</h1>
+          <p className="text-[15px] text-pp-text-body leading-[1.6] mb-8">
+            {analysisError ?? 'Free accounts include 1 full pivot analysis.'} Unlock more to keep refining your pivot as your target role sharpens.
+          </p>
+
+          {/* What paid unlocks */}
+          <div
+            className="rounded-pp-l p-6 mb-8 text-left"
+            style={{ background: 'rgba(242,237,228,0.04)', border: '1px solid rgba(242,237,228,0.12)' }}
+          >
+            <p className="font-mono text-[10px] tracking-[0.1em] uppercase text-amber mb-4">What a plan unlocks</p>
+            <ul className="space-y-3">
+              {[
+                'Up to 7 full pivot analyses — refine as your direction evolves',
+                'Re-run when you target a new role or industry',
+                'Fresh job matches every few hours',
+                'Priority support and early access to new features',
+              ].map((b) => (
+                <li key={b} className="flex items-start gap-2.5 text-[14px] text-pp-text-body">
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="flex-shrink-0 mt-0.5">
+                    <circle cx="8" cy="8" r="7.5" fill="rgba(46,107,107,0.15)" stroke="#2E6B6B" strokeWidth="1"/>
+                    <path d="M4.5 8l2.5 2.5 4.5-4.5" stroke="#5FB0A6" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  {b}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-3">
+            <Link
+              href="/pricing"
+              className="flex-1 bg-amber text-navy px-6 py-[14px] rounded-pp font-semibold text-[15px] hover:bg-amber/90 transition-colors"
+            >
+              View plans — from £5
+            </Link>
+            <Link
+              href="/settings"
+              className="flex-1 px-6 py-[14px] rounded-pp font-medium text-[15px] text-pp-text-muted transition-colors hover:text-offwhite"
+              style={{ background: 'rgba(242,237,228,0.06)', border: '1px solid rgba(242,237,228,0.12)' }}
+            >
+              View past pivots
+            </Link>
+          </div>
+        </div>
       </div>
     )
   }

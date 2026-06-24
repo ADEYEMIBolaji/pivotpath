@@ -1,14 +1,17 @@
 'use client'
 
-import { useState } from 'react'
+import { Suspense, useState } from 'react'
 import { signIn } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Logo } from '@/components/brand'
 import { cn } from '@/lib/utils'
 
-export default function SignUpPage() {
+function SignUpForm() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const callbackUrl = searchParams.get('callbackUrl') ?? '/onboarding'
+
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -39,15 +42,15 @@ export default function SignUpPage() {
     const result = await signIn('credentials', { email, password, redirect: false })
     setLoading(false)
     if (result?.error) {
-      router.push('/auth/signin')
+      router.push(`/auth/signin?callbackUrl=${encodeURIComponent(callbackUrl)}`)
     } else {
-      router.push('/onboarding')
+      router.push(callbackUrl)
     }
   }
 
   async function handleGoogle() {
     setGoogleLoading(true)
-    await signIn('google', { callbackUrl: '/onboarding' })
+    await signIn('google', { callbackUrl })
   }
 
   const passwordStrength = password.length === 0 ? null : password.length < 8 ? 'weak' : password.length < 12 ? 'fair' : 'strong'
@@ -185,11 +188,19 @@ export default function SignUpPage() {
 
         <p className="text-center text-[13.5px] text-pp-text-faint mt-5">
           Already have an account?{' '}
-          <Link href="/auth/signin" className="text-amber hover:text-amber/80 transition-colors">
+          <Link href={`/auth/signin?callbackUrl=${encodeURIComponent(callbackUrl)}`} className="text-amber hover:text-amber/80 transition-colors">
             Sign in
           </Link>
         </p>
       </div>
     </div>
+  )
+}
+
+export default function SignUpPage() {
+  return (
+    <Suspense>
+      <SignUpForm />
+    </Suspense>
   )
 }

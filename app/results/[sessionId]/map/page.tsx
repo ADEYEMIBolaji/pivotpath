@@ -25,27 +25,35 @@ function MapRow({ row, idx }: { row: TranslationRow; idx: number }) {
   const arrowColor = ARROW_COLORS[row.tier]
   return (
     <div
-      className="grid gap-4 px-5 py-4 rounded-pp transition-colors"
-      style={{
-        gridTemplateColumns: '1fr auto 1fr 160px',
-        background: styles.bg,
-      }}
+      className="grid gap-2 sm:gap-4 px-4 sm:px-5 py-4 rounded-pp transition-colors grid-cols-[1fr_auto] sm:grid-cols-[1fr_auto_1fr_160px] items-center"
+      style={{ background: styles.bg }}
     >
       <div className="py-1">
         <p className="text-[13.5px] text-pp-ink font-medium leading-[1.45]">{row.from}</p>
         {row.note && <p className="text-[12px] text-pp-ink-meta mt-1 leading-[1.4]">{row.note}</p>}
       </div>
-      <div className="flex items-center justify-center px-2">
-        <svg width="56" height="16" viewBox="0 0 56 16" fill="none">
+      {/* Confidence badge — top-right on mobile, far-right column on desktop */}
+      <div className="flex items-center justify-end sm:hidden">
+        <ConfidenceBadge tier={row.tier} />
+      </div>
+      {/* Arrow — horizontal on desktop, points down on mobile */}
+      <div className="flex items-center justify-start sm:justify-center sm:px-2 col-span-2 sm:col-span-1">
+        <svg width="56" height="16" viewBox="0 0 56 16" fill="none" className="hidden sm:block">
           <circle cx="4" cy="8" r="3.5" fill={arrowColor} />
           <line x1="9" y1="8" x2="44" y2="8" stroke={arrowColor} strokeWidth="1.5" />
           <path d="M42 3L47 8L42 13" stroke={arrowColor} strokeWidth="1.5" fill="none" strokeLinejoin="round" strokeLinecap="round" />
         </svg>
+        <svg width="16" height="20" viewBox="0 0 16 20" fill="none" className="sm:hidden my-1 ml-1">
+          <circle cx="8" cy="3.5" r="3" fill={arrowColor} />
+          <line x1="8" y1="7" x2="8" y2="15" stroke={arrowColor} strokeWidth="1.5" />
+          <path d="M4 13l4 4 4-4" stroke={arrowColor} strokeWidth="1.5" fill="none" strokeLinejoin="round" strokeLinecap="round" />
+        </svg>
       </div>
-      <div className="py-1">
+      <div className="py-1 col-span-2 sm:col-span-1">
         <p className="text-[13.5px] text-pp-ink font-medium leading-[1.45]">{row.to}</p>
       </div>
-      <div className="flex items-center justify-end">
+      {/* Confidence badge — desktop only (far-right column) */}
+      <div className="hidden sm:flex items-center justify-end">
         <ConfidenceBadge tier={row.tier} />
       </div>
     </div>
@@ -106,7 +114,7 @@ export default async function TranslationMapPage({
     <div className="min-h-screen bg-offwhite-surface">
       <Nav variant="app" pivotLabel={{ from: profile.headline ?? profile.roles[0]?.title ?? 'Your background', to: target.title }} />
 
-      <div className="max-w-pp-content mx-auto px-6 py-14">
+      <div className="max-w-pp-content mx-auto px-5 sm:px-6 py-10 sm:py-14">
 
         {/* ── Header ── */}
         <div className="mb-10">
@@ -122,7 +130,7 @@ export default async function TranslationMapPage({
           </p>
         </div>
 
-        <div className="grid gap-8" style={{ gridTemplateColumns: '1fr 280px' }}>
+        <div className="grid gap-8 lg:grid-cols-[1fr_280px]">
 
           {/* ── Main column ── */}
           <div className="space-y-6">
@@ -144,9 +152,9 @@ export default async function TranslationMapPage({
               </div>
             </div>
 
-            {/* Table header */}
+            {/* Table header — desktop only; on mobile each row is self-describing */}
             <div
-              className="grid gap-4 px-5 py-3 rounded-pp"
+              className="hidden sm:grid gap-4 px-5 py-3 rounded-pp"
               style={{
                 gridTemplateColumns: '1fr auto 1fr 160px',
                 background: 'rgba(15,25,35,0.06)',

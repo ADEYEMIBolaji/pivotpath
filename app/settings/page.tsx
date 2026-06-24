@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useSession, signOut } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -126,6 +126,15 @@ export default function SettingsPage() {
   const [emailUpdates, setEmailUpdates] = useState(true)
   const [showDelete, setShowDelete] = useState(false)
   const [saveMsg, setSaveMsg] = useState<string | null>(null)
+
+  const [usage, setUsage] = useState<{ planName: string; planId: string; used: number; limit: number; remaining: number } | null>(null)
+
+  useEffect(() => {
+    fetch('/api/account/usage')
+      .then((r) => r.json())
+      .then((d) => { if (d.ok) setUsage(d) })
+      .catch(() => {})
+  }, [])
 
   function showSaved(msg = 'Saved') {
     setSaveMsg(msg)
@@ -258,11 +267,57 @@ export default function SettingsPage() {
           <SettingRow label="Email" description="Your sign-in email. Cannot be changed.">
             <span className="text-[13.5px] text-pp-text-muted">{session.user?.email}</span>
           </SettingRow>
-          <SettingRow label="Account type">
-            <span className="text-[12px] font-mono px-2 py-1 rounded-pp" style={{ background: 'rgba(46,107,107,0.2)', color: '#5FB0A6' }}>
-              Free
+        </Section>
+
+        {/* ── Plan & usage ── */}
+        <Section title="Plan &amp; usage" description="Your subscription and how many pivot analyses you have left.">
+          <SettingRow label="Current plan">
+            <span className="text-[12px] font-mono px-2.5 py-1 rounded-pp" style={{ background: 'rgba(46,107,107,0.2)', color: '#5FB0A6' }}>
+              {usage ? usage.planName : '…'}
             </span>
           </SettingRow>
+
+          <div className="py-4 border-b" style={{ borderColor: 'rgba(242,237,228,0.08)' }}>
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-[14px] font-medium text-offwhite">Pivot analyses used</p>
+              <p className="text-[13px] text-pp-text-muted">
+                {usage ? `${usage.used} of ${usage.limit}` : '—'}
+              </p>
+            </div>
+            {usage && (
+              <div className="h-2 rounded-full overflow-hidden" style={{ background: 'rgba(242,237,228,0.1)' }}>
+                <div
+                  className="h-full rounded-full transition-all"
+                  style={{
+                    width: `${Math.min(100, (usage.used / Math.max(1, usage.limit)) * 100)}%`,
+                    background: usage.remaining === 0 ? '#C7553B' : '#E8A838',
+                  }}
+                />
+              </div>
+            )}
+            <p className="text-[12.5px] text-pp-text-faint mt-2">
+              {usage
+                ? usage.remaining > 0
+                  ? `${usage.remaining} ${usage.remaining === 1 ? 'analysis' : 'analyses'} remaining.`
+                  : 'No analyses remaining — upgrade to run more.'
+                : 'Loading your usage…'}
+            </p>
+          </div>
+
+          {usage && usage.planId === 'free' && (
+            <div className="pt-4">
+              <Link
+                href="/pricing"
+                className="inline-flex items-center gap-2 bg-amber text-navy px-5 py-[11px] rounded-pp font-semibold text-[14px] hover:bg-amber/90 transition-colors"
+              >
+                Upgrade — from £5
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                  <path d="M1 6h8M5.5 1.5L10 6l-4.5 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </Link>
+              <p className="text-[12px] text-pp-text-ghost mt-2">Paid plans include up to 7 analyses and faster job refresh.</p>
+            </div>
+          )}
         </Section>
 
         {/* ── AI model ── */}

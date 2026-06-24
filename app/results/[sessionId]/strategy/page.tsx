@@ -45,9 +45,9 @@ export default async function StrategyBriefDynamicPage({
       </div>
 
       {/* Document */}
-      <div className="pp-screenbg py-16 px-6">
+      <div className="pp-screenbg py-8 sm:py-16 px-3 sm:px-6">
         <article
-          className="pp-doc max-w-pp-doc mx-auto rounded-pp-l shadow-pp-doc px-14 py-14"
+          className="pp-doc max-w-pp-doc mx-auto rounded-pp-l shadow-pp-doc px-6 sm:px-14 py-10 sm:py-14"
           style={{ background: '#fff' }}
         >
           {/* ── Cover ── */}

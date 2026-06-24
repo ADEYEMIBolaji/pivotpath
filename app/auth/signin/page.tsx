@@ -125,7 +125,7 @@ function SignInForm() {
 
         <p className="text-center text-[13.5px] text-pp-text-faint mt-5">
           Don&apos;t have an account?{' '}
-          <Link href="/auth/signup" className="text-amber hover:text-amber/80 transition-colors">
+          <Link href={`/auth/signup?callbackUrl=${encodeURIComponent(callbackUrl)}`} className="text-amber hover:text-amber/80 transition-colors">
             Create one
           </Link>
         </p>

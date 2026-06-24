@@ -103,7 +103,15 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
   },
 
-  session: { strategy: 'jwt' },
+  session: {
+    strategy: 'jwt',
+    maxAge: 30 * 24 * 60 * 60, // 30 days — keep users signed in across visits
+  },
 
-  secret: process.env.NEXTAUTH_SECRET ?? 'dev-secret-change-in-production',
+  // Required on Vercel so the session cookie is trusted across preview/prod hosts.
+  // Without this, NextAuth v5 can drop the session when the request host differs
+  // from NEXTAUTH_URL — which is exactly what logs users out on navigation.
+  trustHost: true,
+
+  secret: process.env.NEXTAUTH_SECRET ?? process.env.AUTH_SECRET ?? 'dev-secret-change-in-production',
 })

@@ -91,13 +91,13 @@ export default function PricingPage() {
             </ul>
 
             <Link
-              href="/auth/signup?plan=6month"
+              href="/checkout?plan=6month"
               className="w-full text-center py-[14px] rounded-pp font-semibold text-[15px] bg-amber text-navy hover:bg-amber/90 transition-colors"
             >
               Get started — £5
             </Link>
             <p className="text-[11.5px] text-pp-text-ghost text-center mt-3">
-              Secure checkout · No auto-renewal
+              Secure checkout · Discount codes welcome · No auto-renewal
             </p>
           </div>
 
@@ -131,14 +131,14 @@ export default function PricingPage() {
             </ul>
 
             <Link
-              href="/auth/signup?plan=12month"
+              href="/checkout?plan=12month"
               className="w-full text-center py-[14px] rounded-pp font-semibold text-[15px] transition-colors"
               style={{ background: '#E8A838', color: '#0F1923' }}
             >
               Get started — £9
             </Link>
             <p className="text-[11.5px] text-pp-text-ghost text-center mt-3">
-              Secure checkout · No auto-renewal
+              Secure checkout · Discount codes welcome · No auto-renewal
             </p>
           </div>
         </div>
