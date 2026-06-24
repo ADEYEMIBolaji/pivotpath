@@ -817,22 +817,34 @@ export default function OnboardingPage() {
       const reader = res.body.getReader()
       const decoder = new TextDecoder()
       let sessionId: string | null = null
+      let buffer = ''
+
+      // Parse one complete SSE "data: {...}" line. Large events (résumé/strategy)
+      // can span multiple network chunks, so we only parse whole lines.
+      const handleLine = (line: string) => {
+        if (!line.startsWith('data: ')) return
+        const json = line.slice(6).trim()
+        if (!json) return
+        const payload = JSON.parse(json) as Record<string, unknown>
+        if (payload.error) throw new Error(payload.error as string)
+        if (payload.stage === 'complete') {
+          sessionId = payload.sessionId as string
+        } else if (payload.status === 'running') {
+          setAnalysisStage(payload.stage as string)
+        }
+      }
 
       while (true) {
         const { done, value } = await reader.read()
         if (done) break
-        const chunk = decoder.decode(value, { stream: true })
-        for (const line of chunk.split('\n')) {
-          if (!line.startsWith('data: ')) continue
-          const payload = JSON.parse(line.slice(6)) as Record<string, unknown>
-          if (payload.error) throw new Error(payload.error as string)
-          if (payload.stage === 'complete') {
-            sessionId = payload.sessionId as string
-          } else if (payload.status === 'running') {
-            setAnalysisStage(payload.stage as string)
-          }
-        }
+        buffer += decoder.decode(value, { stream: true })
+        const lines = buffer.split('\n')
+        buffer = lines.pop() ?? '' // keep the last (possibly incomplete) line
+        for (const line of lines) handleLine(line)
       }
+      // Flush any final event that had no trailing newline
+      buffer += decoder.decode()
+      if (buffer.trim()) handleLine(buffer.trim())
 
       if (!sessionId) throw new Error('Analysis completed without a session ID')
 
