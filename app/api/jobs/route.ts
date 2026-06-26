@@ -51,9 +51,17 @@ export async function GET(req: NextRequest): Promise<NextResponse<JobsApiRespons
 
     const session = sessionId ? await getSession(sessionId) : null
 
-    // Build keywords from the session's target role
+    // Search the target role AND the strategy's bridge roles (stepping stones),
+    // across industries — so Matched Jobs surfaces both destination and bridge
+    // opportunities, not just the single target title.
     const keywords = session?.target
-      ? [session.target.title, session.target.function]
+      ? [...new Set(
+          [
+            session.target.title,
+            ...(session.strategy?.bridgeRoles?.map((b) => b.title) ?? []),
+            session.target.function,
+          ].map((k) => k?.trim()).filter((k): k is string => Boolean(k)),
+        )].slice(0, 5)
       : ['product manager', 'operations manager', 'digital health']
 
     await maybeRefresh(keywords)

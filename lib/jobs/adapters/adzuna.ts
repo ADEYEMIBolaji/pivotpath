@@ -99,24 +99,37 @@ export const adzunaAdapter: SourceAdapter = {
   rateLimit: { requestsPerMinute: 250 },
 
   async fetch(query: JobQuery): Promise<RawListing[]> {
-    try {
-      const listings = await queryAdzuna({
-        // primary keyword only — `what` is strict-AND so multi-role strings zero out
-        what: query.keywords[0] ?? query.keywords.join(' '),
-        where: query.location,
-        perPage: Math.min(query.maxResults ?? 50, 50),
-        sourceName: 'adzuna',
-      })
-      if (listings === null) {
-        console.warn('[adzuna] ADZUNA_APP_ID/KEY not set — using mock data')
-        return MOCK_ADZUNA
+    // Search each role (target + bridge roles) and merge — `what` is strict-AND
+    // so we can't combine them into one query.
+    const roles = (query.keywords.length ? query.keywords : ['']).slice(0, 5)
+    const perRole = Math.max(15, Math.floor((Math.min(query.maxResults ?? 50, 50)) / roles.length))
+    const seen = new Set<string>()
+    const merged: RawListing[] = []
+    let configured = true
+
+    for (const role of roles) {
+      try {
+        const listings = await queryAdzuna({
+          what: role,
+          where: query.location,
+          perPage: perRole,
+          sourceName: 'adzuna',
+        })
+        if (listings === null) { configured = false; break }
+        for (const l of listings) {
+          if (seen.has(l.externalId)) continue
+          seen.add(l.externalId)
+          merged.push(l)
+        }
+      } catch (err) {
+        console.warn('[adzuna] API failed for role', role, err)
       }
-      return listings
-    } catch (err) {
-      // Configured but the API failed — return nothing rather than placeholder
-      // mock jobs with example.com apply links.
-      console.warn('[adzuna] API failed:', err)
-      return []
     }
+
+    if (!configured) {
+      console.warn('[adzuna] ADZUNA_APP_ID/KEY not set — using mock data')
+      return MOCK_ADZUNA
+    }
+    return merged
   },
 }

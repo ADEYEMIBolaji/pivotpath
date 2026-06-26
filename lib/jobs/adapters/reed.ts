@@ -52,25 +52,39 @@ export const reedAdapter: SourceAdapter = {
       return MOCK_REED
     }
 
-    const params = new URLSearchParams({
-      keywords: query.keywords.join(' '),
-      locationName: query.location,
-      resultsToTake: String(Math.min(query.maxResults ?? 100, 100)),
-      ...(query.remoteOnly ? { distanceFromLocation: '0', locationName: 'Remote' } : {}),
-    })
+    // Search each role (target + bridge roles) and merge, so bridge-role jobs
+    // are included — not just one combined AND-query.
+    const roles = (query.keywords.length ? query.keywords : ['']).slice(0, 5)
+    const perRole = Math.max(15, Math.floor((query.maxResults ?? 100) / roles.length))
+    const seen = new Set<string>()
+    const merged: ReedJob[] = []
 
-    const res = await fetch(`https://www.reed.co.uk/api/1.0/search?${params}`, {
-      headers: {
-        Authorization: `Basic ${Buffer.from(`${apiKey}:`).toString('base64')}`,
-        Accept: 'application/json',
-      },
-      signal: AbortSignal.timeout(10_000),
-    })
+    for (const role of roles) {
+      const params = new URLSearchParams({
+        keywords: role,
+        locationName: query.location,
+        resultsToTake: String(Math.min(perRole, 100)),
+        ...(query.remoteOnly ? { distanceFromLocation: '0', locationName: 'Remote' } : {}),
+      })
+      try {
+        const res = await fetch(`https://www.reed.co.uk/api/1.0/search?${params}`, {
+          headers: {
+            Authorization: `Basic ${Buffer.from(`${apiKey}:`).toString('base64')}`,
+            Accept: 'application/json',
+          },
+          signal: AbortSignal.timeout(10_000),
+        })
+        if (!res.ok) continue
+        const data = (await res.json()) as ReedResponse
+        for (const j of data.results) {
+          if (seen.has(String(j.jobId))) continue
+          seen.add(String(j.jobId))
+          merged.push(j)
+        }
+      } catch { /* skip this role on error */ }
+    }
 
-    if (!res.ok) throw new Error(`Reed API ${res.status}: ${await res.text()}`)
-    const data = (await res.json()) as ReedResponse
-
-    return data.results.map((j): RawListing => {
+    return merged.map((j): RawListing => {
       const salary = j.minimumSalary && j.maximumSalary
         ? { min: j.minimumSalary, max: j.maximumSalary }
         : parseSalaryString(j.jobDescription ?? '')
