@@ -7,7 +7,7 @@ import Link from 'next/link'
 import { initializePaddle, type Paddle } from '@paddle/paddle-js'
 import { Logo } from '@/components/brand'
 import { cn } from '@/lib/utils'
-import { PRICING_CONFIG, priceForCycle, type BillingCycle } from '@/lib/subscription'
+import { PRICING_CONFIG, priceForCycle, type BillingCycle } from '@/lib/pricing'
 
 type PaidPlanId = 'pivot' | 'accelerate'
 

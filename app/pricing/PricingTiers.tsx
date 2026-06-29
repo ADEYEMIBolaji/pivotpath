@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { PRICING_CONFIG, type BillingCycle, type PlanId } from '@/lib/subscription'
+import { PRICING_CONFIG, type BillingCycle, type PlanId } from '@/lib/pricing'
 
 const ORDER: PlanId[] = ['free', 'pivot', 'accelerate']
 
