@@ -157,6 +157,31 @@ export async function activateSubscription(
   }
 }
 
+/**
+ * Revokes a user's active subscription(s). Called from the Paddle webhook when
+ * Paddle reports the subscription has ended (subscription.canceled) — which, for
+ * a customer-requested cancellation, fires at the end of the paid period, so
+ * access naturally runs until then. Marking the rows 'cancelled' makes
+ * getActiveSubscription return null on the next check.
+ *
+ * Idempotent: a duplicate cancel event is a harmless no-op.
+ */
+export async function cancelSubscription(userId: string): Promise<boolean> {
+  if (!process.env.DATABASE_URL) return false
+  try {
+    const { query } = await import('./db')
+    await query(
+      `UPDATE subscriptions SET status = 'cancelled'
+       WHERE user_id = $1 AND status = 'active'`,
+      [userId],
+    )
+    return true
+  } catch (err) {
+    console.error('[cancelSubscription]', err)
+    return false
+  }
+}
+
 export async function recordPivotUsage(
   userId: string,
   provider: string,

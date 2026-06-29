@@ -6,13 +6,13 @@
  * the user's subscription from the customData we attached at checkout.
  *
  * Configure in Paddle: Developer Tools → Notifications → add this URL and
- * subscribe to "transaction.completed". Put the signing secret in
- * PADDLE_WEBHOOK_SECRET.
+ * subscribe to "transaction.completed", "transaction.paid" and
+ * "subscription.canceled". Put the signing secret in PADDLE_WEBHOOK_SECRET.
  */
 
 import { NextRequest, NextResponse } from 'next/server'
 import { getPaddle, planForPriceId } from '@/lib/paddle'
-import { activateSubscription, type PlanId, type BillingCycle } from '@/lib/subscription'
+import { activateSubscription, cancelSubscription, type PlanId, type BillingCycle } from '@/lib/subscription'
 import { redeemDiscount } from '@/lib/discount'
 
 export const runtime = 'nodejs'
@@ -67,6 +67,22 @@ export async function POST(req: NextRequest) {
       console.log('[paddle webhook] activation', ok ? 'OK' : 'FAILED', { userId, plan, paymentRef })
     } else {
       console.error('[paddle webhook] missing userId/plan — customData was:', JSON.stringify(data?.customData ?? null))
+    }
+  }
+
+  // Subscription ended (customer cancelled at period end, or an immediate cancel
+  // / refund). Paddle fires this when access should actually stop, so we revoke.
+  if (event.eventType === 'subscription.canceled') {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const data = event.data as any
+    const customData = (data?.customData ?? {}) as { userId?: string }
+    const userId = customData.userId
+
+    if (userId) {
+      const ok = await cancelSubscription(userId)
+      console.log('[paddle webhook] cancellation', ok ? 'OK' : 'FAILED', { userId, subscriptionId: data?.id ?? null })
+    } else {
+      console.error('[paddle webhook] subscription.canceled missing userId — customData was:', JSON.stringify(data?.customData ?? null))
     }
   }
 
