@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Nav } from '@/components/brand'
+import { UpgradeGate } from '@/components/upgrade-gate'
 import { cn } from '@/lib/utils'
 import type { AnalysisSession, RepositionedBullet, RepositionedRole } from '@/lib/types'
 
@@ -120,6 +121,7 @@ export default function ResumeEditorPage() {
   const [session, setSession] = useState<AnalysisSession | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [locked, setLocked] = useState(false)
   const [diffMode, setDiffMode] = useState(false)
   const [copied, setCopied] = useState(false)
   const printRef = useRef<HTMLDivElement>(null)
@@ -132,6 +134,7 @@ export default function ResumeEditorPage() {
       .then((r) => r.json())
       .then((json) => {
         if (!json.ok) { setError(json.error); return }
+        if (json.locked) { setLocked(true); setSession(json.data); return }
         setSession(json.data)
         setResume(json.data.resume ?? null)
       })
@@ -188,6 +191,30 @@ export default function ResumeEditorPage() {
           <div className="w-4 h-4 rounded-full border-2 border-navy/30 border-t-navy animate-spin" />
           Loading your résumé…
         </div>
+      </div>
+    )
+  }
+
+  if (locked && session) {
+    const { target, profile } = session
+    return (
+      <div className="min-h-screen bg-offwhite-surface">
+        <Nav
+          variant="app"
+          pivotLabel={{ from: profile.headline ?? profile.roles[0]?.title ?? 'Your background', to: target.title }}
+        />
+        <UpgradeGate
+          theme="light"
+          eyebrow="Pivot feature"
+          title="Your repositioned résumé is ready"
+          body="We've rewritten your résumé for this target role. Upgrade to Pivot to unlock the full AI-rewritten résumé, gap scorecard and strategy brief."
+          bullets={[
+            'Full résumé rewrite, reframed for your target role',
+            'Editable bullets with the reasoning behind each reframe',
+            'Download as a polished PDF',
+          ]}
+          href={`/checkout?plan=pivot&cycle=monthly`}
+        />
       </div>
     )
   }

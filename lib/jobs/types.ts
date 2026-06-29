@@ -175,6 +175,8 @@ export interface JobsApiResponse {
   jobs: ScoredJob[]
   /** Grouped by bridge role — keys match session.strategy.bridgeRoles[].title */
   groups: JobGroup[]
+  /** True when withheld because the viewer is on the free tier (matched jobs are paid). */
+  locked?: boolean
   meta: {
     total: number
     lastRefreshedAt: string

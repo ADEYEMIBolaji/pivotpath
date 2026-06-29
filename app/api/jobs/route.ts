@@ -15,6 +15,7 @@ import { getJobStore } from '@/lib/jobs/store'
 import { runIngestPipeline } from '@/lib/jobs/pipeline'
 import { scoreJobs, groupByBridgeRole } from '@/lib/jobs/scoring'
 import { getSession } from '@/lib/session-store'
+import { viewerHasPaidPlan } from '@/lib/access'
 import type { JobsApiResponse, SourceName } from '@/lib/jobs/types'
 
 export const runtime = 'nodejs'
@@ -43,6 +44,17 @@ async function maybeRefresh(keywords: string[]): Promise<void> {
 
 export async function GET(req: NextRequest): Promise<NextResponse<JobsApiResponse | { error: string }>> {
   try {
+    // Matched jobs are a paid feature. Gate before the (costly) pipeline refresh
+    // so free viewers never trigger job-board API calls — the page shows the gate.
+    if (!(await viewerHasPaidPlan())) {
+      return NextResponse.json({
+        jobs: [],
+        groups: [],
+        locked: true,
+        meta: { total: 0, lastRefreshedAt: new Date().toISOString(), duplicatesMerged: 0, staleRemoved: 0 },
+      })
+    }
+
     const { searchParams } = req.nextUrl
     const sessionId  = searchParams.get('sessionId') ?? ''
     const source     = searchParams.get('source') as SourceName | null

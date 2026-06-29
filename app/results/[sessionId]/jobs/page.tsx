@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { Nav, TranslationArrow } from '@/components/brand'
+import { UpgradeGate } from '@/components/upgrade-gate'
 import { cn } from '@/lib/utils'
 import type { ScoredJob, JobGroup, SourceName } from '@/lib/jobs/types'
 
@@ -345,6 +346,7 @@ function FilterBar({
 interface ApiResponse {
   jobs: (ScoredJob & { saved?: boolean })[]
   groups: JobGroup[]
+  locked?: boolean
   meta: {
     total: number
     lastRefreshedAt: string
@@ -395,6 +397,25 @@ export default function JobsPage() {
   }
 
   const displayJobs = data?.jobs ?? []
+
+  if (data?.locked) {
+    return (
+      <div className="min-h-screen bg-navy">
+        <Nav variant="app" />
+        <UpgradeGate
+          eyebrow="Pivot feature"
+          title="Roles that want your story"
+          body="We match live UK listings to your translated profile and rank them by fit. Upgrade to Pivot to unlock your matched roles, fit scores and one-click apply."
+          bullets={[
+            'Hand-picked roles ranked by fit to your pivot',
+            'Matched skills and gap flags on every listing',
+            'Save roles and apply straight from the source',
+          ]}
+          href={`/checkout?plan=pivot&cycle=monthly`}
+        />
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-navy">

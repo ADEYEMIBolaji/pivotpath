@@ -1,7 +1,9 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { getSession } from '@/lib/session-store'
+import { viewerHasPaidPlan } from '@/lib/access'
 import { Nav, ReadinessScore, TranslationArrow } from '@/components/brand'
+import { UpgradeGate } from '@/components/upgrade-gate'
 import { PrintButton } from './PrintButton'
 import type { StrategyBrief, OriginAdvantageItem, ActionWeek, Expectation, BridgeRole } from '@/lib/types'
 
@@ -34,6 +36,7 @@ export default async function StrategyBriefDynamicPage({
 
   const { strategy, target, profile, translationMap } = session
   const score = translationMap?.readiness.score ?? 0
+  const paid = await viewerHasPaidPlan()
 
   return (
     <div className="min-h-screen bg-navy">
@@ -117,6 +120,8 @@ export default async function StrategyBriefDynamicPage({
             )}
           </Section>
 
+          {paid ? (
+          <>
           {/* ── 2. Origin advantage ── */}
           <Section n="02" title="Your origin advantage">
             <p className="text-[14px] text-pp-ink-para leading-[1.65] mb-6">{strategy.originNarrative}</p>
@@ -184,6 +189,22 @@ export default async function StrategyBriefDynamicPage({
               ))}
             </div>
           </Section>
+          </>
+          ) : (
+            <UpgradeGate
+              theme="light"
+              fullScreen={false}
+              eyebrow="The rest is a Pivot feature"
+              title="Unlock your full strategy brief"
+              body="You've seen where to aim. Upgrade to Pivot to unlock the rest of your brief — your origin advantage, a week-by-week action plan and what to expect."
+              bullets={[
+                'Your origin advantage — how your past reframes as an asset',
+                'A week-by-week action plan to land the pivot',
+                'What to expect: timelines, comp and realistic odds',
+              ]}
+              href={`/checkout?plan=pivot&cycle=monthly`}
+            />
+          )}
         </article>
       </div>
 
