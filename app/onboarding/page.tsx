@@ -747,6 +747,11 @@ export default function OnboardingPage() {
   // Called after step 1 — triggers ingest while user fills step 2
   const pendingIngestRef = useRef<Promise<{ profile: ParsedProfile | null; error: string | null }> | null>(null)
 
+  // Stable session id for the analysis, generated client-side and reused across
+  // retries so a dropped connection (locked phone / backgrounded tab) resumes the
+  // same session server-side instead of re-running — and re-paying for — the AI.
+  const analysisSessionIdRef = useRef<string | null>(null)
+
   async function handleStep1(raw: { mode: InputMode; file?: File; text?: string }) {
     pendingIngestRef.current = (async () => {
       try {
@@ -798,11 +803,18 @@ export default function OnboardingPage() {
     setProvider(chosenProvider)
     setWizardStep('running')
 
+    // Reuse the same session id on retry so the server resumes finished stages.
+    if (!analysisSessionIdRef.current) {
+      analysisSessionIdRef.current =
+        typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`
+    }
+    const sessionIdForRun = analysisSessionIdRef.current
+
     try {
       const res = await fetch('/api/analyse', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ profile: confirmedProfile, target, provider: chosenProvider }),
+        body: JSON.stringify({ profile: confirmedProfile, target, sessionId: sessionIdForRun, provider: chosenProvider }),
       })
 
       // Quota exceeded — free trial used up or plan limit reached
@@ -846,12 +858,16 @@ export default function OnboardingPage() {
       buffer += decoder.decode()
       if (buffer.trim()) handleLine(buffer.trim())
 
-      if (!sessionId) throw new Error('Analysis completed without a session ID')
+      // Server echoes the id back on 'complete'; fall back to the one we sent.
+      const finalSessionId = sessionId ?? sessionIdForRun
+
+      // Analysis finished — reset so a future, different pivot gets a fresh id.
+      analysisSessionIdRef.current = null
 
       // Persist to localStorage for client-side results pages
-      localStorage.setItem('pp_last_session', sessionId)
+      localStorage.setItem('pp_last_session', finalSessionId)
 
-      router.push(`/results/${sessionId}/map`)
+      router.push(`/results/${finalSessionId}/map`)
     } catch (e) {
       setAnalysisError(e instanceof Error ? e.message : String(e))
       setWizardStep('error')
