@@ -7,23 +7,38 @@
  */
 
 import { Paddle, Environment } from '@paddle/paddle-node-sdk'
-import type { PlanId } from './subscription'
+import type { PlanId, BillingCycle } from './subscription'
 
 export function isPaddleConfigured(): boolean {
-  return Boolean(process.env.PADDLE_API_KEY && priceIdForPlan('6month') && priceIdForPlan('12month'))
+  return Boolean(
+    process.env.PADDLE_API_KEY &&
+      priceIdForPlan('pivot', 'monthly') &&
+      priceIdForPlan('pivot', 'annual') &&
+      priceIdForPlan('accelerate', 'monthly') &&
+      priceIdForPlan('accelerate', 'annual'),
+  )
 }
 
-/** Maps our internal plan id to the Paddle Price ID (pri_...). */
-export function priceIdForPlan(plan: PlanId): string | undefined {
-  if (plan === '6month') return process.env.NEXT_PUBLIC_PADDLE_PRICE_6MONTH || undefined
-  if (plan === '12month') return process.env.NEXT_PUBLIC_PADDLE_PRICE_12MONTH || undefined
+/** Maps an internal plan + billing cycle to the Paddle Price ID (pri_...). */
+export function priceIdForPlan(plan: PlanId, cycle: BillingCycle): string | undefined {
+  const env = process.env
+  if (plan === 'pivot') {
+    return (cycle === 'annual' ? env.NEXT_PUBLIC_PADDLE_PRICE_PIVOT_ANNUAL : env.NEXT_PUBLIC_PADDLE_PRICE_PIVOT_MONTHLY) || undefined
+  }
+  if (plan === 'accelerate') {
+    return (cycle === 'annual' ? env.NEXT_PUBLIC_PADDLE_PRICE_ACCELERATE_ANNUAL : env.NEXT_PUBLIC_PADDLE_PRICE_ACCELERATE_MONTHLY) || undefined
+  }
   return undefined
 }
 
-/** Reverse lookup: Paddle Price ID → our plan id (used in the webhook). */
-export function planForPriceId(priceId: string): PlanId | undefined {
-  if (priceId && priceId === process.env.NEXT_PUBLIC_PADDLE_PRICE_6MONTH) return '6month'
-  if (priceId && priceId === process.env.NEXT_PUBLIC_PADDLE_PRICE_12MONTH) return '12month'
+/** Reverse lookup: Paddle Price ID → our plan + cycle (used in the webhook). */
+export function planForPriceId(priceId: string): { plan: PlanId; cycle: BillingCycle } | undefined {
+  if (!priceId) return undefined
+  const env = process.env
+  if (priceId === env.NEXT_PUBLIC_PADDLE_PRICE_PIVOT_MONTHLY) return { plan: 'pivot', cycle: 'monthly' }
+  if (priceId === env.NEXT_PUBLIC_PADDLE_PRICE_PIVOT_ANNUAL) return { plan: 'pivot', cycle: 'annual' }
+  if (priceId === env.NEXT_PUBLIC_PADDLE_PRICE_ACCELERATE_MONTHLY) return { plan: 'accelerate', cycle: 'monthly' }
+  if (priceId === env.NEXT_PUBLIC_PADDLE_PRICE_ACCELERATE_ANNUAL) return { plan: 'accelerate', cycle: 'annual' }
   return undefined
 }
 

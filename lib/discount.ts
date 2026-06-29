@@ -6,7 +6,7 @@
  * plan, capped by total redemptions, and given an expiry.
  */
 
-import { PLANS, type PlanId } from './subscription'
+import { PLANS, priceForCycle, type PlanId, type BillingCycle } from './subscription'
 
 export interface DiscountResult {
   valid: boolean
@@ -19,10 +19,11 @@ export interface DiscountResult {
   paddleDiscountId?: string
 }
 
-export async function validateDiscount(rawCode: string, planId: PlanId): Promise<DiscountResult> {
+export async function validateDiscount(rawCode: string, planId: PlanId, cycle: BillingCycle = 'monthly'): Promise<DiscountResult> {
   const code = rawCode.trim().toUpperCase()
   const plan = PLANS[planId]
-  if (!plan || plan.price === 0) {
+  const basePrice = priceForCycle(planId, cycle)
+  if (!plan || basePrice === 0) {
     return { valid: false, reason: 'Discounts apply to paid plans only.' }
   }
   if (!code) return { valid: false, reason: 'Enter a code.' }
@@ -59,12 +60,12 @@ export async function validateDiscount(rawCode: string, planId: PlanId): Promise
       return { valid: false, reason: 'That code has been fully redeemed.' }
     }
 
-    const finalPrice = Math.round(plan.price * (1 - dc.percent_off / 100))
+    const finalPrice = Math.round(basePrice * (1 - dc.percent_off / 100))
     return {
       valid: true,
       code,
       percentOff: dc.percent_off,
-      originalPrice: plan.price,
+      originalPrice: basePrice,
       finalPrice,
       paddleDiscountId: dc.paddle_discount_id ?? undefined,
     }

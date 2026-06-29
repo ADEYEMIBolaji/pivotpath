@@ -318,28 +318,28 @@ export default function SettingsPage() {
                 href="/pricing"
                 className="inline-flex items-center gap-2 bg-amber text-navy px-5 py-[11px] rounded-pp font-semibold text-[14px] hover:bg-amber/90 transition-colors"
               >
-                Upgrade — from £5
+                Upgrade — from £19/mo
                 <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
                   <path d="M1 6h8M5.5 1.5L10 6l-4.5 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </Link>
-              <p className="text-[12px] text-pp-text-ghost mt-2">Paid plans include up to 7 analyses and faster job refresh.</p>
+              <p className="text-[12px] text-pp-text-ghost mt-2">Paid plans unlock the full résumé rewrite, gap scorecard and faster job refresh.</p>
             </div>
           )}
 
           {usage && usage.planId !== 'free' && (
             <div className="pt-4">
               <Link
-                href={`/checkout?plan=${usage.planId === '6month' ? '12month' : '12month'}`}
+                href={usage.planId === 'pivot' ? '/checkout?plan=accelerate&cycle=monthly' : '/pricing'}
                 className="inline-flex items-center gap-2 px-5 py-[11px] rounded-pp font-semibold text-[14px] text-offwhite transition-colors"
                 style={{ background: 'rgba(242,237,228,0.08)', border: '1px solid rgba(242,237,228,0.18)' }}
               >
-                Extend or upgrade
+                {usage.planId === 'pivot' ? 'Upgrade to Accelerate' : 'Manage plan'}
                 <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
                   <path d="M1 6h8M5.5 1.5L10 6l-4.5 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </Link>
-              <p className="text-[12px] text-pp-text-ghost mt-2">Add more time and analyses — your remaining time carries over.</p>
+              <p className="text-[12px] text-pp-text-ghost mt-2">Change plans anytime — your remaining time carries over.</p>
             </div>
           )}
         </Section>

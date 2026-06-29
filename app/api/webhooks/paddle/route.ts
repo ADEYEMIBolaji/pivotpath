@@ -12,7 +12,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { getPaddle, planForPriceId } from '@/lib/paddle'
-import { activateSubscription, type PlanId } from '@/lib/subscription'
+import { activateSubscription, type PlanId, type BillingCycle } from '@/lib/subscription'
 import { redeemDiscount } from '@/lib/discount'
 
 export const runtime = 'nodejs'
@@ -43,22 +43,24 @@ export async function POST(req: NextRequest) {
   if (event.eventType === 'transaction.completed' || event.eventType === 'transaction.paid') {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const data = event.data as any
-    const customData = (data?.customData ?? {}) as { userId?: string; plan?: string; code?: string | null }
+    const customData = (data?.customData ?? {}) as { userId?: string; plan?: string; cycle?: string; code?: string | null }
 
-    // Prefer plan from customData; fall back to the purchased price id
+    // Prefer plan/cycle from customData; fall back to the purchased price id
     let plan = customData.plan as PlanId | undefined
-    if (!plan) {
+    let cycle = (customData.cycle === 'annual' ? 'annual' : customData.cycle === 'monthly' ? 'monthly' : undefined) as BillingCycle | undefined
+    if (!plan || !cycle) {
       const priceId: string | undefined = data?.items?.[0]?.price?.id
-      if (priceId) plan = planForPriceId(priceId)
+      const resolved = priceId ? planForPriceId(priceId) : undefined
+      if (resolved) { plan = plan ?? resolved.plan; cycle = cycle ?? resolved.cycle }
     }
 
     const userId = customData.userId
     const paymentRef = `paddle:${data?.id ?? signature.slice(0, 24)}`
 
-    console.log('[paddle webhook] fulfilment', { userId: userId ?? null, plan: plan ?? null, hasCustomData: !!data?.customData })
+    console.log('[paddle webhook] fulfilment', { userId: userId ?? null, plan: plan ?? null, cycle: cycle ?? null, hasCustomData: !!data?.customData })
 
     if (userId && plan) {
-      const ok = await activateSubscription(userId, plan, paymentRef)
+      const ok = await activateSubscription(userId, plan, paymentRef, cycle ?? 'monthly')
       if (ok && customData.code) {
         await redeemDiscount(customData.code, userId).catch(() => {})
       }

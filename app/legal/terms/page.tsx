@@ -108,9 +108,18 @@ export default function TermsPage() {
           <section>
             <h2>8. Payments and refunds</h2>
             <p>
-              Paid plans are a <strong>one-off payment</strong> for a fixed access period (6 or 12 months).
-              There is no automatic renewal — you will never be charged again unless you choose to buy another plan.
-              Payments are processed by a third-party payment provider; we do not see or store your card details.
+              Paid plans (<strong>Pivot</strong> and <strong>Accelerate</strong>) are <strong>recurring
+              subscriptions</strong>, billed either monthly or annually depending on the option you choose. Your
+              subscription renews automatically at the end of each billing period until you cancel. The Pivot plan
+              begins with a <strong>7-day free trial</strong>; you will not be charged if you cancel before the
+              trial ends. Payments are processed by a third-party payment provider; we do not see or store your
+              card details.
+            </p>
+            <p>
+              <strong>Cancelling.</strong> You can cancel at any time from your account settings. Cancellation
+              stops future renewals — your plan remains active until the end of the period you have already paid
+              for, after which it will not renew. We do not provide pro-rata refunds for the unused remainder of a
+              paid period except where required by law.
             </p>
             <p>
               <strong>14-day cancellation right.</strong> Under the UK Consumer Contracts Regulations 2013,
@@ -119,17 +128,17 @@ export default function TermsPage() {
             </p>
             <ul>
               <li>
-                <strong>Full refund</strong> within 14 days of purchase <strong>provided you have not yet run a
-                paid pivot analysis</strong>. You can request this for any reason.
+                <strong>Full refund</strong> within 14 days of your first paid charge <strong>provided you have not
+                yet run a paid pivot analysis</strong>. You can request this for any reason.
               </li>
               <li>
                 Once you run a paid pivot analysis, you are asking us to begin supplying the digital service
-                immediately. At that point the service is treated as delivered and the fee becomes
+                immediately. At that point the current period's fee is treated as delivered and becomes
                 <strong> non-refundable</strong>, as permitted under the Regulations.
               </li>
               <li>
-                Your <strong>free analysis</strong> lets you evaluate the quality of the Service before paying,
-                so you can make an informed decision.
+                The <strong>free tier</strong> and the Pivot <strong>7-day trial</strong> let you evaluate the
+                quality of the Service before paying, so you can make an informed decision.
               </li>
               <li>
                 Access granted through a <strong>100%-off or complimentary code</strong> involves no payment and

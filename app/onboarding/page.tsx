@@ -928,7 +928,7 @@ export default function OnboardingPage() {
               href="/pricing"
               className="flex-1 bg-amber text-navy px-6 py-[14px] rounded-pp font-semibold text-[15px] hover:bg-amber/90 transition-colors"
             >
-              View plans — from £5
+              View plans — from £19/mo
             </Link>
             <Link
               href="/settings"

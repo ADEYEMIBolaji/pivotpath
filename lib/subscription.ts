@@ -1,56 +1,94 @@
 /**
  * Subscription plans, usage limits and quota enforcement.
  *
- * Usage limits are designed to keep AI costs within the margin of each plan:
- *   6-month  £5  → max 3 pivot analyses  (leaves ~£2.50 margin after API costs)
- *   12-month £9  → max 7 pivot analyses  (leaves ~£3.50 margin after API costs)
- *   Free tier    → max 1 pivot analysis  (demo / trial)
+ * Three recurring tiers, each billable monthly or annually:
+ *   Free        £0            → skills translation map only, no résumé output
+ *   Pivot       £19/mo · £99/yr → full résumé rewrite, gap scorecard, strategy brief
+ *   Accelerate  £39/mo · £179/yr → everything in Pivot + live reviews & priority support
  *
- * Job refresh is throttled to once per 24 hours per user (API cost is low but
- * prevents abuse from repeat calls).
+ * PRICING_CONFIG below is the single source of truth for marketing/display
+ * (names, prices, features, badges, CTAs). Operational limits (analysis quota,
+ * job-refresh throttle) live in PLAN_LIMITS — they aren't customer-facing copy.
  *
  * Results are cached per pivot — re-opening the same session never consumes quota.
  */
 
-export type PlanId = 'free' | '6month' | '12month'
+export type PlanId = 'free' | 'pivot' | 'accelerate'
+export type BillingCycle = 'monthly' | 'annual'
 
-export interface Plan {
+/** Customer-facing pricing/display config — the single source of truth for the
+ *  pricing page, checkout and any upgrade prompts. Prices are in GBP pence. */
+export interface TierConfig {
   id: PlanId
   name: string
-  price: number          // GBP pence
-  durationMonths: number
-  pivotLimit: number     // max full analyses per subscription window
-  jobRefreshHours: number // min hours between job refreshes
+  monthlyPrice: number   // GBP pence (0 for free)
+  annualPrice: number    // GBP pence (0 for free)
+  features: string[]
   badge?: string
+  cta: string
+  highlighted?: boolean
 }
 
-export const PLANS: Record<PlanId, Plan> = {
+export const PRICING_CONFIG: Record<PlanId, TierConfig> = {
   free: {
     id: 'free',
     name: 'Free',
-    price: 0,
-    durationMonths: 0,
-    pivotLimit: 1,
-    jobRefreshHours: 24,
+    monthlyPrice: 0,
+    annualPrice: 0,
+    features: ['Skills translation map only, no résumé output'],
+    cta: 'Start free',
   },
-  '6month': {
-    id: '6month',
-    name: '6 months',
-    price: 500,   // £5.00
-    durationMonths: 6,
-    pivotLimit: 3,
-    jobRefreshHours: 12,
+  pivot: {
+    id: 'pivot',
+    name: 'Pivot',
+    monthlyPrice: 1900,    // £19/month
+    annualPrice: 9900,     // £99/year
+    features: ['Full résumé rewrite', 'Gap scorecard', 'Application strategy brief'],
     badge: 'Most popular',
+    cta: 'Start 7-day trial',
+    highlighted: true,
   },
-  '12month': {
-    id: '12month',
-    name: '12 months',
-    price: 900,   // £9.00
-    durationMonths: 12,
-    pivotLimit: 7,
-    jobRefreshHours: 6,
+  accelerate: {
+    id: 'accelerate',
+    name: 'Accelerate',
+    monthlyPrice: 3900,    // £39/month
+    annualPrice: 17900,    // £179/year
+    features: ['Everything in Pivot', '3 live CV reviews', 'Priority support', 'Updated analyses'],
     badge: 'Best value',
+    cta: 'Get Accelerate',
   },
+}
+
+/** Operational limits (not customer-facing copy). Tune freely — these keep AI
+ *  cost within each tier's margin and throttle job-refresh abuse. */
+export interface PlanLimits {
+  pivotLimit: number      // max full analyses per billing window
+  jobRefreshHours: number // min hours between job refreshes
+}
+
+export const PLAN_LIMITS: Record<PlanId, PlanLimits> = {
+  free:       { pivotLimit: 1,  jobRefreshHours: 24 },
+  pivot:      { pivotLimit: 10, jobRefreshHours: 12 },
+  accelerate: { pivotLimit: 30, jobRefreshHours: 6 },
+}
+
+/** Months of access granted per billing cycle (used to compute expiry). */
+export const CYCLE_MONTHS: Record<BillingCycle, number> = { monthly: 1, annual: 12 }
+
+export interface Plan extends TierConfig, PlanLimits {}
+
+/** Merged operational view of a tier (display config + limits). */
+export const PLANS: Record<PlanId, Plan> = {
+  free:       { ...PRICING_CONFIG.free, ...PLAN_LIMITS.free },
+  pivot:      { ...PRICING_CONFIG.pivot, ...PLAN_LIMITS.pivot },
+  accelerate: { ...PRICING_CONFIG.accelerate, ...PLAN_LIMITS.accelerate },
+}
+
+/** Price (GBP pence) for a tier on a given billing cycle. */
+export function priceForCycle(planId: PlanId, cycle: BillingCycle): number {
+  const tier = PRICING_CONFIG[planId]
+  if (!tier) return 0
+  return cycle === 'annual' ? tier.annualPrice : tier.monthlyPrice
 }
 
 // ─── Quota check ─────────────────────────────────────────────────────────────
@@ -161,6 +199,7 @@ export async function activateSubscription(
   userId: string,
   planId: PlanId,
   paymentRef: string,
+  cycle: BillingCycle = 'monthly',
 ): Promise<boolean> {
   if (!process.env.DATABASE_URL) return false
   const plan = PLANS[planId]
@@ -181,7 +220,7 @@ export async function activateSubscription(
     const current = await getActiveSubscription(userId)
     const base = current ? new Date(Math.max(Date.now(), new Date(current.expiresAt).getTime())) : new Date()
     const expires = new Date(base)
-    expires.setMonth(expires.getMonth() + plan.durationMonths)
+    expires.setMonth(expires.getMonth() + CYCLE_MONTHS[cycle])
 
     await query(
       `INSERT INTO subscriptions (user_id, plan, status, started_at, expires_at, payment_ref)

@@ -1,7 +1,7 @@
 /**
  * POST /api/checkout — start a subscription.
  *
- * Body: { plan: '6month' | '12month', code?: string }
+ * Body: { plan: 'pivot' | 'accelerate', cycle?: 'monthly' | 'annual', code?: string, extend?: boolean }
  *
  * Behaviour:
  *  - Validates the discount code (if any).
@@ -14,7 +14,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
-import { PLANS, activateSubscription, getActiveSubscription, type PlanId } from '@/lib/subscription'
+import { PLANS, priceForCycle, activateSubscription, getActiveSubscription, type PlanId, type BillingCycle } from '@/lib/subscription'
 import { validateDiscount, redeemDiscount } from '@/lib/discount'
 import { isPaddleConfigured, priceIdForPlan } from '@/lib/paddle'
 
@@ -26,11 +26,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: false, error: 'Please sign in to continue.' }, { status: 401 })
   }
 
-  const { plan: planId, code, extend } = (await req.json()) as { plan?: string; code?: string; extend?: boolean }
+  const { plan: planId, cycle: rawCycle, code, extend } = (await req.json()) as { plan?: string; cycle?: string; code?: string; extend?: boolean }
   const plan = PLANS[planId as PlanId]
   if (!plan || plan.id === 'free') {
     return NextResponse.json({ ok: false, error: 'Invalid plan.' }, { status: 400 })
   }
+  const cycle: BillingCycle = rawCycle === 'annual' ? 'annual' : 'monthly'
 
   // If a plan is already active, block accidental re-purchase — unless the user
   // explicitly chose to extend/upgrade (extend:true). Extending stacks the new
@@ -46,16 +47,16 @@ export async function POST(req: NextRequest) {
     }, { status: 409 })
   }
 
-  let finalPrice = plan.price
+  let finalPrice = priceForCycle(plan.id, cycle)
   let appliedCode: string | undefined
   let paddleDiscountId: string | undefined
 
   if (code) {
-    const disc = await validateDiscount(code, plan.id)
+    const disc = await validateDiscount(code, plan.id, cycle)
     if (!disc.valid) {
       return NextResponse.json({ ok: false, error: disc.reason ?? 'Invalid code.' }, { status: 400 })
     }
-    finalPrice = disc.finalPrice ?? plan.price
+    finalPrice = disc.finalPrice ?? priceForCycle(plan.id, cycle)
     appliedCode = disc.code
     paddleDiscountId = disc.paddleDiscountId
   }
@@ -66,6 +67,7 @@ export async function POST(req: NextRequest) {
       session.user.id,
       plan.id,
       appliedCode ? `comp:${appliedCode}:${session.user.id}` : `comp:${session.user.id}`,
+      cycle,
     )
     if (!ok) {
       return NextResponse.json({ ok: false, error: 'Could not activate your plan.' }, { status: 500 })
@@ -89,13 +91,14 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({
     ok: true,
     paddle: {
-      priceId: priceIdForPlan(plan.id),
+      priceId: priceIdForPlan(plan.id, cycle),
       discountId: paddleDiscountId,
       email: session.user.email,
       finalPrice,
       plan: plan.id,
+      cycle,
       // customData is echoed back to us by the webhook to fulfil the order
-      customData: { userId: session.user.id, plan: plan.id, code: appliedCode ?? null },
+      customData: { userId: session.user.id, plan: plan.id, cycle, code: appliedCode ?? null },
     },
   })
 }

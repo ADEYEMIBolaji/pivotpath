@@ -31,6 +31,9 @@ const dmMono = DM_Mono({
 
 // ─── Site metadata ────────────────────────────────────────────────────────────
 export const metadata: Metadata = {
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL ?? 'https://pivotpath.uk',
+  ),
   title: {
     default: 'PivotPath — Career Transition Intelligence',
     template: '%s · PivotPath',

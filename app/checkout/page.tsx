@@ -7,13 +7,9 @@ import Link from 'next/link'
 import { initializePaddle, type Paddle } from '@paddle/paddle-js'
 import { Logo } from '@/components/brand'
 import { cn } from '@/lib/utils'
+import { PRICING_CONFIG, priceForCycle, type BillingCycle } from '@/lib/subscription'
 
-type PlanId = '6month' | '12month'
-
-const PLAN_META: Record<PlanId, { name: string; price: number; months: number; analyses: number }> = {
-  '6month':  { name: '6 months', price: 500, months: 6, analyses: 3 },
-  '12month': { name: '12 months', price: 900, months: 12, analyses: 7 },
-}
+type PaidPlanId = 'pivot' | 'accelerate'
 
 function fmt(pence: number) {
   return pence % 100 === 0 ? `£${pence / 100}` : `£${(pence / 100).toFixed(2)}`
@@ -24,8 +20,12 @@ function CheckoutInner() {
   const router = useRouter()
   const { status } = useSession()
 
-  const planId = (params.get('plan') as PlanId) ?? '6month'
-  const plan = PLAN_META[planId] ?? PLAN_META['6month']
+  const rawPlan = params.get('plan')
+  const planId: PaidPlanId = rawPlan === 'accelerate' ? 'accelerate' : 'pivot'
+  const cycle: BillingCycle = params.get('cycle') === 'annual' ? 'annual' : 'monthly'
+  const tier = PRICING_CONFIG[planId]
+  const plan = { name: tier.name, price: priceForCycle(planId, cycle) }
+  const cycleLabel = cycle === 'annual' ? 'year' : 'month'
 
   const [code, setCode] = useState('')
   const [applying, setApplying] = useState(false)
@@ -43,9 +43,9 @@ function CheckoutInner() {
   // Require sign-in
   useEffect(() => {
     if (status === 'unauthenticated') {
-      router.replace(`/auth/signin?callbackUrl=${encodeURIComponent(`/checkout?plan=${planId}`)}`)
+      router.replace(`/auth/signin?callbackUrl=${encodeURIComponent(`/checkout?plan=${planId}&cycle=${cycle}`)}`)
     }
-  }, [status, router, planId])
+  }, [status, router, planId, cycle])
 
   // Block re-purchase: if the user already has an active paid plan, don't let
   // them pay again. (Server enforces this too, in /api/checkout.)
@@ -90,7 +90,7 @@ function CheckoutInner() {
       const res = await fetch('/api/discount/validate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code, plan: planId }),
+        body: JSON.stringify({ code, plan: planId, cycle }),
       })
       const data = await res.json() as { valid: boolean; reason?: string; percentOff?: number; finalPrice?: number }
       if (!data.valid) {
@@ -112,7 +112,7 @@ function CheckoutInner() {
       const res = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ plan: planId, code: discount ? code : undefined, extend: extendMode }),
+        body: JSON.stringify({ plan: planId, cycle, code: discount ? code : undefined, extend: extendMode }),
       })
       const data = await res.json() as {
         ok: boolean
@@ -144,7 +144,7 @@ function CheckoutInner() {
           ...(data.paddle.discountId ? { discountId: data.paddle.discountId } : {}),
           ...(data.paddle.email ? { customer: { email: data.paddle.email } } : {}),
           customData: data.paddle.customData,
-          settings: { displayMode: 'overlay', theme: 'dark', successUrl: `${window.location.origin}/checkout?plan=${planId}&success=1` },
+          settings: { displayMode: 'overlay', theme: 'dark', successUrl: `${window.location.origin}/checkout?plan=${planId}&cycle=${cycle}&success=1` },
         })
         return
       }
@@ -253,7 +253,7 @@ function CheckoutInner() {
 
         {extendMode && (
           <div className="rounded-pp-l px-5 py-4 mb-5 text-[13.5px] text-teal-light" style={{ background: 'rgba(46,107,107,0.1)', border: '1px solid rgba(46,107,107,0.3)' }}>
-            Your current plan stays active — this adds {plan.name === '6 months' ? '6 months' : '12 months'} (and a fresh set of analyses) on top of any time you have left.
+            Your current plan stays active — this switches you to {plan.name} ({cycle === 'annual' ? 'annual' : 'monthly'}) and adds time on top of what you have left.
           </div>
         )}
 
@@ -262,14 +262,14 @@ function CheckoutInner() {
           <div className="flex items-center justify-between mb-4">
             <div>
               <p className="text-[16px] font-semibold text-offwhite">PivotPath · {plan.name}</p>
-              <p className="text-[13px] text-pp-text-faint mt-0.5">{plan.analyses} full pivot analyses · one-off payment</p>
+              <p className="text-[13px] text-pp-text-faint mt-0.5">Billed {cycle === 'annual' ? 'yearly' : 'monthly'} · cancel anytime</p>
             </div>
-            {/* Plan switcher */}
+            {/* Billing-cycle switcher */}
             <Link
-              href={`/checkout?plan=${planId === '6month' ? '12month' : '6month'}`}
+              href={`/checkout?plan=${planId}&cycle=${cycle === 'annual' ? 'monthly' : 'annual'}`}
               className="text-[12.5px] text-amber hover:text-amber/80 transition-colors flex-shrink-0"
             >
-              Switch
+              {cycle === 'annual' ? 'Switch to monthly' : 'Switch to annual'}
             </Link>
           </div>
 
@@ -335,8 +335,9 @@ function CheckoutInner() {
           {submitting ? 'Processing…' : finalPrice === 0 ? 'Activate my plan — free' : `Continue · ${fmt(finalPrice)}`}
         </button>
         <p className="text-[11.5px] text-pp-text-ghost text-center mt-3">
-          Secure · One-off payment · No auto-renewal ·{' '}
-          <Link href="/legal/terms" className="underline hover:text-pp-text-faint">14-day refund policy</Link>
+          Secure · Billed {cycle === 'annual' ? 'yearly' : 'monthly'} · Cancel anytime
+          {planId === 'pivot' ? ' · 7-day free trial' : ''} ·{' '}
+          <Link href="/legal/terms" className="underline hover:text-pp-text-faint">Terms</Link>
         </p>
       </main>
     </div>
