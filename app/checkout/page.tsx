@@ -337,6 +337,8 @@ function CheckoutInner() {
         <p className="text-[11.5px] text-pp-text-ghost text-center mt-3">
           Secure · Billed {cycle === 'annual' ? 'yearly' : 'monthly'} · Cancel anytime ·{' '}
           <Link href="/legal/terms" className="underline hover:text-pp-text-faint">Terms</Link>
+          {' · '}
+          <Link href="/legal/refunds" className="underline hover:text-pp-text-faint">Refunds</Link>
         </p>
       </main>
     </div>

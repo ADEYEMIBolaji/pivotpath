@@ -6,7 +6,8 @@ export const metadata = {
   description: 'The terms governing your use of PivotPath.',
 }
 
-const LAST_UPDATED = '24 June 2026'
+const LAST_UPDATED = '29 June 2026'
+const CONTACT_EMAIL = 'pivotpath01@gmail.com'
 
 export default function TermsPage() {
   return (
@@ -106,52 +107,20 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2>8. Payments and refunds</h2>
+            <h2>8. Payments, cancellation and refunds</h2>
             <p>
               Paid plans (<strong>Pivot</strong> and <strong>Accelerate</strong>) are <strong>recurring
-              subscriptions</strong>, billed either monthly or annually depending on the option you choose. Your
-              subscription renews automatically at the end of each billing period until you cancel. Payments are
-              processed by a third-party payment provider; we do not see or store your card details.
+              subscriptions</strong>, billed either monthly or annually depending on the option you choose, and
+              renew automatically until you cancel. Payments and subscriptions are managed by our Merchant of
+              Record, <strong>Paddle.com</strong>; we do not see or store your card details.
             </p>
             <p>
-              <strong>Cancelling.</strong> You can cancel at any time from your account settings. Cancellation
-              stops future renewals — your plan remains active until the end of the period you have already paid
-              for, after which it will not renew. We do not provide pro-rata refunds for the unused remainder of a
-              paid period except where required by law.
-            </p>
-            <p>
-              <strong>14-day cancellation right.</strong> Under the UK Consumer Contracts Regulations 2013,
-              consumers normally have 14 days to cancel a purchase. Because PivotPath is digital content
-              supplied immediately, the following applies:
-            </p>
-            <ul>
-              <li>
-                <strong>Full refund</strong> within 14 days of your first paid charge <strong>provided you have not
-                yet run a paid pivot analysis</strong>. You can request this for any reason.
-              </li>
-              <li>
-                Once you run a paid pivot analysis, you are asking us to begin supplying the digital service
-                immediately. At that point the current period's fee is treated as delivered and becomes
-                <strong> non-refundable</strong>, as permitted under the Regulations.
-              </li>
-              <li>
-                The <strong>free tier</strong> lets you evaluate the quality of the Service before paying, so you
-                can make an informed decision.
-              </li>
-              <li>
-                Access granted through a <strong>100%-off or complimentary code</strong> involves no payment and
-                is therefore non-refundable.
-              </li>
-            </ul>
-            <p>
-              <strong>Faulty or misdescribed service.</strong> Nothing here affects your statutory rights under
-              the Consumer Rights Act 2015. If the Service is faulty or does not work as described, you are
-              entitled to a repair, replacement, or refund — contact us and we will put it right.
-            </p>
-            <p>
-              <strong>How to request a refund.</strong> Email{' '}
-              <a href="mailto:billing@pivotpath.co">billing@pivotpath.co</a> from your account email address.
-              Approved refunds are returned to your original payment method, normally within 14 days.
+              You can cancel at any time from your account settings — your plan stays active until the end of the
+              period you have already paid for, then does not renew. Full details of billing, cancellation, the
+              14-day cancellation right and how to request a refund are set out in our{' '}
+              <Link href="/legal/refunds" className="text-amber hover:text-amber/80">Refund &amp; Cancellation Policy</Link>,
+              which forms part of these terms. Nothing in these terms affects your statutory rights under the
+              Consumer Rights Act 2015.
             </p>
           </section>
 
@@ -216,7 +185,7 @@ export default function TermsPage() {
             <h2>15. Contact</h2>
             <p>
               Questions about these terms? Email us at{' '}
-              <a href="mailto:legal@pivotpath.co">legal@pivotpath.co</a>.
+              <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
             </p>
           </section>
 
@@ -225,6 +194,7 @@ export default function TermsPage() {
         <div className="mt-16 flex flex-wrap gap-5 text-[13px] text-pp-text-ghost border-t pt-8" style={{ borderColor: 'rgba(242,237,228,0.1)' }}>
           <Link href="/" className="hover:text-pp-text-faint transition-colors">← Back to PivotPath</Link>
           <Link href="/legal/privacy" className="hover:text-pp-text-faint transition-colors">Privacy policy</Link>
+          <Link href="/legal/refunds" className="hover:text-pp-text-faint transition-colors">Refund policy</Link>
           <Link href="/settings" className="hover:text-pp-text-faint transition-colors">Settings</Link>
         </div>
       </main>

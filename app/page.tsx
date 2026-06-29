@@ -562,6 +562,7 @@ function FooterSection() {
           <span style={{ color: 'rgba(242,237,228,0.2)' }}>·</span>
           <a href="/legal/privacy" className="hover:text-pp-text-muted transition-colors">Privacy policy</a>
           <a href="/legal/terms" className="hover:text-pp-text-muted transition-colors">Terms of service</a>
+          <a href="/legal/refunds" className="hover:text-pp-text-muted transition-colors">Refund policy</a>
         </div>
       </div>
     </footer>

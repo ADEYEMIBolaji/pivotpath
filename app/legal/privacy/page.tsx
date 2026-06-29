@@ -6,7 +6,8 @@ export const metadata = {
   description: 'How PivotPath collects, uses, and protects your personal data.',
 }
 
-const LAST_UPDATED = '24 June 2026'
+const LAST_UPDATED = '29 June 2026'
+const PRIVACY_EMAIL = 'pivotpath01@gmail.com'
 
 export default function PrivacyPage() {
   return (
@@ -118,7 +119,7 @@ export default function PrivacyPage() {
             </ul>
             <p>
               To exercise any right not available in-app, contact us at{' '}
-              <a href="mailto:privacy@pivotpath.co">privacy@pivotpath.co</a>.
+              <a href={`mailto:${PRIVACY_EMAIL}`}>{PRIVACY_EMAIL}</a>.
               We will respond within 30 days. You also have the right to lodge a complaint with the
               Information Commissioner&apos;s Office (ICO) at <a href="https://ico.org.uk" target="_blank" rel="noopener noreferrer">ico.org.uk</a>.
             </p>
@@ -155,7 +156,7 @@ export default function PrivacyPage() {
             <h2>11. Contact</h2>
             <p>
               For privacy questions or data requests, contact us at{' '}
-              <a href="mailto:privacy@pivotpath.co">privacy@pivotpath.co</a>.
+              <a href={`mailto:${PRIVACY_EMAIL}`}>{PRIVACY_EMAIL}</a>.
             </p>
           </section>
 
@@ -164,6 +165,7 @@ export default function PrivacyPage() {
         <div className="mt-16 flex flex-wrap gap-5 text-[13px] text-pp-text-ghost border-t pt-8" style={{ borderColor: 'rgba(242,237,228,0.1)' }}>
           <Link href="/" className="hover:text-pp-text-faint transition-colors">← Back to PivotPath</Link>
           <Link href="/legal/terms" className="hover:text-pp-text-faint transition-colors">Terms of service</Link>
+          <Link href="/legal/refunds" className="hover:text-pp-text-faint transition-colors">Refund policy</Link>
           <Link href="/settings" className="hover:text-pp-text-faint transition-colors">Settings</Link>
         </div>
       </main>

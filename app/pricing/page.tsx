@@ -76,6 +76,7 @@ export default function PricingPage() {
           <div className="flex gap-5">
             <Link href="/legal/privacy" className="hover:text-pp-text-muted transition-colors">Privacy</Link>
             <Link href="/legal/terms" className="hover:text-pp-text-muted transition-colors">Terms</Link>
+            <Link href="/legal/refunds" className="hover:text-pp-text-muted transition-colors">Refunds</Link>
           </div>
         </div>
       </footer>
