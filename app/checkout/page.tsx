@@ -335,8 +335,7 @@ function CheckoutInner() {
           {submitting ? 'Processing…' : finalPrice === 0 ? 'Activate my plan — free' : `Continue · ${fmt(finalPrice)}`}
         </button>
         <p className="text-[11.5px] text-pp-text-ghost text-center mt-3">
-          Secure · Billed {cycle === 'annual' ? 'yearly' : 'monthly'} · Cancel anytime
-          {planId === 'pivot' ? ' · 7-day free trial' : ''} ·{' '}
+          Secure · Billed {cycle === 'annual' ? 'yearly' : 'monthly'} · Cancel anytime ·{' '}
           <Link href="/legal/terms" className="underline hover:text-pp-text-faint">Terms</Link>
         </p>
       </main>

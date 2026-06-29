@@ -43,8 +43,8 @@ export default function PricingPage() {
                 a: 'Free gives you the skills translation map so you can see how your experience maps to a new field — no résumé output. Pivot (£19/mo or £99/yr) unlocks the full résumé rewrite, gap scorecard and application strategy brief. Accelerate (£39/mo or £179/yr) adds 3 live CV reviews, priority support and continually updated analyses.',
               },
               {
-                q: 'How does the 7-day trial work?',
-                a: 'The Pivot plan starts with a 7-day trial — you get the full experience and won’t be charged until the trial ends. Cancel any time before then and you pay nothing.',
+                q: 'Can I try it before paying?',
+                a: 'Yes — the Free tier lets you generate your skills translation map and see exactly how your experience maps to a new field, no card required. When you’re ready for the full résumé rewrite, gap scorecard and strategy brief, upgrade to Pivot. You’re billed straight away and can cancel any time.',
               },
               {
                 q: 'Can I switch between monthly and annual, or upgrade later?',

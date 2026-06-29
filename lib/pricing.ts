@@ -44,7 +44,7 @@ export const PRICING_CONFIG: Record<PlanId, TierConfig> = {
     annualPrice: 9900,     // £99/year
     features: ['Full résumé rewrite', 'Gap scorecard', 'Application strategy brief'],
     badge: 'Most popular',
-    cta: 'Start 7-day trial',
+    cta: 'Get Pivot',
     highlighted: true,
   },
   accelerate: {

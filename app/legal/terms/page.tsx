@@ -110,10 +110,8 @@ export default function TermsPage() {
             <p>
               Paid plans (<strong>Pivot</strong> and <strong>Accelerate</strong>) are <strong>recurring
               subscriptions</strong>, billed either monthly or annually depending on the option you choose. Your
-              subscription renews automatically at the end of each billing period until you cancel. The Pivot plan
-              begins with a <strong>7-day free trial</strong>; you will not be charged if you cancel before the
-              trial ends. Payments are processed by a third-party payment provider; we do not see or store your
-              card details.
+              subscription renews automatically at the end of each billing period until you cancel. Payments are
+              processed by a third-party payment provider; we do not see or store your card details.
             </p>
             <p>
               <strong>Cancelling.</strong> You can cancel at any time from your account settings. Cancellation
@@ -137,8 +135,8 @@ export default function TermsPage() {
                 <strong> non-refundable</strong>, as permitted under the Regulations.
               </li>
               <li>
-                The <strong>free tier</strong> and the Pivot <strong>7-day trial</strong> let you evaluate the
-                quality of the Service before paying, so you can make an informed decision.
+                The <strong>free tier</strong> lets you evaluate the quality of the Service before paying, so you
+                can make an informed decision.
               </li>
               <li>
                 Access granted through a <strong>100%-off or complimentary code</strong> involves no payment and
