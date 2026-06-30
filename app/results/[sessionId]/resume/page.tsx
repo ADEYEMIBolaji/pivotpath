@@ -252,7 +252,7 @@ export default function ResumeEditorPage() {
           />
         </div>
 
-        <div className="max-w-pp-wide mx-auto px-6 py-10">
+        <div className="max-w-pp-wide mx-auto px-4 sm:px-6 py-8 sm:py-10">
 
           {/* ── Toolbar ── */}
           <div className="pp-noprint flex items-center justify-between mb-8 flex-wrap gap-4">
@@ -303,11 +303,8 @@ export default function ResumeEditorPage() {
             </div>
           </div>
 
-          {/* ── Split pane ── */}
-          <div
-            className={cn('gap-6', diffMode ? 'block' : 'grid')}
-            style={diffMode ? undefined : { gridTemplateColumns: '1fr 1fr' }}
-          >
+          {/* ── Split pane (stacks on mobile, side-by-side from lg) ── */}
+          <div className={cn('gap-6', diffMode ? 'block' : 'grid grid-cols-1 lg:grid-cols-2')}>
             {/* Original — left pane (hidden in diff mode) */}
             {!diffMode && (
               <div
@@ -358,7 +355,7 @@ export default function ResumeEditorPage() {
                 </span>
               </div>
 
-              <div className="px-8 py-8">
+              <div className="px-5 sm:px-8 py-6 sm:py-8">
                 {/* Name + target */}
                 <div className="mb-6 pb-5" style={{ borderBottom: '2px solid rgba(15,25,35,0.12)' }}>
                   <p className="text-[22px] font-semibold text-pp-ink">{profile.name ?? 'Your Name'}</p>

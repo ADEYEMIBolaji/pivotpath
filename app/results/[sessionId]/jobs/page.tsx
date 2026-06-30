@@ -421,14 +421,14 @@ export default function JobsPage() {
     <div className="min-h-screen bg-navy">
       <Nav variant="app" />
 
-      <div className="max-w-pp-content mx-auto px-6 py-12">
+      <div className="max-w-pp-content mx-auto px-4 sm:px-6 py-8 sm:py-12">
 
         {/* ── Header ── */}
         <div className="mb-8">
           <p className="font-mono text-[11px] tracking-[0.1em] uppercase text-amber mb-2">Step 5 of 5 · Matched Jobs</p>
-          <div className="flex items-end justify-between gap-6 flex-wrap">
+          <div className="flex items-end justify-between gap-4 sm:gap-6 flex-wrap">
             <div>
-              <h1 className="font-display text-[32px] font-medium text-offwhite leading-[1.1] mb-1">
+              <h1 className="font-display text-[26px] sm:text-[32px] font-medium text-offwhite leading-[1.1] mb-1">
                 Roles that want your story
               </h1>
               <p className="text-[14px] text-pp-text-body">
@@ -437,7 +437,7 @@ export default function JobsPage() {
             </div>
 
             {data?.meta && (
-              <div className="flex items-center gap-5 text-right">
+              <div className="flex items-center gap-3 sm:gap-5 text-right flex-wrap justify-end">
                 <div>
                   <p className="font-display text-[28px] font-medium text-offwhite">{data.meta.total}</p>
                   <p className="text-[12px] text-pp-text-faint">recommended</p>

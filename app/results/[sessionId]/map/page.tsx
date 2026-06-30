@@ -256,36 +256,37 @@ export default async function TranslationMapPage({
 
         {/* ── Sticky CTA ── */}
         <div
-          className="fixed bottom-0 left-0 right-0 px-6 py-4 flex items-center justify-between"
+          className="fixed bottom-0 left-0 right-0 px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between gap-3"
           style={{
             background: 'rgba(242,237,228,0.96)',
             backdropFilter: 'blur(12px)',
             borderTop: '1px solid rgba(15,25,35,0.1)',
           }}
         >
-          <div>
+          <div className="hidden md:block">
             <p className="text-[14px] font-medium text-pp-ink">Ready to see your repositioned résumé?</p>
             <p className="text-[12.5px] text-pp-ink-meta">Rewritten in {target.title} language — every bullet traceable to your actual experience</p>
           </div>
-          <div className="flex items-center gap-3 flex-shrink-0">
+          <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0 w-full md:w-auto">
             <Link
               href={`/results/${sessionId}/jobs`}
-              className="text-[13.5px] font-medium text-pp-ink-para hover:text-pp-ink transition-colors px-4 py-2.5"
+              className="hidden sm:inline-block text-[13.5px] font-medium text-pp-ink-para hover:text-pp-ink transition-colors px-3 sm:px-4 py-2.5"
             >
               Matched jobs
             </Link>
             <Link
               href={`/results/${sessionId}/strategy`}
-              className="text-[13.5px] font-medium text-pp-ink-para hover:text-pp-ink transition-colors px-4 py-2.5"
+              className="hidden sm:inline-block text-[13.5px] font-medium text-pp-ink-para hover:text-pp-ink transition-colors px-3 sm:px-4 py-2.5"
             >
               Strategy brief
             </Link>
             <Link
               href={`/results/${sessionId}/resume`}
-              className="flex items-center gap-2 bg-navy text-offwhite px-5 py-[11px] rounded-pp font-semibold text-[14px] hover:bg-navy/90 transition-colors"
+              className="flex items-center justify-center gap-2 bg-navy text-offwhite px-5 py-[11px] rounded-pp font-semibold text-[14px] hover:bg-navy/90 transition-colors flex-1 md:flex-none"
             >
-              Generate my repositioned résumé
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <span className="sm:hidden">My repositioned résumé</span>
+              <span className="hidden sm:inline">Generate my repositioned résumé</span>
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="flex-shrink-0">
                 <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </Link>

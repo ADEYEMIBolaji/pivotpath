@@ -149,7 +149,7 @@ export default async function StrategyBriefDynamicPage({
           <Section n="03" title="Your action plan">
             <div className="space-y-6">
               {strategy.plan.map((week: ActionWeek, i: number) => (
-                <div key={i} className="grid gap-6" style={{ gridTemplateColumns: '120px 1fr' }}>
+                <div key={i} className="grid gap-2 sm:gap-6 grid-cols-1 sm:grid-cols-[120px_1fr]">
                   <div className="pt-0.5">
                     <p className="font-mono text-[11px] tracking-[0.07em] uppercase text-pp-ink-meta">{week.label}</p>
                   </div>
@@ -210,7 +210,7 @@ export default async function StrategyBriefDynamicPage({
 
       {/* ── Sticky CTA ── */}
       <div
-        className="pp-noprint fixed bottom-0 left-0 right-0 px-6 py-4 flex items-center justify-between"
+        className="pp-noprint fixed bottom-0 left-0 right-0 px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between gap-3"
         style={{
           background: 'rgba(15,25,35,0.96)',
           backdropFilter: 'blur(12px)',
