@@ -3,6 +3,7 @@ import { Nav } from '@/components/brand'
 import { PricingTiers } from './PricingTiers'
 
 export const metadata = {
+  alternates: { canonical: '/pricing' },
   title: 'Pricing — PivotPath',
   description: 'Simple, transparent pricing for your career pivot. Start free, upgrade when you’re ready.',
 }

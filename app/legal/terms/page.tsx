@@ -4,6 +4,7 @@ import { Logo } from '@/components/brand'
 export const metadata = {
   title: 'Terms of Service — PivotPath',
   description: 'The terms governing your use of PivotPath.',
+  alternates: { canonical: '/legal/terms' },
 }
 
 const LAST_UPDATED = '29 June 2026'

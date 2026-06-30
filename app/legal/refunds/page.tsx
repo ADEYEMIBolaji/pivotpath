@@ -4,6 +4,7 @@ import { Logo } from '@/components/brand'
 export const metadata = {
   title: 'Refund & Cancellation Policy — PivotPath',
   description: 'How billing, cancellations and refunds work for PivotPath subscriptions.',
+  alternates: { canonical: '/legal/refunds' },
 }
 
 const LAST_UPDATED = '29 June 2026'

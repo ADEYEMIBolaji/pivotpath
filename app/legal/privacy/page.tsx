@@ -4,6 +4,7 @@ import { Logo } from '@/components/brand'
 export const metadata = {
   title: 'Privacy Policy — PivotPath',
   description: 'How PivotPath collects, uses, and protects your personal data.',
+  alternates: { canonical: '/legal/privacy' },
 }
 
 const LAST_UPDATED = '29 June 2026'

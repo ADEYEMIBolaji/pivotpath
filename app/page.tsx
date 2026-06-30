@@ -5,6 +5,10 @@ import { ConfidenceBadge } from '@/components/brand/ConfidenceBadge'
 import { SectionOverline, StepRow } from '@/components/brand/SectionRule'
 import type { ConfidenceTier } from '@/lib/types'
 
+// Explicit canonical (resolved against metadataBase = https://www.pivotpath.uk)
+// so Google indexes the www host, not the redirecting apex/http variants.
+export const metadata = { alternates: { canonical: '/' } }
+
 // ─── Static data (ICU Nurse → PM example) ────────────────────────────────────
 
 const STEPS = [
