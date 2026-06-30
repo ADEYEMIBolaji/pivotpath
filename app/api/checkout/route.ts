@@ -16,7 +16,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { PLANS, priceForCycle, activateSubscription, getActiveSubscription, type PlanId, type BillingCycle } from '@/lib/subscription'
 import { validateDiscount, redeemDiscount } from '@/lib/discount'
-import { isPaddleConfigured, priceIdForPlan } from '@/lib/paddle'
+import { isLemonConfigured, createCheckout } from '@/lib/lemonsqueezy'
 
 export const runtime = 'nodejs'
 
@@ -49,7 +49,6 @@ export async function POST(req: NextRequest) {
 
   let finalPrice = priceForCycle(plan.id, cycle)
   let appliedCode: string | undefined
-  let paddleDiscountId: string | undefined
 
   if (code) {
     const disc = await validateDiscount(code, plan.id, cycle)
@@ -58,7 +57,6 @@ export async function POST(req: NextRequest) {
     }
     finalPrice = disc.finalPrice ?? priceForCycle(plan.id, cycle)
     appliedCode = disc.code
-    paddleDiscountId = disc.paddleDiscountId
   }
 
   // Free after discount → activate immediately (no payment needed)
@@ -76,8 +74,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true, activated: true, plan: plan.id })
   }
 
-  // Paid — hand off to Paddle checkout (if configured)
-  if (!isPaddleConfigured()) {
+  // Paid — hand off to Lemon Squeezy checkout (if configured)
+  if (!isLemonConfigured()) {
     return NextResponse.json({
       ok: true,
       requiresPayment: true,
@@ -88,17 +86,22 @@ export async function POST(req: NextRequest) {
     })
   }
 
-  return NextResponse.json({
-    ok: true,
-    paddle: {
-      priceId: priceIdForPlan(plan.id, cycle),
-      discountId: paddleDiscountId,
-      email: session.user.email,
-      finalPrice,
+  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.pivotpath.uk').replace(/\/$/, '')
+  const redirectUrl = `${siteUrl}/checkout?plan=${plan.id}&cycle=${cycle}&success=1`
+
+  try {
+    const checkoutUrl = await createCheckout({
       plan: plan.id,
       cycle,
-      // customData is echoed back to us by the webhook to fulfil the order
-      customData: { userId: session.user.id, plan: plan.id, cycle, code: appliedCode ?? null },
-    },
-  })
+      email: session.user.email,
+      // custom is echoed back to us by the webhook to fulfil the order
+      custom: { userId: session.user.id, plan: plan.id, cycle, code: appliedCode ?? null },
+      discountCode: appliedCode ?? null,
+      redirectUrl,
+    })
+    return NextResponse.json({ ok: true, checkout: { url: checkoutUrl }, plan: plan.id })
+  } catch (err) {
+    console.error('[/api/checkout] LS checkout error:', err)
+    return NextResponse.json({ ok: false, error: 'Could not start checkout. Please try again.' }, { status: 502 })
+  }
 }

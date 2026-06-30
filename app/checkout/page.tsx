@@ -4,10 +4,20 @@ import { Suspense, useState, useEffect } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
-import { initializePaddle, type Paddle } from '@paddle/paddle-js'
 import { Logo } from '@/components/brand'
 import { cn } from '@/lib/utils'
 import { PRICING_CONFIG, priceForCycle, type BillingCycle } from '@/lib/pricing'
+
+// Lemon.js attaches these to window once loaded.
+declare global {
+  interface Window {
+    createLemonSqueezy?: () => void
+    LemonSqueezy?: {
+      Setup: (opts: { eventHandler: (event: { event: string }) => void }) => void
+      Url: { Open: (url: string) => void; Close: () => void }
+    }
+  }
+}
 
 type PaidPlanId = 'pivot' | 'accelerate'
 
@@ -35,7 +45,7 @@ function CheckoutInner() {
   const [submitting, setSubmitting] = useState(false)
   const [done, setDone] = useState<{ activated: boolean; message?: string } | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [paddle, setPaddle] = useState<Paddle | null>(null)
+  const [lemonReady, setLemonReady] = useState(false)
   const [activePlanName, setActivePlanName] = useState<string | null>(null)
   const [checkingAccess, setCheckingAccess] = useState(true)
   const [extendMode, setExtendMode] = useState(false)
@@ -63,21 +73,29 @@ function CheckoutInner() {
     if (params.get('success') === '1') setDone({ activated: true })
   }, [params])
 
-  // Initialise Paddle.js (only if a client token is configured)
+  // Load Lemon.js for the overlay checkout
   useEffect(() => {
-    const token = process.env.NEXT_PUBLIC_PADDLE_CLIENT_TOKEN
-    if (!token) return
-    initializePaddle({
-      token,
-      environment: process.env.NEXT_PUBLIC_PADDLE_ENV === 'production' ? 'production' : 'sandbox',
-      eventCallback: (e) => {
-        // Fired when the overlay reports the checkout is complete. Fulfilment is
-        // handled by the webhook; here we just move the user to the success state.
-        if (e.name === 'checkout.completed') {
-          setDone({ activated: true })
-        }
-      },
-    }).then((p) => setPaddle(p ?? null)).catch(() => {})
+    function init() {
+      if (!window.createLemonSqueezy || !window.LemonSqueezy) return
+      window.createLemonSqueezy()
+      window.LemonSqueezy.Setup({
+        eventHandler: (e) => {
+          // Fired when the overlay reports the checkout is complete. Fulfilment is
+          // handled by the webhook; here we just move the user to the success state.
+          if (e.event === 'Checkout.Success') setDone({ activated: true })
+        },
+      })
+      setLemonReady(true)
+    }
+
+    if (window.LemonSqueezy) { init(); return }
+    const existing = document.querySelector<HTMLScriptElement>('script[src="https://app.lemonsqueezy.com/js/lemon.js"]')
+    if (existing) { existing.addEventListener('load', init); return }
+    const script = document.createElement('script')
+    script.src = 'https://app.lemonsqueezy.com/js/lemon.js'
+    script.defer = true
+    script.addEventListener('load', init)
+    document.body.appendChild(script)
   }, [])
 
   const finalPrice = discount?.finalPrice ?? plan.price
@@ -121,12 +139,7 @@ function CheckoutInner() {
         alreadyActive?: boolean
         message?: string
         error?: string
-        paddle?: {
-          priceId?: string
-          discountId?: string
-          email?: string
-          customData?: Record<string, unknown>
-        }
+        checkout?: { url?: string }
       }
 
       // Already has an active plan — don't charge again
@@ -136,20 +149,18 @@ function CheckoutInner() {
       // Instant activation (100%-off comp code) — no payment needed
       if (data.activated) { setDone({ activated: true }); return }
 
-      // Paid → open the Paddle overlay checkout
-      if (data.paddle?.priceId) {
-        if (!paddle) { setError('Payment is still loading — please try again in a moment.'); return }
-        paddle.Checkout.open({
-          items: [{ priceId: data.paddle.priceId, quantity: 1 }],
-          ...(data.paddle.discountId ? { discountId: data.paddle.discountId } : {}),
-          ...(data.paddle.email ? { customer: { email: data.paddle.email } } : {}),
-          customData: data.paddle.customData,
-          settings: { displayMode: 'overlay', theme: 'dark', successUrl: `${window.location.origin}/checkout?plan=${planId}&cycle=${cycle}&success=1` },
-        })
+      // Paid → open the Lemon Squeezy overlay checkout
+      if (data.checkout?.url) {
+        if (lemonReady && window.LemonSqueezy) {
+          window.LemonSqueezy.Url.Open(data.checkout.url)
+        } else {
+          // Overlay not ready — fall back to a full-page redirect to the hosted checkout
+          window.location.href = data.checkout.url
+        }
         return
       }
 
-      // Payment not yet live (Paddle not configured) — show the validated message
+      // Payment not yet live (provider not configured) — show the validated message
       if (data.requiresPayment) { setDone({ activated: false, message: data.message }); return }
     } finally {
       setSubmitting(false)
