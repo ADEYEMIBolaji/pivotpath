@@ -2,6 +2,7 @@ import NextAuth from 'next-auth'
 import Google from 'next-auth/providers/google'
 import Credentials from 'next-auth/providers/credentials'
 import { compare } from 'bcryptjs'
+import { REVIEWER_DEMO_USER_ID } from './lib/demo'
 
 type DbUser = { id: string; email: string; name: string | null; image: string | null; password_hash: string | null }
 
@@ -60,6 +61,18 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           password === 'screenshot-demo-2024'
         ) {
           return { id: 'demo-user-screenshot', email, name: 'Alex Johnson', image: null }
+        }
+
+        // Reviewer demo account — lets payment-provider approval teams sign in and
+        // see the full (paid) product. Credentials come from env so nothing is in
+        // the repo; enabled only when REVIEWER_DEMO_ENABLED=1.
+        if (
+          process.env.REVIEWER_DEMO_ENABLED === '1' &&
+          process.env.REVIEWER_DEMO_PASSWORD &&
+          email.toLowerCase() === (process.env.REVIEWER_DEMO_EMAIL ?? 'reviewer@pivotpath.uk').toLowerCase() &&
+          password === process.env.REVIEWER_DEMO_PASSWORD
+        ) {
+          return { id: REVIEWER_DEMO_USER_ID, email, name: 'PivotPath Reviewer', image: null }
         }
 
         const user = await getUserByEmail(email)

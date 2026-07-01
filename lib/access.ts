@@ -9,6 +9,7 @@
 
 import { auth } from '@/auth'
 import { getActiveSubscription } from './subscription'
+import { isDemoUser } from './demo'
 
 /**
  * True if the current viewer is on an active paid plan (Pivot or Accelerate).
@@ -21,6 +22,7 @@ export async function viewerHasPaidPlan(): Promise<boolean> {
   if (!process.env.DATABASE_URL) return true
   const session = await auth()
   if (!session?.user?.id) return false
+  if (isDemoUser(session.user.id)) return true
   const sub = await getActiveSubscription(session.user.id)
   return Boolean(sub)
 }

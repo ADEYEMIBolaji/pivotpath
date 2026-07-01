@@ -53,6 +53,12 @@ export async function checkPivotQuota(userId: string): Promise<QuotaResult> {
     return { allowed: true, used: 0, limit: 99, planId: 'free' }
   }
 
+  // Reviewer demo account — unlimited runs so approval teams can explore freely.
+  const { isDemoUser } = await import('./demo')
+  if (isDemoUser(userId)) {
+    return { allowed: true, used: 0, limit: 99, planId: 'accelerate' }
+  }
+
   try {
     const { query } = await import('./db')
 
