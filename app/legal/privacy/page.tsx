@@ -131,7 +131,8 @@ export default function PrivacyPage() {
             <p>
               We use one session cookie (<code>next-auth.session-token</code> or <code>__Secure-next-auth.session-token</code>)
               that keeps you signed in. This is a strictly necessary cookie, it is not used for advertising or tracking.
-              No third-party tracking cookies are set.
+              No third-party tracking cookies are set. For full details, see our{' '}
+              <Link href="/legal/cookies">Cookie policy</Link>.
             </p>
           </section>
 
