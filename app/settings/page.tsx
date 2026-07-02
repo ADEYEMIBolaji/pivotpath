@@ -566,6 +566,7 @@ export default function SettingsPage() {
         <div className="mt-8 flex flex-wrap gap-4 text-[12px] text-pp-text-ghost">
           <Link href="/legal/terms" className="hover:text-pp-text-faint transition-colors">Terms of service</Link>
           <Link href="/legal/privacy" className="hover:text-pp-text-faint transition-colors">Privacy policy</Link>
+          <Link href="/legal/cookies" className="hover:text-pp-text-faint transition-colors">Cookie policy</Link>
           <span>© {new Date().getFullYear()} PivotPath</span>
         </div>
       </main>
