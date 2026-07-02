@@ -196,9 +196,9 @@ export default async function StrategyBriefDynamicPage({
               fullScreen={false}
               eyebrow="The rest is a Pivot feature"
               title="Unlock your full strategy brief"
-              body="You've seen where to aim. Upgrade to Pivot to unlock the rest of your brief — your origin advantage, a week-by-week action plan and what to expect."
+              body="You've seen where to aim. Upgrade to Pivot to unlock the rest of your brief, your origin advantage, a week-by-week action plan and what to expect."
               bullets={[
-                'Your origin advantage — how your past reframes as an asset',
+                'Your origin advantage, how your past reframes as an asset',
                 'A week-by-week action plan to land the pivot',
                 'What to expect: timelines, comp and realistic odds',
               ]}

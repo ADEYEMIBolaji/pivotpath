@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 // ─── Static data (ICU Nurse → PM example) ────────────────────────────────────
 
 const BRIDGES = [
-  { title: 'Associate Product Manager (APM)',        why: 'The standard re-entry point — APM tracks are built to take strong generalists without a PM title yet.' },
+  { title: 'Associate Product Manager (APM)',        why: 'The standard re-entry point, APM tracks are built to take strong generalists without a PM title yet.' },
   { title: 'Product Operations Manager',             why: 'Leans directly on your coordination and process strengths while you build product-delivery evidence.' },
   { title: 'Clinical Informatics Analyst → PM track', why: 'Your domain expertise is the whole job here; many analysts move into health-tech PM within a year.' },
 ]
@@ -128,7 +128,7 @@ export default function StrategyBriefPage() {
             How to actually land the pivot
           </h1>
           <p className="text-[15px] leading-[1.55] text-pp-text-body m-0 max-w-[560px]">
-            A working document — keep it open while you apply. Everything here is
+            A working document, keep it open while you apply. Everything here is
             specific to your profile, not generic advice.
           </p>
         </div>
@@ -241,14 +241,14 @@ export default function StrategyBriefPage() {
             </div>
             <p className="text-[14.5px] leading-[1.6] text-pp-ink-body mt-4 mb-0">
               <strong className="text-pp-ink">Why:</strong> Your clinical domain expertise is a genuine differentiator
-              in health-tech — they are starved for PMs who understand the user. Early-stage companies hire for
+              in health-tech, they are starved for PMs who understand the user. Early-stage companies hire for
               adaptability and judgement over pedigree, which is exactly where your profile is strong.
             </p>
           </section>
 
           {/* ── 3. Bridge Roles ── */}
           <section className="mb-[clamp(36px,5vw,52px)]">
-            <NumberedSectionRule num="02" title="Bridge roles — apply to these first" />
+            <NumberedSectionRule num="02" title="Bridge roles, apply to these first" />
             <div className="flex flex-col gap-[14px]">
               {BRIDGES.map((b, i) => (
                 <div
@@ -288,7 +288,7 @@ export default function StrategyBriefPage() {
                 className="font-display leading-[1.55] m-0 mb-4 text-offwhite"
                 style={{ fontSize: 'clamp(16px,1.8vw,20px)' }}
               >
-                In health-tech interviews, don't hide the nursing — lead with it.
+                In health-tech interviews, don't hide the nursing, lead with it.
               </p>
               <div className="flex flex-col gap-[11px]">
                 {ORIGIN_ADVANTAGE.map((item) => (
@@ -373,7 +373,7 @@ export default function StrategyBriefPage() {
               ))}
             </div>
             <p className="text-[13.5px] leading-[1.6] text-pp-ink-meta mt-5 mb-0 italic font-display">
-              A readiness score under 100 is normal — most successful pivoters start here.
+              A readiness score under 100 is normal, most successful pivoters start here.
               Forward motion, not perfection, is the goal.
             </p>
           </section>

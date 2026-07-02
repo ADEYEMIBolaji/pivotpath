@@ -4,7 +4,7 @@ import { PricingTiers } from './PricingTiers'
 
 export const metadata = {
   alternates: { canonical: '/pricing' },
-  title: 'Pricing — PivotPath',
+  title: 'Pricing, PivotPath',
   description: 'Simple, transparent pricing for your career pivot. Start free, upgrade when you’re ready.',
 }
 
@@ -23,7 +23,7 @@ export default function PricingPage() {
           </h1>
           <p className="text-[17px] text-pp-text-body max-w-[520px] mx-auto leading-[1.6]">
             See your skills translation map for free. When you’re ready for the full rewrite,
-            pick the plan that fits — monthly or annual, cancel anytime.
+            pick the plan that fits, monthly or annual, cancel anytime.
           </p>
         </div>
 
@@ -37,19 +37,19 @@ export default function PricingPage() {
             {[
               {
                 q: 'What counts as a "pivot analysis"?',
-                a: 'A pivot analysis is one full run — ingesting your CV, generating your Translation Map, rewriting your résumé, and creating your strategy brief. Opening and re-reading past results never counts. You can also re-run job matching as many times as the refresh limit allows.',
+                a: 'A pivot analysis is one full run, ingesting your CV, generating your Translation Map, rewriting your résumé, and creating your strategy brief. Opening and re-reading past results never counts. You can also re-run job matching as many times as the refresh limit allows.',
               },
               {
                 q: 'What’s the difference between Free, Pivot and Accelerate?',
-                a: 'Free gives you the skills translation map so you can see how your experience maps to a new field — no résumé output. Pivot (£19/mo or £99/yr) unlocks the full résumé rewrite, gap scorecard and application strategy brief. Accelerate (£39/mo or £179/yr) adds 3 live CV reviews, priority support and continually updated analyses.',
+                a: 'Free gives you the skills translation map so you can see how your experience maps to a new field, no résumé output. Pivot (£19/mo or £99/yr) unlocks the full résumé rewrite, gap scorecard and application strategy brief. Accelerate (£39/mo or £179/yr) adds 3 live CV reviews, priority support and continually updated analyses.',
               },
               {
                 q: 'Can I try it before paying?',
-                a: 'Yes — the Free tier lets you generate your skills translation map and see exactly how your experience maps to a new field, no card required. When you’re ready for the full résumé rewrite, gap scorecard and strategy brief, upgrade to Pivot. You’re billed straight away and can cancel any time.',
+                a: 'Yes, the Free tier lets you generate your skills translation map and see exactly how your experience maps to a new field, no card required. When you’re ready for the full résumé rewrite, gap scorecard and strategy brief, upgrade to Pivot. You’re billed straight away and can cancel any time.',
               },
               {
                 q: 'Can I switch between monthly and annual, or upgrade later?',
-                a: 'Yes. You can move between monthly and annual billing, or upgrade from Pivot to Accelerate, at any time — your remaining time carries over.',
+                a: 'Yes. You can move between monthly and annual billing, or upgrade from Pivot to Accelerate, at any time, your remaining time carries over.',
               },
               {
                 q: 'Can I cancel?',
@@ -57,7 +57,7 @@ export default function PricingPage() {
               },
               {
                 q: 'Is payment secure?',
-                a: 'Payments are processed by a secure third-party payment provider — we never see or store your card details. The checkout is fully encrypted.',
+                a: 'Payments are processed by a secure third-party payment provider, we never see or store your card details. The checkout is fully encrypted.',
               },
             ].map(({ q, a }) => (
               <div key={q} className="border-b pb-6" style={{ borderColor: 'rgba(242,237,228,0.1)' }}>

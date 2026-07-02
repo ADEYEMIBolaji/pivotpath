@@ -219,7 +219,7 @@ function JobCard({
                 </svg>
                 Wants {flag.gapName}
                 {flag.severity !== 'disqualifying' && (
-                  <span className="opacity-70"> — in your {flag.severity} list</span>
+                  <span className="opacity-70">, in your {flag.severity} list</span>
                 )}
               </span>
             )
@@ -432,7 +432,7 @@ export default function JobsPage() {
                 Roles that want your story
               </h1>
               <p className="text-[14px] text-pp-text-body">
-                Hand-picked roles that fit your translated profile — the ones worth applying to first.
+                Hand-picked roles that fit your translated profile, the ones worth applying to first.
               </p>
             </div>
 

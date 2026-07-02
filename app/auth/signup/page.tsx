@@ -18,9 +18,16 @@ function SignUpForm() {
     if (status === 'authenticated') router.replace(callbackUrl)
   }, [status, router, callbackUrl])
 
+  // Prefill a referral code from an influencer link, e.g. /auth/signup?ref=PIVOTESTHER20
+  useEffect(() => {
+    const ref = searchParams.get('ref') ?? searchParams.get('code')
+    if (ref) setReferral(ref.trim().toUpperCase())
+  }, [searchParams])
+
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [referral, setReferral] = useState('')
   const [agreedToTerms, setAgreedToTerms] = useState(false)
   const [loading, setLoading] = useState(false)
   const [googleLoading, setGoogleLoading] = useState(false)
@@ -34,7 +41,7 @@ function SignUpForm() {
     const res = await fetch('/api/auth/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, password }),
+      body: JSON.stringify({ name, email, password, referral }),
     })
     const data = await res.json() as { ok: boolean; error?: string }
 
@@ -159,6 +166,23 @@ function SignUpForm() {
                     {passwordStrength}
                   </span>
                 </div>
+              )}
+            </div>
+
+            <div>
+              <label className="block font-mono text-[11px] tracking-[0.08em] uppercase text-pp-text-faint mb-1.5">
+                Referral code <span className="text-pp-text-ghost normal-case tracking-normal">(optional)</span>
+              </label>
+              <input
+                type="text"
+                value={referral}
+                onChange={e => setReferral(e.target.value.toUpperCase())}
+                placeholder="From an influencer? Enter their code"
+                className="w-full bg-navy/60 border rounded-pp px-4 py-[11px] text-[14px] text-offwhite placeholder:text-pp-text-ghost outline-none transition-all focus:border-amber/60 uppercase"
+                style={{ borderColor: 'rgba(242,237,228,0.18)' }}
+              />
+              {referral && (
+                <p className="text-[12px] text-teal-light mt-1.5">Unlocks 20% off your first plan.</p>
               )}
             </div>
 

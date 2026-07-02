@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { Logo } from '@/components/brand'
 
 export const metadata = {
-  title: 'Terms of Service — PivotPath',
+  title: 'Terms of Service, PivotPath',
   description: 'The terms governing your use of PivotPath.',
   alternates: { canonical: '/legal/terms' },
 }
@@ -116,7 +116,7 @@ export default function TermsPage() {
               Record, <strong>Paddle.com</strong>; we do not see or store your card details.
             </p>
             <p>
-              You can cancel at any time from your account settings — your plan stays active until the end of the
+              You can cancel at any time from your account settings, your plan stays active until the end of the
               period you have already paid for, then does not renew. Full details of billing, cancellation, the
               14-day cancellation right and how to request a refund are set out in our{' '}
               <Link href="/legal/refunds" className="text-amber hover:text-amber/80">Refund &amp; Cancellation Policy</Link>,
