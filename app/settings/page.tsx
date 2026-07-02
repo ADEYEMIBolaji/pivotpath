@@ -113,6 +113,100 @@ function DeleteAccountDialog({ onClose }: { onClose: () => void }) {
   )
 }
 
+function PasswordSection() {
+  const [hasPassword, setHasPassword] = useState<boolean | null>(null)
+  const [open, setOpen] = useState(false)
+  const [current, setCurrent] = useState('')
+  const [next, setNext] = useState('')
+  const [confirm, setConfirm] = useState('')
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [saved, setSaved] = useState(false)
+
+  useEffect(() => {
+    fetch('/api/account/password')
+      .then((r) => r.json())
+      .then((d) => { if (d.ok) setHasPassword(d.hasPassword) })
+      .catch(() => {})
+  }, [])
+
+  function reset() {
+    setCurrent(''); setNext(''); setConfirm(''); setError(null)
+  }
+
+  async function save() {
+    if (next.length < 8) { setError('Password must be at least 8 characters'); return }
+    if (next !== confirm) { setError('Passwords do not match'); return }
+    setSaving(true)
+    setError(null)
+    const res = await fetch('/api/account/password', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ currentPassword: hasPassword ? current : undefined, newPassword: next }),
+    })
+    const data = await res.json() as { ok: boolean; error?: string }
+    setSaving(false)
+    if (!data.ok) { setError(data.error ?? 'Failed to update password'); return }
+    setHasPassword(true)
+    setOpen(false)
+    reset()
+    setSaved(true)
+    setTimeout(() => setSaved(false), 2500)
+  }
+
+  const inputClass = 'w-full bg-navy/60 border rounded-pp px-4 py-[10px] text-[14px] text-offwhite placeholder:text-pp-text-ghost outline-none transition-all focus:border-amber/60'
+  const inputStyle = { borderColor: 'rgba(242,237,228,0.18)' }
+
+  return (
+    <Section
+      title="Password"
+      description={hasPassword === false
+        ? 'You signed up with Google. Set a password to also sign in with your email.'
+        : 'Change the password you use to sign in with email.'}
+    >
+      {!open ? (
+        <SettingRow
+          label={hasPassword === false ? 'Set a password' : 'Change password'}
+          description={hasPassword === false ? 'Adds email + password sign-in alongside Google.' : 'You will need your current password.'}
+        >
+          <button
+            onClick={() => { reset(); setOpen(true) }}
+            className="text-[13px] font-medium text-amber hover:text-amber/80 transition-colors"
+          >
+            {saved ? 'Saved ✓' : hasPassword === false ? 'Set password' : 'Change'}
+          </button>
+        </SettingRow>
+      ) : (
+        <div className="space-y-3 py-2">
+          {hasPassword && (
+            <div>
+              <label className="block font-mono text-[11px] tracking-[0.08em] uppercase text-pp-text-faint mb-1.5">Current password</label>
+              <input type="password" value={current} onChange={e => setCurrent(e.target.value)} className={inputClass} style={inputStyle} placeholder="Current password" />
+            </div>
+          )}
+          <div>
+            <label className="block font-mono text-[11px] tracking-[0.08em] uppercase text-pp-text-faint mb-1.5">New password</label>
+            <input type="password" value={next} onChange={e => setNext(e.target.value)} className={inputClass} style={inputStyle} placeholder="Min. 8 characters" />
+          </div>
+          <div>
+            <label className="block font-mono text-[11px] tracking-[0.08em] uppercase text-pp-text-faint mb-1.5">Confirm new password</label>
+            <input type="password" value={confirm} onChange={e => setConfirm(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') save() }} className={inputClass} style={inputStyle} placeholder="Re-enter password" />
+          </div>
+          {error && <p className="text-[12.5px] text-pp-red">{error}</p>}
+          <div className="flex gap-2 pt-1">
+            <button onClick={save} disabled={saving} className="px-4 py-[9px] rounded-pp text-[13px] font-semibold bg-amber text-navy disabled:opacity-50">
+              {saving ? 'Saving…' : 'Save password'}
+            </button>
+            <button onClick={() => { setOpen(false); reset() }} className="px-3 py-[9px] rounded-pp text-[13px] text-pp-text-faint hover:text-offwhite">
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+    </Section>
+  )
+}
+
 export default function SettingsPage() {
   const { data: session, update: updateSession } = useSession()
   const router = useRouter()
@@ -175,8 +269,6 @@ export default function SettingsPage() {
       </div>
     )
   }
-
-  const isOAuth = !session.user?.email?.includes('@') || true // simplified — shown via account type
 
   return (
     <div className="min-h-screen bg-navy">
@@ -274,11 +366,13 @@ export default function SettingsPage() {
           </SettingRow>
         </Section>
 
-        {/* ── Plan & usage ── */}
+        <PasswordSection />
+
+        {/* Plan & usage */}
         <Section title="Plan &amp; usage" description="Your subscription and how many pivot analyses you have left.">
           <SettingRow
             label="Current plan"
-            description={usage?.expiresAt ? `Active until ${new Date(usage.expiresAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}` : usage?.planId === 'free' ? 'Free tier — no expiry' : undefined}
+            description={usage?.expiresAt ? `Active until ${new Date(usage.expiresAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}` : usage?.planId === 'free' ? 'Free tier, no expiry' : undefined}
           >
             <span className="text-[12px] font-mono px-2.5 py-1 rounded-pp" style={{ background: 'rgba(46,107,107,0.2)', color: '#5FB0A6' }}>
               {usage ? usage.planName : '…'}
@@ -289,7 +383,7 @@ export default function SettingsPage() {
             <div className="flex items-center justify-between mb-2">
               <p className="text-[14px] font-medium text-offwhite">Pivot analyses used</p>
               <p className="text-[13px] text-pp-text-muted">
-                {usage ? `${usage.used} of ${usage.limit}` : '—'}
+                {usage ? `${usage.used} of ${usage.limit}` : '–'}
               </p>
             </div>
             {usage && (
@@ -307,7 +401,7 @@ export default function SettingsPage() {
               {usage
                 ? usage.remaining > 0
                   ? `${usage.remaining} ${usage.remaining === 1 ? 'analysis' : 'analyses'} remaining.`
-                  : 'No analyses remaining — upgrade to run more.'
+                  : 'No analyses remaining, upgrade to run more.'
                 : 'Loading your usage…'}
             </p>
           </div>
@@ -318,7 +412,7 @@ export default function SettingsPage() {
                 href="/pricing"
                 className="inline-flex items-center gap-2 bg-amber text-navy px-5 py-[11px] rounded-pp font-semibold text-[14px] hover:bg-amber/90 transition-colors"
               >
-                Upgrade — from £19/mo
+                Upgrade, from £19/mo
                 <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
                   <path d="M1 6h8M5.5 1.5L10 6l-4.5 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
@@ -339,13 +433,13 @@ export default function SettingsPage() {
                   <path d="M1 6h8M5.5 1.5L10 6l-4.5 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </Link>
-              <p className="text-[12px] text-pp-text-ghost mt-2">Change plans anytime — your remaining time carries over.</p>
+              <p className="text-[12px] text-pp-text-ghost mt-2">Change plans anytime, your remaining time carries over.</p>
             </div>
           )}
         </Section>
 
         {/* ── Your pivots ── */}
-        <Section title="Your pivots" description="Every analysis you run is saved here — pick up where you left off anytime.">
+        <Section title="Your pivots" description="Every analysis you run is saved here, pick up where you left off anytime.">
           {pivots === null ? (
             <p className="text-[13px] text-pp-text-faint py-2">Loading…</p>
           ) : pivots.length === 0 ? (
@@ -405,8 +499,8 @@ export default function SettingsPage() {
           </div>
           <p className="text-[12px] text-pp-text-ghost mt-2">
             {defaultModel === 'claude'
-              ? 'Claude 3.5 Sonnet — best for nuanced career analysis.'
-              : 'Grok — fast, good for broad strategy.'
+              ? 'Claude 3.5 Sonnet, best for nuanced career analysis.'
+              : 'Grok, fast, good for broad strategy.'
             }
           </p>
         </Section>

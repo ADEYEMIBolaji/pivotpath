@@ -12,10 +12,10 @@ export const metadata = { alternates: { canonical: '/' } }
 // ─── Static data (ICU Nurse → PM example) ────────────────────────────────────
 
 const STEPS = [
-  { num: '01', title: 'Ingest',    body: 'Drop in your résumé or paste a LinkedIn profile. We extract titles, tenures and accomplishments — messy formatting and non-linear histories included.' },
+  { num: '01', title: 'Ingest',    body: 'Drop in your résumé or paste a LinkedIn profile. We extract titles, tenures and accomplishments, messy formatting and non-linear histories included.' },
   { num: '02', title: 'Translate', body: 'Every line is mapped to the vocabulary, frameworks and action verbs your target field actually uses. You see your old work in the new language, side by side.' },
-  { num: '03', title: 'Score',     body: 'An honest Pivot Readiness Score, with a confidence band — never false precision. Disqualifying gaps, closable gaps and noise are clearly separated.' },
-  { num: '04', title: 'Rewrite',   body: 'A repositioned résumé in the new field\'s language. Every bullet is traceable to something true — a reframe of real experience, not embellishment.' },
+  { num: '03', title: 'Score',     body: 'An honest Pivot Readiness Score, with a confidence band, never false precision. Disqualifying gaps, closable gaps and noise are clearly separated.' },
+  { num: '04', title: 'Rewrite',   body: 'A repositioned résumé in the new field\'s language. Every bullet is traceable to something true, a reframe of real experience, not embellishment.' },
   { num: '05', title: 'Apply',     body: 'Where to apply, which bridge roles to target first, and a 30-day plan. You never leave a screen without a clear next action.' },
 ]
 
@@ -23,12 +23,12 @@ const TABLE_ROWS: {
   from: string; to: string; tier: ConfidenceTier
   arrowColor: string; bg: string; bgHover: string
 }[] = [
-  { from: 'Managed ICU patient triage under time pressure',   to: 'Prioritisation under constraint — ruthless triage of competing demands', tier: 'high',    arrowColor: '#2E6B6B', bg: '#EAF1EE', bgHover: '#E0EBE6' },
+  { from: 'Managed ICU patient triage under time pressure',   to: 'Prioritisation under constraint, ruthless triage of competing demands', tier: 'high',    arrowColor: '#2E6B6B', bg: '#EAF1EE', bgHover: '#E0EBE6' },
   { from: 'Authored and maintained treatment protocols',       to: 'Process documentation, SOP & PRD writing',                               tier: 'high',    arrowColor: '#2E6B6B', bg: '#EAF1EE', bgHover: '#E0EBE6' },
   { from: 'Coordinated multi-department patient rounds',       to: 'Cross-functional collaboration & stakeholder alignment',                  tier: 'high',    arrowColor: '#2E6B6B', bg: '#EAF1EE', bgHover: '#E0EBE6' },
   { from: 'Tracked patient outcomes over time',                to: 'Metrics ownership & longitudinal outcome thinking',                       tier: 'partial', arrowColor: '#E8A838', bg: '#FBF1DC', bgHover: '#F7E9CB' },
   { from: 'Trained and onboarded new nursing staff',           to: 'Team enablement, documentation & onboarding',                            tier: 'partial', arrowColor: '#E8A838', bg: '#FBF1DC', bgHover: '#F7E9CB' },
-  { from: 'No software product shipped end-to-end',            to: 'Direct product-delivery evidence — not yet shown',                        tier: 'frame',   arrowColor: '#B6AE9E', bg: '#FBF9F4', bgHover: '#F4F0E7' },
+  { from: 'No software product shipped end-to-end',            to: 'Direct product-delivery evidence, not yet shown',                        tier: 'frame',   arrowColor: '#B6AE9E', bg: '#FBF9F4', bgHover: '#F4F0E7' },
 ]
 
 const GAPS = [
@@ -43,7 +43,7 @@ const GAPS = [
     items: [
       { name: 'SQL & basic data querying',       note: 'Learnable in ~3 weeks. Enough to read dashboards and ask analysts the right questions.' },
       { name: 'Product analytics tooling',       note: 'Amplitude or Mixpanel fundamentals. A weekend of guided practice covers interview-level fluency.' },
-      { name: 'A shipped case study',            note: 'Reframe a protocol redesign as a product spec — scope, tradeoffs, outcome.' },
+      { name: 'A shipped case study',            note: 'Reframe a protocol redesign as a product spec, scope, tradeoffs, outcome.' },
     ],
   },
   {
@@ -56,7 +56,7 @@ const GAPS = [
 ]
 
 const TESTIMONIALS = [
-  { quote: '"I\'d been rejected 40 times. PivotPath didn\'t cheerlead — it showed me the two gaps actually killing me, and both were closable in a month."',     from: 'ICU Nurse',        to: 'Associate PM',    name: 'Maya R. · now at a health-tech startup'  },
+  { quote: '"I\'d been rejected 40 times. PivotPath didn\'t cheerlead, it showed me the two gaps actually killing me, and both were closable in a month."',     from: 'ICU Nurse',        to: 'Associate PM',    name: 'Maya R. · now at a health-tech startup'  },
   { quote: '"The translation map was the first time someone explained why my experience counted. I stopped apologising for my background in interviews."',          from: 'Logistics Coord.', to: 'Ops Analyst',     name: 'David O. · 11 weeks to first offer'      },
   { quote: '"It told me my first target was a stretch and handed me three bridge roles instead. I\'m in one now, on the track I wanted."',                          from: 'Teacher',          to: 'L&D Specialist',  name: 'Priya S. · SaaS, 200-person team'        },
 ]
@@ -108,7 +108,7 @@ function HeroSection() {
             style={{ fontSize: 'clamp(17px,1.5vw,20px)' }}
           >
             PivotPath reads the experience you already have and rewrites it in the
-            language your target field hires for — then scores exactly what's left
+            language your target field hires for, then scores exactly what's left
             to close. No fabrication. No fluff.
           </p>
           <div className="flex flex-wrap gap-[14px] items-center">
@@ -127,7 +127,7 @@ function HeroSection() {
             </Link>
           </div>
           <p className="font-mono text-[12.5px] text-pp-text-faint mt-[30px] tracking-[0.02em]">
-            Built for mid-career pivoters — not lateral movers.
+            Built for mid-career pivoters, not lateral movers.
           </p>
         </div>
 
@@ -210,7 +210,7 @@ function ThesisBand() {
           Job platforms are built for people moving sideways. The filters reject
           career changers on a title before a human ever reads the work.{' '}
           <em className="italic text-amber">
-            The experience is there — it's just written in the wrong language.
+            The experience is there, it's just written in the wrong language.
           </em>
         </p>
       </div>
@@ -241,7 +241,7 @@ function HowItWorksSection() {
           </div>
           <p className="text-[16px] leading-[1.55] text-pp-ink-para max-w-[360px] m-0">
             One honest pass over your background. Every step ends with a clear
-            next action — never a dead end.
+            next action, never a dead end.
           </p>
         </div>
 
@@ -274,7 +274,7 @@ function TranslationMapSection() {
                 A sample pivot, line by line
               </span>
             }
-            body="Eight years in an ICU, read in the language of product management. Not analogies — the actual job."
+            body="Eight years in an ICU, read in the language of product management. Not analogies, the actual job."
             overlineColor="amber"
           />
         </div>
@@ -372,7 +372,7 @@ function TranslationMapSection() {
             className="font-display leading-[1.3] m-0 text-offwhite"
             style={{ fontSize: 'clamp(20px,2.2vw,26px)' }}
           >
-            You have <span className="text-teal-light">8 of 12</span> core PM competencies — more than you think.
+            You have <span className="text-teal-light">8 of 12</span> core PM competencies, more than you think.
           </p>
           <span className="font-mono text-[12.5px] text-pp-text-faint">
             4 left to close · 3 are learnable in &lt; 3 months
@@ -442,7 +442,7 @@ function SocialProofSection() {
                 style={{ fontSize: 'clamp(30px,4vw,48px)', lineHeight: '1.06' }}
                 className="text-pp-ink"
               >
-                It didn't pump them up. It told them the truth — then what to do with it.
+                It didn't pump them up. It told them the truth, then what to do with it.
               </span>
             }
             overlineColor="teal"

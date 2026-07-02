@@ -36,7 +36,7 @@ export const metadata: Metadata = {
     process.env.NEXT_PUBLIC_SITE_URL ?? 'https://pivotpath.uk',
   ),
   title: {
-    default: 'PivotPath — Career Transition Intelligence',
+    default: 'PivotPath, Career Transition Intelligence',
     template: '%s · PivotPath',
   },
   description:

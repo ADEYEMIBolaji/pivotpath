@@ -351,7 +351,7 @@ export default function ResumeEditorPage() {
               >
                 <span className="font-mono text-[10.5px] tracking-[0.08em] uppercase text-amber">Repositioned</span>
                 <span className="text-[11px] text-amber/70 px-2 py-0.5 rounded-pp" style={{ background: 'rgba(232,168,56,0.1)' }}>
-                  Editable — click any bullet
+                  Editable, click any bullet
                 </span>
               </div>
 

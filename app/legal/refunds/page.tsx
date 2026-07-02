@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { Logo } from '@/components/brand'
 
 export const metadata = {
-  title: 'Refund & Cancellation Policy — PivotPath',
+  title: 'Refund & Cancellation Policy, PivotPath',
   description: 'How billing, cancellations and refunds work for PivotPath subscriptions.',
   alternates: { canonical: '/legal/refunds' },
 }
@@ -45,7 +45,7 @@ export default function RefundsPage() {
           </section>
 
           <section>
-            <h2>2. Free tier — try before you pay</h2>
+            <h2>2. Free tier, try before you pay</h2>
             <p>
               Our <strong>free tier</strong> lets you generate your skills Translation Map and preview the
               start of your strategy brief at no cost and with no card required. This is how you evaluate the
@@ -57,7 +57,7 @@ export default function RefundsPage() {
           <section>
             <h2>3. Cancelling your subscription</h2>
             <p>
-              You can cancel at any time from your account settings. Cancellation stops future renewals —
+              You can cancel at any time from your account settings. Cancellation stops future renewals:
               your plan remains active until the end of the period you have already paid for, after which it
               will not renew and you will not be charged again. We do not provide pro-rata refunds for the
               unused remainder of a paid period except where required by law (see section 5).
@@ -93,7 +93,7 @@ export default function RefundsPage() {
             <p>
               Nothing in this policy affects your statutory rights under the Consumer Rights Act 2015. If the
               Service is faulty or does not work as described, you are entitled to a repair, replacement, or
-              refund — contact us and we will put it right.
+              refund, contact us and we will put it right.
             </p>
           </section>
 

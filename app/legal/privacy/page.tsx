@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { Logo } from '@/components/brand'
 
 export const metadata = {
-  title: 'Privacy Policy — PivotPath',
+  title: 'Privacy Policy, PivotPath',
   description: 'How PivotPath collects, uses, and protects your personal data.',
   alternates: { canonical: '/legal/privacy' },
 }
@@ -44,12 +44,12 @@ export default function PrivacyPage() {
             <h2>2. Data we collect</h2>
             <p>We collect the following categories of personal data:</p>
             <ul>
-              <li><strong>Account data</strong> — your name and email address, provided directly or via Google OAuth.</li>
-              <li><strong>CV / career background</strong> — text you paste or upload. We extract the text content only; we never store the original file.</li>
-              <li><strong>Target role information</strong> — the job title and industry you are pivoting toward.</li>
-              <li><strong>Analysis outputs</strong> — your Translation Map, rewritten resume content, and career strategy brief generated during a pivot session.</li>
-              <li><strong>Usage data</strong> — anonymised logs for debugging (e.g. error traces). We do not use third-party analytics trackers.</li>
-              <li><strong>Session data</strong> — a secure session cookie (JWT) to keep you signed in.</li>
+              <li><strong>Account data</strong>, your name and email address, provided directly or via Google OAuth.</li>
+              <li><strong>CV / career background</strong>, text you paste or upload. We extract the text content only; we never store the original file.</li>
+              <li><strong>Target role information</strong>, the job title and industry you are pivoting toward.</li>
+              <li><strong>Analysis outputs</strong>, your Translation Map, rewritten resume content, and career strategy brief generated during a pivot session.</li>
+              <li><strong>Usage data</strong>, anonymised logs for debugging (e.g. error traces). We do not use third-party analytics trackers.</li>
+              <li><strong>Session data</strong>, a secure session cookie (JWT) to keep you signed in.</li>
             </ul>
           </section>
 
@@ -75,8 +75,8 @@ export default function PrivacyPage() {
               Your CV text and target role information are sent to one of the following AI providers to generate your pivot analysis:
             </p>
             <ul>
-              <li><strong>Anthropic (Claude)</strong> — your text is processed under Anthropic&apos;s API terms. Anthropic does not use API inputs to train models by default. See <a href="https://www.anthropic.com/privacy" target="_blank" rel="noopener noreferrer">anthropic.com/privacy</a>.</li>
-              <li><strong>xAI (Grok)</strong> — your text is processed under xAI&apos;s API terms. See <a href="https://x.ai/privacy-policy" target="_blank" rel="noopener noreferrer">x.ai/privacy-policy</a>.</li>
+              <li><strong>Anthropic (Claude)</strong>, your text is processed under Anthropic&apos;s API terms. Anthropic does not use API inputs to train models by default. See <a href="https://www.anthropic.com/privacy" target="_blank" rel="noopener noreferrer">anthropic.com/privacy</a>.</li>
+              <li><strong>xAI (Grok)</strong>, your text is processed under xAI&apos;s API terms. See <a href="https://x.ai/privacy-policy" target="_blank" rel="noopener noreferrer">x.ai/privacy-policy</a>.</li>
             </ul>
             <p>
               We send only the minimum data required for analysis (career background text + target role).
@@ -110,13 +110,13 @@ export default function PrivacyPage() {
             <h2>7. Your rights under UK GDPR</h2>
             <p>You have the following rights regarding your personal data:</p>
             <ul>
-              <li><strong>Access</strong> — request a copy of your data (available via Settings → Export my data).</li>
-              <li><strong>Rectification</strong> — correct inaccurate data (available via Settings → Edit name).</li>
-              <li><strong>Erasure</strong> — delete your account and all associated data (available via Settings → Delete account).</li>
-              <li><strong>Portability</strong> — download your data in a machine-readable format (JSON export).</li>
-              <li><strong>Restriction</strong> — request we limit processing of your data.</li>
-              <li><strong>Objection</strong> — object to processing based on legitimate interests.</li>
-              <li><strong>Withdraw consent</strong> — opt out of marketing emails at any time in Settings.</li>
+              <li><strong>Access</strong>, request a copy of your data (available via Settings → Export my data).</li>
+              <li><strong>Rectification</strong>, correct inaccurate data (available via Settings → Edit name).</li>
+              <li><strong>Erasure</strong>, delete your account and all associated data (available via Settings → Delete account).</li>
+              <li><strong>Portability</strong>, download your data in a machine-readable format (JSON export).</li>
+              <li><strong>Restriction</strong>, request we limit processing of your data.</li>
+              <li><strong>Objection</strong>, object to processing based on legitimate interests.</li>
+              <li><strong>Withdraw consent</strong>, opt out of marketing emails at any time in Settings.</li>
             </ul>
             <p>
               To exercise any right not available in-app, contact us at{' '}
@@ -130,7 +130,7 @@ export default function PrivacyPage() {
             <h2>8. Cookies</h2>
             <p>
               We use one session cookie (<code>next-auth.session-token</code> or <code>__Secure-next-auth.session-token</code>)
-              that keeps you signed in. This is a strictly necessary cookie — it is not used for advertising or tracking.
+              that keeps you signed in. This is a strictly necessary cookie, it is not used for advertising or tracking.
               No third-party tracking cookies are set.
             </p>
           </section>

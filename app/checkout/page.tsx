@@ -63,10 +63,25 @@ function CheckoutInner() {
     if (status !== 'authenticated') return
     fetch('/api/account/usage')
       .then((r) => r.json())
-      .then((d) => { if (d.ok && d.planId && d.planId !== 'free') setActivePlanName(d.planName ?? 'your current') })
+      .then((d) => {
+        if (d.ok && d.planId && d.planId !== 'free') setActivePlanName(d.planName ?? 'your current')
+        // Auto-fill the influencer referral code captured at sign up so the 20%
+        // discount is applied for the user without them re-typing it.
+        if (d.ok && d.referralCode) setCode(d.referralCode)
+      })
       .catch(() => {})
       .finally(() => setCheckingAccess(false))
   }, [status])
+
+  // Auto-apply the prefilled referral code once, when it arrives from the account.
+  const [autoApplied, setAutoApplied] = useState(false)
+  useEffect(() => {
+    if (code && !discount && !autoApplied && !applying) {
+      setAutoApplied(true)
+      applyCode()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [code])
 
   // Returned from Paddle's hosted success redirect
   useEffect(() => {
@@ -188,8 +203,8 @@ function CheckoutInner() {
           </div>
           <h1 className="font-display text-[28px] font-medium text-offwhite mb-3">You already have an active plan</h1>
           <p className="text-[15px] text-pp-text-body mb-8">
-            No need to pay again — your plan is active and ready to use. If you’d like more analyses or more time,
-            you can extend or upgrade — any remaining time carries over.
+            No need to pay again, your plan is active and ready to use. If you’d like more analyses or more time,
+            you can extend or upgrade, any remaining time carries over.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 mb-3">
             <Link href="/onboarding" className="flex-1 bg-amber text-navy px-6 py-[14px] rounded-pp font-semibold text-[15px] hover:bg-amber/90 transition-colors">
@@ -264,7 +279,7 @@ function CheckoutInner() {
 
         {extendMode && (
           <div className="rounded-pp-l px-5 py-4 mb-5 text-[13.5px] text-teal-light" style={{ background: 'rgba(46,107,107,0.1)', border: '1px solid rgba(46,107,107,0.3)' }}>
-            Your current plan stays active — this switches you to {plan.name} ({cycle === 'annual' ? 'annual' : 'monthly'}) and adds time on top of what you have left.
+            Your current plan stays active, this switches you to {plan.name} ({cycle === 'annual' ? 'annual' : 'monthly'}) and adds time on top of what you have left.
           </div>
         )}
 
@@ -326,7 +341,7 @@ function CheckoutInner() {
             </button>
           </div>
           {codeError && <p className="text-[12.5px] text-pp-red mt-2">{codeError}</p>}
-          {discount && <p className="text-[12.5px] text-teal-light mt-2">✓ Code applied — {discount.percentOff}% off</p>}
+          {discount && <p className="text-[12.5px] text-teal-light mt-2">✓ Code applied, {discount.percentOff}% off</p>}
         </div>
 
         {error && (
@@ -343,7 +358,7 @@ function CheckoutInner() {
             submitting ? 'bg-amber/50 text-navy/60 cursor-not-allowed' : 'bg-amber text-navy hover:bg-amber/90 shadow-pp-amber',
           )}
         >
-          {submitting ? 'Processing…' : finalPrice === 0 ? 'Activate my plan — free' : `Continue · ${fmt(finalPrice)}`}
+          {submitting ? 'Processing…' : finalPrice === 0 ? 'Activate my plan, free' : `Continue · ${fmt(finalPrice)}`}
         </button>
         <p className="text-[11.5px] text-pp-text-ghost text-center mt-3">
           Secure · Billed {cycle === 'annual' ? 'yearly' : 'monthly'} · Cancel anytime ·{' '}

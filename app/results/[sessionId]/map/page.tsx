@@ -265,7 +265,7 @@ export default async function TranslationMapPage({
         >
           <div className="hidden md:block">
             <p className="text-[14px] font-medium text-pp-ink">Ready to see your repositioned résumé?</p>
-            <p className="text-[12.5px] text-pp-ink-meta">Rewritten in {target.title} language — every bullet traceable to your actual experience</p>
+            <p className="text-[12.5px] text-pp-ink-meta">Rewritten in {target.title} language, every bullet traceable to your actual experience</p>
           </div>
           <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0 w-full md:w-auto">
             <Link

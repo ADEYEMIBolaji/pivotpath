@@ -3,7 +3,7 @@ import { hash } from 'bcryptjs'
 
 export async function POST(req: NextRequest) {
   try {
-    const { name, email, password } = await req.json() as { name?: string; email?: string; password?: string }
+    const { name, email, password, referral } = await req.json() as { name?: string; email?: string; password?: string; referral?: string }
 
     if (!email?.trim() || !password?.trim()) {
       return NextResponse.json({ ok: false, error: 'Email and password are required' }, { status: 400 })
@@ -23,10 +23,28 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: false, error: 'An account with this email already exists' }, { status: 409 })
     }
 
+    // Look up the referral code (an influencer discount code) so we can attribute
+    // this new user to the influencer who sent them, and let them redeem 20% off
+    // once at checkout. Unknown codes are ignored — sign up should never fail on it.
+    let referralCode: string | null = null
+    let referralSource: string | null = null
+    const rawReferral = referral?.trim().toUpperCase()
+    if (rawReferral) {
+      const codeRows = await query<{ code: string; influencer: string | null }>(
+        'SELECT code, influencer FROM discount_codes WHERE code = $1 AND active = TRUE',
+        [rawReferral],
+      )
+      if (codeRows[0]) {
+        referralCode = codeRows[0].code
+        referralSource = codeRows[0].influencer ?? null
+      }
+    }
+
     const passwordHash = await hash(password, 12)
     await query(
-      'INSERT INTO users (email, name, password_hash) VALUES ($1, $2, $3)',
-      [email.toLowerCase(), name?.trim() || null, passwordHash],
+      `INSERT INTO users (email, name, password_hash, referral_code, referral_source, referred_at)
+       VALUES ($1, $2, $3, $4, $5, CASE WHEN $4::text IS NULL THEN NULL ELSE NOW() END)`,
+      [email.toLowerCase(), name?.trim() || null, passwordHash, referralCode, referralSource],
     )
 
     return NextResponse.json({ ok: true })

@@ -129,7 +129,7 @@ function Step1({
         Share your background
       </h1>
       <p className="text-[15px] text-pp-text-body mb-8 leading-[1.6]">
-        Upload your résumé, drop your LinkedIn URL, or paste your work history. We extract the raw facts — you review everything before the analysis runs.
+        Upload your résumé, drop your LinkedIn URL, or paste your work history. We extract the raw facts, you review everything before the analysis runs.
       </p>
 
       {/* tabs */}
@@ -189,7 +189,7 @@ function Step1({
               <div>
                 <p className="text-[14px] font-medium text-offwhite">{file.name}</p>
                 <p className="text-[12px] text-pp-text-faint mt-0.5">
-                  {(file.size / 1024).toFixed(0)} KB — click to replace
+                  {(file.size / 1024).toFixed(0)} KB, click to replace
                 </p>
               </div>
             </div>
@@ -204,7 +204,7 @@ function Step1({
               </div>
               <div>
                 <p className="text-[14px] font-medium text-offwhite">Drop your résumé here</p>
-                <p className="text-[12.5px] text-pp-text-muted mt-1">PDF, DOCX, or TXT — up to 5 MB</p>
+                <p className="text-[12.5px] text-pp-text-muted mt-1">PDF, DOCX, or TXT, up to 5 MB</p>
               </div>
             </div>
           )}
@@ -384,7 +384,7 @@ function Step2({
           >
             <div>
               <p className="text-[14px] font-medium text-offwhite">Add a job description</p>
-              <p className="text-[12.5px] text-pp-text-faint mt-0.5">Highest-signal input — dramatically sharpens the gap analysis</p>
+              <p className="text-[12.5px] text-pp-text-faint mt-0.5">Highest-signal input, dramatically sharpens the gap analysis</p>
             </div>
             <div
               className={cn(
@@ -923,7 +923,7 @@ export default function OnboardingPage() {
             <p className="font-mono text-[10px] tracking-[0.1em] uppercase text-amber mb-4">What a plan unlocks</p>
             <ul className="space-y-3">
               {[
-                'Up to 7 full pivot analyses — refine as your direction evolves',
+                'Up to 7 full pivot analyses, refine as your direction evolves',
                 'Re-run when you target a new role or industry',
                 'Fresh job matches every few hours',
                 'Priority support and early access to new features',
@@ -944,7 +944,7 @@ export default function OnboardingPage() {
               href="/pricing"
               className="flex-1 bg-amber text-navy px-6 py-[14px] rounded-pp font-semibold text-[15px] hover:bg-amber/90 transition-colors"
             >
-              View plans — from £19/mo
+              View plans, from £19/mo
             </Link>
             <Link
               href="/settings"
