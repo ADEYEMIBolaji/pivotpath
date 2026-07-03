@@ -95,6 +95,7 @@ function Step1({
   const [dragOver, setDragOver] = useState(false)
   const [text, setText] = useState('')
   const [url, setUrl] = useState('')
+  const [linkedinText, setLinkedinText] = useState('')
   const fileRef = useRef<HTMLInputElement>(null)
 
   const handleDrop = useCallback((e: React.DragEvent) => {
@@ -106,19 +107,21 @@ function Step1({
 
   function canContinue() {
     if (mode === 'upload') return !!file
-    if (mode === 'linkedin') return url.trim().length > 10
+    if (mode === 'linkedin') return linkedinText.trim().length > 100
     return text.trim().length > 100
   }
 
   function handleContinue() {
     if (mode === 'upload' && file) onContinue({ mode, file })
-    else if (mode === 'linkedin') onContinue({ mode, text: `LinkedIn URL: ${url}\n(User will need to provide their LinkedIn profile text)` })
+    // LinkedIn can't be scraped, so we use the profile text the user pastes.
+    // The URL (if given) is prepended purely as a reference for the extraction.
+    else if (mode === 'linkedin') onContinue({ mode, text: `${url.trim() ? `LinkedIn profile: ${url.trim()}\n\n` : ''}${linkedinText}` })
     else onContinue({ mode, text })
   }
 
   const TAB_LABELS: { id: InputMode; label: string }[] = [
     { id: 'upload', label: 'Upload file' },
-    { id: 'linkedin', label: 'LinkedIn URL' },
+    { id: 'linkedin', label: 'LinkedIn' },
     { id: 'paste', label: 'Paste text' },
   ]
 
@@ -129,7 +132,7 @@ function Step1({
         Share your background
       </h1>
       <p className="text-[15px] text-pp-text-body mb-8 leading-[1.6]">
-        Upload your résumé, drop your LinkedIn URL, or paste your work history. We extract the raw facts, you review everything before the analysis runs.
+        Upload your résumé, paste your LinkedIn profile, or paste your work history. We extract the raw facts, you review everything before the analysis runs.
       </p>
 
       {/* tabs */}
@@ -214,17 +217,30 @@ function Step1({
       {/* linkedin */}
       {mode === 'linkedin' && (
         <div className="space-y-3">
+          <div
+            className="rounded-pp-m px-4 py-3 text-[12.5px] text-pp-text-body leading-[1.55]"
+            style={{ background: 'rgba(232,168,56,0.08)', border: '1px solid rgba(232,168,56,0.25)' }}
+          >
+            LinkedIn blocks automated access, so we can&apos;t pull your profile from a link alone. Open your
+            profile, select everything from your headline down through your experience and education, copy it,
+            and paste it below. The link is optional.
+          </div>
           <input
             type="url"
             value={url}
             onChange={(e) => setUrl(e.target.value)}
-            placeholder="https://linkedin.com/in/your-profile"
+            placeholder="https://linkedin.com/in/your-profile (optional)"
             className="w-full bg-navy-surface/60 border rounded-pp-m px-4 py-3 text-[14px] text-offwhite placeholder:text-pp-text-ghost outline-none transition-all focus:border-amber/60 focus:shadow-pp-focus"
             style={{ borderColor: 'rgba(242,237,228,0.18)' }}
           />
-          <p className="text-[12px] text-pp-text-faint leading-[1.5]">
-            LinkedIn restricts automated scraping. If we can't access your profile automatically, we'll prompt you to paste the text instead.
-          </p>
+          <textarea
+            value={linkedinText}
+            onChange={(e) => setLinkedinText(e.target.value)}
+            rows={9}
+            placeholder={`Paste your LinkedIn profile text here…\n\nInclude:\n• Headline and about section\n• Each role: title, company, dates, description\n• Skills and education`}
+            className="w-full bg-navy-surface/60 border rounded-pp-m px-4 py-3 text-[14px] text-offwhite placeholder:text-pp-text-ghost outline-none resize-none transition-all focus:border-amber/60 focus:shadow-pp-focus font-mono text-[13px] leading-[1.6]"
+            style={{ borderColor: 'rgba(242,237,228,0.18)' }}
+          />
         </div>
       )}
 
