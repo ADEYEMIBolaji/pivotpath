@@ -32,8 +32,11 @@ const dmMono = DM_Mono({
 
 // ─── Site metadata ────────────────────────────────────────────────────────────
 export const metadata: Metadata = {
+  // Canonical host is the www subdomain (matches sitemap, robots and the Vercel
+  // primary domain). Keep this consistent everywhere or Google reports the
+  // non-canonical host's pages as "Page with redirect".
   metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL ?? 'https://pivotpath.uk',
+    process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.pivotpath.uk',
   ),
   title: {
     default: 'PivotPath, Career Transition Intelligence',
