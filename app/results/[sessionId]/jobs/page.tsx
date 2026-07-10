@@ -261,16 +261,22 @@ const ALL_SOURCES: SourceName[] = ['reed', 'adzuna', 'nhs', 'civil-service']
 function FilterBar({
   source,
   remoteOnly,
+  location,
+  locations,
   sort,
   onSource,
   onRemote,
+  onLocation,
   onSort,
 }: {
   source: SourceName | null
   remoteOnly: boolean
+  location: string | null
+  locations: string[]
   sort: 'fit' | 'date'
   onSource: (s: SourceName | null) => void
   onRemote: (v: boolean) => void
+  onLocation: (l: string | null) => void
   onSort: (s: 'fit' | 'date') => void
 }) {
   return (
@@ -321,6 +327,40 @@ function FilterBar({
         Remote only
       </button>
 
+      {/* Location filter */}
+      <div className="relative">
+        <svg
+          width="12" height="12" viewBox="0 0 11 11" fill="none"
+          className="absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-pp-text-faint"
+        >
+          <circle cx="5.5" cy="4.5" r="2" stroke="currentColor" strokeWidth="1.2" />
+          <path d="M5.5 10C5.5 10 1.5 7 1.5 4.5a4 4 0 018 0C9.5 7 5.5 10 5.5 10z" stroke="currentColor" strokeWidth="1.2" fill="none" />
+        </svg>
+        <select
+          value={location ?? ''}
+          onChange={(e) => onLocation(e.target.value || null)}
+          aria-label="Filter by location"
+          className={cn(
+            'appearance-none pl-7 pr-8 py-2 rounded-pp text-[12.5px] font-medium border transition-all cursor-pointer outline-none focus:border-amber/60',
+            location
+              ? 'bg-teal/20 text-teal-light border-teal/40'
+              : 'text-pp-text-faint border-pp-border-dark hover:text-pp-text-muted',
+          )}
+          style={{ background: location ? undefined : 'rgba(242,237,228,0.04)' }}
+        >
+          <option value="" className="bg-navy text-offwhite">All locations</option>
+          {locations.map((loc) => (
+            <option key={loc} value={loc} className="bg-navy text-offwhite">{loc}</option>
+          ))}
+        </select>
+        <svg
+          width="10" height="10" viewBox="0 0 10 10" fill="none"
+          className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-pp-text-faint"
+        >
+          <path d="M2 3.5L5 6.5l3-3" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </div>
+
       {/* Sort */}
       <div className="flex items-center gap-1 ml-auto">
         <span className="text-[12px] text-pp-text-ghost mr-1">Sort:</span>
@@ -354,6 +394,7 @@ interface ApiResponse {
     staleRemoved: number
     savedCount?: number
     bySource?: Record<string, number>
+    locations?: string[]
   }
 }
 
@@ -367,6 +408,7 @@ export default function JobsPage() {
 
   const [source, setSource]       = useState<SourceName | null>(null)
   const [remoteOnly, setRemoteOnly] = useState(false)
+  const [location, setLocation]   = useState<string | null>(null)
   const [sort, setSort]           = useState<'fit' | 'date'>('fit')
 
   const fetchJobs = useCallback(async () => {
@@ -374,6 +416,7 @@ export default function JobsPage() {
     const params = new URLSearchParams({ sessionId, sort })
     if (source) params.set('source', source)
     if (remoteOnly) params.set('remoteOnly', 'true')
+    if (location) params.set('location', location)
 
     try {
       const res = await fetch(`/api/jobs?${params}`)
@@ -384,7 +427,7 @@ export default function JobsPage() {
     } finally {
       setLoading(false)
     }
-  }, [sessionId, source, remoteOnly, sort])
+  }, [sessionId, source, remoteOnly, location, sort])
 
   useEffect(() => { fetchJobs() }, [fetchJobs])
 
@@ -474,9 +517,12 @@ export default function JobsPage() {
         <FilterBar
           source={source}
           remoteOnly={remoteOnly}
+          location={location}
+          locations={data?.meta?.locations ?? []}
           sort={sort}
           onSource={setSource}
           onRemote={setRemoteOnly}
+          onLocation={setLocation}
           onSort={setSort}
         />
 

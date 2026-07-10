@@ -59,6 +59,7 @@ export async function GET(req: NextRequest): Promise<NextResponse<JobsApiRespons
     const sessionId  = searchParams.get('sessionId') ?? ''
     const source     = searchParams.get('source') as SourceName | null
     const remoteOnly = searchParams.get('remoteOnly') === 'true'
+    const location   = searchParams.get('location')?.trim() || null
     const sort       = (searchParams.get('sort') ?? 'fit') as 'fit' | 'date'
 
     const session = sessionId ? await getSession(sessionId) : null
@@ -121,10 +122,20 @@ export async function GET(req: NextRequest): Promise<NextResponse<JobsApiRespons
       for (const s of [j.primarySource, ...j.alsoListedOn]) bySource[s] = (bySource[s] ?? 0) + 1
     }
 
+    // Distinct locations in the recommended set, for the location filter dropdown.
+    // Computed before the location filter is applied so the option list is stable.
+    const locations = [...new Set(recommended.map((j) => j.location?.trim()).filter((l): l is string => Boolean(l)))]
+      .sort((a, b) => a.localeCompare(b))
+
     // Source filter = a view on the recommended set
-    const viewed = source
+    let viewed = source
       ? recommended.filter((j) => j.primarySource === source || j.alsoListedOn.includes(source))
       : recommended
+
+    // Location filter (exact match on the same strings shown in the dropdown)
+    if (location) {
+      viewed = viewed.filter((j) => j.location?.trim() === location)
+    }
 
     // Apply sort
     const sorted = sort === 'date'
@@ -148,6 +159,7 @@ export async function GET(req: NextRequest): Promise<NextResponse<JobsApiRespons
         duplicatesMerged,
         staleRemoved: 0,
         bySource,
+        locations,
         savedCount: savedIds.length,
       },
     })

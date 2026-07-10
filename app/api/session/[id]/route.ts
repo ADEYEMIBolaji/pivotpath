@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSession } from '@/lib/session-store'
-import { viewerHasPaidPlan } from '@/lib/access'
+import { viewerHasPaidPlan, viewerOwnsSession } from '@/lib/access'
 import type { ApiResult, AnalysisSession } from '@/lib/types'
 
 export const runtime = 'nodejs'
@@ -12,6 +12,13 @@ export async function GET(
   const { id } = await params
   const session = await getSession(id)
   if (!session) {
+    return NextResponse.json({ ok: false, error: 'Session not found' }, { status: 404 })
+  }
+
+  // A session holds the owner's CV and personal analysis — never let another
+  // user read it by guessing/sharing the id. Return 404 (not 403) so we don't
+  // even confirm the session exists to a non-owner.
+  if (!(await viewerOwnsSession(session.userId))) {
     return NextResponse.json({ ok: false, error: 'Session not found' }, { status: 404 })
   }
 

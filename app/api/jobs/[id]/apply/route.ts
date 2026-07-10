@@ -5,6 +5,8 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { getJobStore } from '@/lib/jobs/store'
+import { getSession } from '@/lib/session-store'
+import { viewerOwnsSession } from '@/lib/access'
 
 export const runtime = 'nodejs'
 
@@ -19,8 +21,13 @@ export async function POST(
   const job = await store.getById(id)
   if (!job) return NextResponse.json({ error: 'Job not found' }, { status: 404 })
 
+  // Only record the application-funnel event against a session the viewer owns.
+  // The apply URL itself is public info, so a bad sessionId just skips tracking.
   if (sessionId) {
-    await store.recordApplication(sessionId, id, job.primarySource)
+    const session = await getSession(sessionId)
+    if (session && (await viewerOwnsSession(session.userId))) {
+      await store.recordApplication(sessionId, id, job.primarySource)
+    }
   }
 
   return NextResponse.json({ ok: true, sourceUrl: job.primarySourceUrl, source: job.primarySource })
