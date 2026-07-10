@@ -4,6 +4,14 @@ import Credentials from 'next-auth/providers/credentials'
 import { compare } from 'bcryptjs'
 import { REVIEWER_DEMO_USER_ID } from './lib/demo'
 
+// The secret signs session JWTs. If it's missing in production we must NOT fall
+// back to a public constant — that would let anyone forge a valid session. Fail
+// closed instead: crash loudly at boot so the misconfiguration is obvious.
+const AUTH_SECRET = process.env.NEXTAUTH_SECRET ?? process.env.AUTH_SECRET
+if (!AUTH_SECRET && process.env.NODE_ENV === 'production') {
+  throw new Error('NEXTAUTH_SECRET (or AUTH_SECRET) must be set in production — refusing to start with an insecure default.')
+}
+
 type DbUser = { id: string; email: string; name: string | null; image: string | null; password_hash: string | null }
 
 async function getUserByEmail(email: string): Promise<DbUser | null> {
@@ -126,5 +134,5 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   // from NEXTAUTH_URL — which is exactly what logs users out on navigation.
   trustHost: true,
 
-  secret: process.env.NEXTAUTH_SECRET ?? process.env.AUTH_SECRET ?? 'dev-secret-change-in-production',
+  secret: AUTH_SECRET ?? 'dev-secret-change-in-production',
 })

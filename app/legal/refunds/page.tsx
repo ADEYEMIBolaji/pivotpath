@@ -39,7 +39,7 @@ export default function RefundsPage() {
             </p>
             <p>
               Payments and subscriptions are managed by our Merchant of Record,{' '}
-              <strong>Paddle.com</strong>, which acts as the reseller of our digital services and handles
+              <strong>Lemon Squeezy</strong>, which acts as the reseller of our digital services and handles
               billing, tax and receipts. We do not see or store your card details.
             </p>
           </section>
@@ -103,8 +103,9 @@ export default function RefundsPage() {
               Email{' '}
               <a href={`mailto:${BILLING_EMAIL}`}>{BILLING_EMAIL}</a> from your account email address, telling
               us the email on your account and the approximate date of the charge. Approved refunds are
-              returned to your original payment method by Paddle, normally within 14 days. You can also request
-              a refund or manage your subscription via the receipt email Paddle sends after each payment.
+              returned to your original payment method by Lemon Squeezy, normally within 14 days. You can also
+              request a refund or manage your subscription via the receipt email Lemon Squeezy sends after each
+              payment.
             </p>
           </section>
 

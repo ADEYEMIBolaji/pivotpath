@@ -113,7 +113,7 @@ export default function TermsPage() {
               Paid plans (<strong>Pivot</strong> and <strong>Accelerate</strong>) are <strong>recurring
               subscriptions</strong>, billed either monthly or annually depending on the option you choose, and
               renew automatically until you cancel. Payments and subscriptions are managed by our Merchant of
-              Record, <strong>Paddle.com</strong>; we do not see or store your card details.
+              Record, <strong>Lemon Squeezy</strong>; we do not see or store your card details.
             </p>
             <p>
               You can cancel at any time from your account settings, your plan stays active until the end of the

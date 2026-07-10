@@ -18,6 +18,9 @@ out/
 *.log
 npm-debug.log*
 
+# TypeScript incremental build cache (regenerated every build — noise in diffs)
+tsconfig.tsbuildinfo
+
 # Job store
 .jobs/
 
