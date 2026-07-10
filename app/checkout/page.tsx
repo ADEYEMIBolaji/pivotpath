@@ -83,7 +83,7 @@ function CheckoutInner() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [code])
 
-  // Returned from Paddle's hosted success redirect
+  // Returned from the hosted checkout's success redirect
   useEffect(() => {
     if (params.get('success') === '1') setDone({ activated: true })
   }, [params])
