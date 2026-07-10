@@ -26,3 +26,25 @@ export async function viewerHasPaidPlan(): Promise<boolean> {
   const sub = await getActiveSubscription(session.user.id)
   return Boolean(sub)
 }
+
+/**
+ * True if the current viewer may access a session that belongs to `sessionUserId`.
+ *
+ * Prevents one user from reading or writing to another user's analysis session
+ * (which holds their CV and personal analysis) by knowing its id — an IDOR.
+ *
+ * Rules:
+ *  - Dev/file mode (no DATABASE_URL): not gated.
+ *  - Owned sessions: only the owner (or the demo reviewer) may access them.
+ *  - Anonymous sessions (userId is null): the id itself is the capability, so
+ *    they stay readable — there is no owner's data to protect.
+ */
+export async function viewerOwnsSession(sessionUserId: string | null | undefined): Promise<boolean> {
+  if (!process.env.DATABASE_URL) return true
+  if (!sessionUserId) return true
+  const session = await auth()
+  const uid = session?.user?.id
+  if (!uid) return false
+  if (isDemoUser(uid)) return true
+  return uid === sessionUserId
+}

@@ -182,6 +182,10 @@ export interface JobsApiResponse {
     lastRefreshedAt: string
     duplicatesMerged: number
     staleRemoved: number
+    bySource?: Record<string, number>
+    /** Distinct locations in the recommended set, for the location filter. */
+    locations?: string[]
+    savedCount?: number
   }
 }
 
