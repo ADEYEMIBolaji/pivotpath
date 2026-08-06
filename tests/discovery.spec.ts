@@ -160,7 +160,7 @@ test.describe('Isolation — Discovery Mode routes are reachable and separate fr
     // one webServer instance can't also prove the off-by-default behavior in
     // production, so that half of isDiscoveryEnabled() (lib/discovery/access.ts)
     // is a one-line function best read, not re-tested against a live server here.
-    for (const path of ['/discovery-test', '/target-role']) {
+    for (const path of ['/start', '/discovery-test', '/target-role']) {
       const res = await request.get(`${baseURL}${path}`)
       expect(res.status(), `${path} should be reachable with the flag on`).toBe(200)
     }
