@@ -32,3 +32,6 @@ screenshots/
 .next-build/
 
 .vercel
+
+# Discovery Mode local store (test build — dev only)
+.discovery/
