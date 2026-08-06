@@ -12,6 +12,7 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { Logo } from '@/components/brand'
 import { cn } from '@/lib/utils'
 import { INTAKE_PROMPTS } from '@/lib/discovery/chip-seed'
@@ -20,10 +21,12 @@ import {
   type FunctionalSkill,
   type IntakeSelections,
   type Reaction,
+  type RoleComparisonEnrichment,
   type ShortlistEntry,
 } from '@/lib/discovery/types'
 
 const RUN_KEY = 'pp.discovery.runId'
+const COMMITMENT_KEY = 'pp.target.commitmentId'
 
 type Stage = 'intake' | 'skills' | 'swipe' | 'shortlist'
 
@@ -375,7 +378,10 @@ function RoleDeck({
         <p className="font-mono text-[11.5px] tracking-[0.12em] uppercase text-pp-ink-meta mb-2">
           {role.industry}
         </p>
-        <h2 className="font-display text-[27px] leading-[1.2] text-pp-ink mb-4">{role.title}</h2>
+        <h2 className="font-display text-[27px] leading-[1.2] text-pp-ink mb-2">{role.title}</h2>
+        <p className="text-[14.5px] leading-[1.55] text-pp-ink-meta italic mb-5">
+          {role.plainLanguageLine}
+        </p>
         <p className="text-[15px] leading-[1.65] text-pp-ink-body mb-5">{role.whyFits}</p>
 
         <div className="flex flex-wrap gap-2 mb-5">
@@ -417,52 +423,99 @@ function RoleDeck({
   )
 }
 
-function Shortlist({ entries, onRestart }: { entries: ShortlistEntry[]; onRestart: () => void }) {
+/**
+ * Step 4's second half: the bridge from "here's a shortlist" to "commit to
+ * ONE". Enriches each shortlisted role with stubbed day-to-day / entry-barrier
+ * / demand content (see the TODO in lib/discovery/pipeline.ts) so there's
+ * something to actually compare before picking.
+ */
+function CompareAndChoose({
+  entries,
+  enrichment,
+  onChoose,
+  onRestart,
+  committingId,
+}: {
+  entries: ShortlistEntry[]
+  enrichment: Record<string, RoleComparisonEnrichment>
+  onChoose: (role: DiscoveryRole) => void
+  onRestart: () => void
+  committingId: string | null
+}) {
   return (
     <div className="animate-pp-fade">
-      <Overline>Step 4 · Your shortlist</Overline>
+      <Overline>Step 4 · Compare and choose</Overline>
       <Heading>
-        {entries.length > 0
-          ? 'These are the ones worth chasing.'
-          : 'Nothing landed — that’s useful too.'}
+        {entries.length > 0 ? 'Which one do you want to chase?' : 'Nothing landed — that’s useful too.'}
       </Heading>
       <Sub>
         {entries.length > 0
-          ? 'Liked roles first, then the ones you were unsure about. Any of these becomes the target role for the rest of PivotPath.'
+          ? 'Liked roles first, then the ones you were unsure about. Pick one to commit to — you can change your mind later.'
           : 'You passed on everything. Re-run the intake with more specific examples and the roles will get sharper.'}
       </Sub>
 
-      <ol className="space-y-3">
-        {entries.map((entry, i) => (
-          <li
-            key={entry.role.id}
-            className="rounded-pp-l bg-navy-surface border border-pp-border-dark p-5 flex gap-4"
-          >
-            <span className="font-display text-[22px] text-pp-text-ghost leading-none pt-1">
-              {i + 1}
-            </span>
-            <div className="flex-1">
-              <div className="flex items-center gap-3 mb-1 flex-wrap">
-                <h3 className="font-display text-[19px] text-pp-text-bright">{entry.role.title}</h3>
-                <span
-                  className={cn(
-                    'rounded-pp-pill px-2.5 py-0.5 font-mono text-[10.5px] tracking-[0.1em] uppercase border',
-                    entry.reaction === 'like'
-                      ? 'text-teal-light border-pp-teal-ok-bd bg-pp-teal-ok-bg'
-                      : 'text-pp-text-muted border-pp-border-dark',
-                  )}
-                >
-                  {entry.reaction}
-                </span>
+      <div className="space-y-4">
+        {entries.map((entry, i) => {
+          const enrich = enrichment[entry.role.id]
+          return (
+            <div
+              key={entry.role.id}
+              className="rounded-pp-l bg-navy-surface border border-pp-border-dark p-5 flex gap-4"
+            >
+              <span className="font-display text-[22px] text-pp-text-ghost leading-none pt-1">
+                {i + 1}
+              </span>
+              <div className="flex-1">
+                <div className="flex items-center gap-3 mb-1 flex-wrap">
+                  <h3 className="font-display text-[19px] text-pp-text-bright">{entry.role.title}</h3>
+                  <span
+                    className={cn(
+                      'rounded-pp-pill px-2.5 py-0.5 font-mono text-[10.5px] tracking-[0.1em] uppercase border',
+                      entry.reaction === 'like'
+                        ? 'text-teal-light border-pp-teal-ok-bd bg-pp-teal-ok-bg'
+                        : 'text-pp-text-muted border-pp-border-dark',
+                    )}
+                  >
+                    {entry.reaction}
+                  </span>
+                </div>
+                <p className="text-[13.5px] leading-[1.5] text-pp-text-body italic mb-4">
+                  {entry.role.plainLanguageLine}
+                </p>
+
+                {enrich ? (
+                  <dl className="grid gap-4 sm:grid-cols-3 mb-5">
+                    <div>
+                      <dt className="font-mono text-[10.5px] tracking-[0.1em] uppercase text-pp-text-faint mb-1">
+                        Day to day
+                      </dt>
+                      <dd className="text-[13px] leading-[1.5] text-pp-text-body">{enrich.dayToDay}</dd>
+                    </div>
+                    <div>
+                      <dt className="font-mono text-[10.5px] tracking-[0.1em] uppercase text-pp-text-faint mb-1">
+                        Entry barrier
+                      </dt>
+                      <dd className="text-[13px] leading-[1.5] text-pp-text-body">{enrich.entryBarrier}</dd>
+                    </div>
+                    <div>
+                      <dt className="font-mono text-[10.5px] tracking-[0.1em] uppercase text-pp-text-faint mb-1">
+                        Demand (est.)
+                      </dt>
+                      <dd className="text-[13px] leading-[1.5] text-pp-text-body">{enrich.demandNote}</dd>
+                    </div>
+                  </dl>
+                ) : (
+                  <p className="font-mono text-[11px] text-pp-text-ghost mb-5">Loading comparison…</p>
+                )}
+
+                <Button onClick={() => onChoose(entry.role)} disabled={committingId !== null}>
+                  {committingId === entry.role.id ? 'Committing…' : 'Choose this one'}
+                </Button>
               </div>
-              <p className="font-mono text-[11.5px] tracking-[0.1em] uppercase text-pp-text-faint mb-2">
-                {entry.role.industry}
-              </p>
-              <p className="text-[14px] leading-[1.6] text-pp-text-body">{entry.role.whyFits}</p>
             </div>
-          </li>
-        ))}
-      </ol>
+          )
+        })}
+      </div>
 
       <div className="mt-9 flex flex-wrap gap-3">
         <Button variant="ghost" onClick={onRestart}>
@@ -470,10 +523,17 @@ function Shortlist({ entries, onRestart }: { entries: ShortlistEntry[]; onRestar
         </Button>
       </div>
 
+      {/* STUB: day-to-day / entry-barrier / demand content is Claude reasoning
+          from general knowledge, not live market data. See the TODO in
+          lib/discovery/pipeline.ts. */}
+      <p className="mt-6 font-mono text-[11px] text-pp-text-ghost">
+        Test build — comparison details are AI-generated, not sourced from real market data.
+      </p>
+
       {/* Follow-up, deliberately out of scope for this build: */}
       <p className="mt-8 text-[13px] leading-[1.6] text-pp-text-ghost border-t border-pp-border-darker pt-5">
-        Not built yet: the info-interview kit (step 5 of the spec), and handing this shortlist
-        through to the résumé translator as a target role.
+        Not built yet: the info-interview kit (step 5 of the spec). Committing above hands off to the
+        (also stubbed) positioning funnel — the rest of it isn&rsquo;t built in this test branch.
       </p>
     </div>
   )
@@ -493,15 +553,43 @@ async function postJSON<T>(url: string, body: unknown): Promise<T> {
 }
 
 export function DiscoveryFlow() {
+  const router = useRouter()
   const [stage, setStage] = useState<Stage>('intake')
   const [runId, setRunId] = useState<string | null>(null)
   const [functions, setFunctions] = useState<FunctionalSkill[]>([])
   const [roles, setRoles] = useState<DiscoveryRole[]>([])
   const [index, setIndex] = useState(0)
   const [shortlist, setShortlist] = useState<ShortlistEntry[]>([])
+  const [enrichment, setEnrichment] = useState<Record<string, RoleComparisonEnrichment>>({})
+  const [committingId, setCommittingId] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
   const [loadingLabel, setLoadingLabel] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+
+  // Shared by the resume-effect and the end-of-deck transition: fetch the
+  // ranked shortlist, show it, then fetch its (stubbed) comparison content.
+  // Comparison failing is a nice-to-have, not a blocker — don't let it stop
+  // someone from picking a role.
+  const loadShortlistWithComparison = useCallback(async (id: string) => {
+    const res = await fetch(`/api/discovery/shortlist?runId=${id}`).then((r) => r.json())
+    const list: ShortlistEntry[] = res.shortlist ?? []
+    setShortlist(list)
+    setStage('shortlist')
+    if (list.length === 0) return
+
+    setLoadingLabel('Comparing your options…')
+    try {
+      const cmp = await postJSON<{ enrichment: Record<string, RoleComparisonEnrichment> }>(
+        '/api/discovery/compare',
+        { runId: id },
+      )
+      setEnrichment(cmp.enrichment)
+    } catch {
+      // Comparison content is a nice-to-have — don't block picking a role on it.
+    } finally {
+      setLoadingLabel(null)
+    }
+  }, [])
 
   // Resume an in-progress run after a refresh rather than restarting the flow.
   useEffect(() => {
@@ -525,11 +613,7 @@ export function DiscoveryFlow() {
           )
           if (firstUnreacted === -1) {
             // Every card in the deck already has a reaction — the run is done.
-            const shortlistRes = await fetch(`/api/discovery/shortlist?runId=${saved}`).then((r) =>
-              r.json(),
-            )
-            setShortlist(shortlistRes.shortlist ?? [])
-            setStage('shortlist')
+            await loadShortlistWithComparison(saved)
           } else {
             setIndex(firstUnreacted)
             setStage('swipe')
@@ -541,7 +625,7 @@ export function DiscoveryFlow() {
         // A stale/unreadable run just falls back to a fresh intake.
       }
     })()
-  }, [])
+  }, [loadShortlistWithComparison])
 
   const startRun = useCallback(async (selections: IntakeSelections, otherNotes: string) => {
     setBusy(true)
@@ -600,9 +684,7 @@ export function DiscoveryFlow() {
         if (next < roles.length) {
           setIndex(next)
         } else {
-          const res = await fetch(`/api/discovery/shortlist?runId=${runId}`).then((r) => r.json())
-          setShortlist(res.shortlist ?? [])
-          setStage('shortlist')
+          await loadShortlistWithComparison(runId)
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : String(err))
@@ -610,7 +692,30 @@ export function DiscoveryFlow() {
         setBusy(false)
       }
     },
-    [runId, index, roles.length],
+    [runId, index, roles.length, loadShortlistWithComparison],
+  )
+
+  // The bridge: commit to exactly one shortlisted role, then hand off to the
+  // (stubbed) confirmation screen shared with Persona B's direct-entry path.
+  const commitToRole = useCallback(
+    async (role: DiscoveryRole) => {
+      if (!runId) return
+      setCommittingId(role.id)
+      setError(null)
+      try {
+        const { commitmentId } = await postJSON<{ commitmentId: string }>('/api/discovery/commit', {
+          runId,
+          roleId: role.id,
+          roleTitle: role.title,
+        })
+        localStorage.setItem(COMMITMENT_KEY, commitmentId)
+        router.push(`/target-committed?commitmentId=${commitmentId}`)
+      } catch (err) {
+        setError(err instanceof Error ? err.message : String(err))
+        setCommittingId(null)
+      }
+    },
+    [runId, router],
   )
 
   const restart = useCallback(() => {
@@ -619,6 +724,7 @@ export function DiscoveryFlow() {
     setFunctions([])
     setRoles([])
     setShortlist([])
+    setEnrichment({})
     setIndex(0)
     setStage('intake')
   }, [])
@@ -643,7 +749,15 @@ export function DiscoveryFlow() {
           {error && <ErrorNote message={error} />}
         </>
       )}
-      {stage === 'shortlist' && <Shortlist entries={shortlist} onRestart={restart} />}
+      {stage === 'shortlist' && (
+        <CompareAndChoose
+          entries={shortlist}
+          enrichment={enrichment}
+          onChoose={commitToRole}
+          onRestart={restart}
+          committingId={committingId}
+        />
+      )}
     </Shell>
   )
 }

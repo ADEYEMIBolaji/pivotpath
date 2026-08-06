@@ -39,9 +39,10 @@ CREATE TABLE IF NOT EXISTS discovery_skills_map (
 CREATE TABLE IF NOT EXISTS discovery_roles (
   id             TEXT PRIMARY KEY,          -- run_id + ':' + rank
   run_id         TEXT NOT NULL REFERENCES discovery_intake (id) ON DELETE CASCADE,
-  rank           INTEGER NOT NULL,          -- original suggestion order (0-based)
-  title          TEXT NOT NULL,
-  industry       TEXT,
+  rank                INTEGER NOT NULL,     -- original suggestion order (0-based)
+  title               TEXT NOT NULL,        -- the real, searchable job title
+  industry            TEXT,
+  plain_language_line TEXT NOT NULL,        -- "basically, you..." — day-to-day in plain language, shown under the title
   why_fits       TEXT NOT NULL,
   functions_used JSONB NOT NULL,            -- string[] — which functions transfer
   gap            TEXT NOT NULL,             -- one honest translation challenge

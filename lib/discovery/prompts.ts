@@ -5,7 +5,7 @@
  */
 
 import { INTAKE_PROMPTS } from './chip-seed'
-import type { IntakeSelections, FunctionalSkill } from './types'
+import type { IntakeSelections, FunctionalSkill, DiscoveryRole } from './types'
 
 // ─── Shared: render structured intake into prompt text ────────────────────────
 
@@ -117,6 +117,11 @@ export const ADJACENT_ROLES_TOOL = {
               type: 'string',
               description: 'The industry or sector this role sits in — should be adjacent to, not identical to, their current one.',
             },
+            plainLanguageLine: {
+              type: 'string',
+              description:
+                'One sentence, in plain everyday language, on what this role actually involves day-to-day — not a restatement of the title. Write it the way you\'d explain the job to a friend, starting "Basically, you..." or similar. This exists because unfamiliar-sounding titles can make someone dismiss a genuinely good-fit role — the line has to make the role legible on its own, without the title.',
+            },
             whyFits: {
               type: 'string',
               description:
@@ -134,7 +139,7 @@ export const ADJACENT_ROLES_TOOL = {
                 'One honest gap or translation challenge — the thing that will actually be hard to evidence on a CV. Kept honest, not oversold.',
             },
           },
-          required: ['title', 'industry', 'whyFits', 'functionsUsed', 'gap'],
+          required: ['title', 'industry', 'plainLanguageLine', 'whyFits', 'functionsUsed', 'gap'],
         },
       },
     },
@@ -166,7 +171,82 @@ ${formatIntake(selections, otherNotes)}
 Rules:
 - Suggest 5–10 roles across *adjacent* industries — sectors that use the same functions but that they are unlikely to have searched for themselves. Do not suggest the obvious next rung of the ladder they're already on.
 - Spread across at least four distinct industries. Don't return eight variations of one job.
+- Use real, currently-hired-for titles — don't invent a title to sound impressive or to fit the plain-language line better.
+- The plain-language line matters as much as the title. A title like "Implementation Consultant" or "Revenue Operations Analyst" can read as confusing or intimidating even when it's a strong match — write the line so someone would understand and want the role from that sentence alone, before they've even parsed the title.
 - "Why this fits" must tie to their stated evidence, in their terms.
 - Every role gets exactly one honest gap. Real gaps: missing domain vocabulary, no portfolio artefact, a credential the market actually screens on. Do not soften it and do not invent a fake gap for balance.
 - Use the exact function names from the skills map in functionsUsed.`
+}
+
+// ─── Bridge: shortlist comparison (before committing to one role) ────────────
+
+/**
+ * TODO (blocks production): entry-barrier and demand content here are Claude
+ * reasoning from general knowledge, not live market data. Before this ships,
+ * replace demandNote with something sourced from real postings volume (the
+ * same job-board data source noted as a TODO in pipeline.ts would cover both).
+ */
+export const ROLE_COMPARISON_TOOL = {
+  name: 'output_role_comparison',
+  description:
+    'Output a day-to-day summary, an entry-barrier indicator, and a demand note for each shortlisted role, to help someone choose one to commit to',
+  input_schema: {
+    type: 'object' as const,
+    properties: {
+      roles: {
+        type: 'array',
+        items: {
+          type: 'object',
+          properties: {
+            roleId: { type: 'string', description: 'Must exactly match one of the provided role ids.' },
+            dayToDay: {
+              type: 'string',
+              description:
+                'Two or three concrete sentences on what a typical week actually looks like in this role — not a restatement of the title or the "why this fits" line.',
+            },
+            entryBarrier: {
+              type: 'string',
+              description:
+                'A short phrase on how hard this specific person would find it to break in, referencing their actual stated gap where relevant — e.g. "Moderate — one portfolio artefact would close most of the gap" or "Low — this hires directly on skills they already have."',
+            },
+            demandNote: {
+              type: 'string',
+              description:
+                'A short, honestly-hedged note on how commonly organisations hire for this role right now, reasoned from general knowledge — explicitly not live market data.',
+            },
+          },
+          required: ['roleId', 'dayToDay', 'entryBarrier', 'demandNote'],
+        },
+      },
+    },
+    required: ['roles'],
+  },
+}
+
+export function buildRoleComparisonPrompt(roles: DiscoveryRole[], functions: FunctionalSkill[]): string {
+  const functionsText = functions.map((f) => `- ${f.name}: ${f.summary}`).join('\n')
+  const rolesText = roles
+    .map(
+      (r) =>
+        `- roleId: ${r.id}\n  title: ${r.title}\n  plain-language line: ${r.plainLanguageLine}\n  why it fits: ${r.whyFits}\n  their honest gap: ${r.gap}`,
+    )
+    .join('\n')
+
+  return `This person is choosing ONE role from a shortlist to commit to as their pivot target. For each role below, give them the information they'd actually want before picking one: what the day-to-day looks like, how hard it would be for *them specifically* to break in, and a rough honest sense of how often it's hired for.
+
+Their functional skills:
+<skills>
+${functionsText}
+</skills>
+
+Shortlisted roles:
+<roles>
+${rolesText}
+</roles>
+
+Rules:
+- dayToDay must be concrete and specific to this role — what they'd actually spend most days doing, not marketing copy.
+- entryBarrier should reference their actual stated gap where it's relevant, not a generic difficulty rating.
+- demandNote must be explicitly hedged as reasoning from general knowledge, not live data — never imply precision you don't have.
+- Return exactly one entry per role, using the roleId values given verbatim.`
 }

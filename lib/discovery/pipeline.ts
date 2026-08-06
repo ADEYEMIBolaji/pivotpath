@@ -13,8 +13,10 @@ import {
   buildSkillsMapPrompt,
   ADJACENT_ROLES_TOOL,
   buildAdjacentRolesPrompt,
+  ROLE_COMPARISON_TOOL,
+  buildRoleComparisonPrompt,
 } from './prompts'
-import type { FunctionalSkill, IntakeSelections, DiscoveryRole } from './types'
+import type { FunctionalSkill, IntakeSelections, DiscoveryRole, RoleComparisonEnrichment } from './types'
 
 // Same model the main pipeline uses — keep these in sync.
 const CLAUDE_MODEL = 'claude-sonnet-4-6'
@@ -84,4 +86,39 @@ export async function surfaceAdjacentRoles(
     runId,
     rank: i,
   }))
+}
+
+// ─── Bridge: shortlist comparison ─────────────────────────────────────────────
+
+/**
+ * TODO (blocks production): entry-barrier and demand content is Claude
+ * reasoning, not real market data — see the TODO on ROLE_COMPARISON_TOOL in
+ * prompts.ts. Also NOT persisted: the caller regenerates this on every visit
+ * to the comparison screen rather than caching it in Postgres, which is an
+ * acceptable simplification for a test build but a re-cost if this survives
+ * into production traffic.
+ */
+export async function enrichShortlistForComparison(
+  roles: DiscoveryRole[],
+  functions: FunctionalSkill[],
+): Promise<Record<string, RoleComparisonEnrichment>> {
+  if (roles.length === 0) return {}
+  // Up to 10 roles × (dayToDay + entryBarrier + demandNote) needs real headroom —
+  // 2048 truncated mid-response for a 6-role shortlist and left `roles` missing
+  // from the parsed tool input entirely.
+  const out = await callClaude<{ roles?: ({ roleId: string } & RoleComparisonEnrichment)[] }>(
+    ROLE_COMPARISON_TOOL as AnthropicTool,
+    buildRoleComparisonPrompt(roles, functions),
+    6144,
+  )
+  // This content is a nice-to-have (see the TODO above) — degrade to "no
+  // enrichment" rather than 500ing the whole comparison screen if the model
+  // ever returns a shape we don't expect.
+  if (!Array.isArray(out.roles)) return {}
+  return Object.fromEntries(
+    out.roles.map(({ roleId, dayToDay, entryBarrier, demandNote }) => [
+      roleId,
+      { dayToDay, entryBarrier, demandNote },
+    ]),
+  )
 }

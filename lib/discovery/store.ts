@@ -8,12 +8,14 @@
  */
 
 import type {
+  CommitmentSource,
   DiscoveryIntake,
   DiscoveryRole,
   FunctionalSkill,
   IntakeSelections,
   Reaction,
   ShortlistEntry,
+  TargetCommitment,
 } from './types'
 
 const usePg = (): boolean => Boolean(process.env.DATABASE_URL)
@@ -148,9 +150,19 @@ export async function saveRoles(runId: string, roles: DiscoveryRole[]): Promise<
     await client.query('DELETE FROM discovery_roles WHERE run_id = $1', [runId])
     for (const r of roles) {
       await client.query(
-        `INSERT INTO discovery_roles (id, run_id, rank, title, industry, why_fits, functions_used, gap)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
-        [r.id, r.runId, r.rank, r.title, r.industry, r.whyFits, JSON.stringify(r.functionsUsed), r.gap],
+        `INSERT INTO discovery_roles (id, run_id, rank, title, industry, plain_language_line, why_fits, functions_used, gap)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+        [
+          r.id,
+          r.runId,
+          r.rank,
+          r.title,
+          r.industry,
+          r.plainLanguageLine,
+          r.whyFits,
+          JSON.stringify(r.functionsUsed),
+          r.gap,
+        ],
       )
     }
     await client.query('COMMIT')
@@ -172,11 +184,12 @@ export async function getRoles(runId: string): Promise<DiscoveryRole[]> {
     rank: number
     title: string
     industry: string | null
+    plain_language_line: string
     why_fits: string
     functions_used: string[]
     gap: string
   }>(
-    `SELECT id, run_id, rank, title, industry, why_fits, functions_used, gap
+    `SELECT id, run_id, rank, title, industry, plain_language_line, why_fits, functions_used, gap
      FROM discovery_roles WHERE run_id = $1 ORDER BY rank ASC`,
     [runId],
   )
@@ -186,6 +199,7 @@ export async function getRoles(runId: string): Promise<DiscoveryRole[]> {
     rank: r.rank,
     title: r.title,
     industry: r.industry ?? '',
+    plainLanguageLine: r.plain_language_line,
     whyFits: r.why_fits,
     functionsUsed: r.functions_used,
     gap: r.gap,
@@ -237,4 +251,98 @@ export async function getShortlist(runId: string): Promise<ShortlistEntry[]> {
     .filter((r) => reactions[r.id] === 'like' || reactions[r.id] === 'unsure')
     .map((role) => ({ role, reaction: reactions[role.id] }))
     .sort((a, b) => weight[a.reaction] - weight[b.reaction] || a.role.rank - b.role.rank)
+}
+
+// ─── Bridge: single target-role commitment ────────────────────────────────────
+// Persona A (Discovery) and Persona B (/target-role direct entry) both land
+// here, keyed by their own commitment id — not by runId, since Persona B has
+// no discovery run at all. File-mode stores commitments separately from run
+// files (a subdirectory, not the top-level .discovery/<runId>.json shape).
+
+function commitmentFilePath(id: string): string {
+  const path = require('path') as typeof import('path')
+  return path.join(process.cwd(), '.discovery', 'commitments', `${id}.json`)
+}
+
+function fileReadCommitment(id: string): TargetCommitment | null {
+  try {
+    const fs = require('fs') as typeof import('fs')
+    return JSON.parse(fs.readFileSync(commitmentFilePath(id), 'utf-8')) as TargetCommitment
+  } catch {
+    return null
+  }
+}
+
+function fileWriteCommitment(id: string, commitment: TargetCommitment): void {
+  const fs = require('fs') as typeof import('fs')
+  const path = require('path') as typeof import('path')
+  fs.mkdirSync(path.join(process.cwd(), '.discovery', 'commitments'), { recursive: true })
+  fs.writeFileSync(commitmentFilePath(id), JSON.stringify(commitment, null, 2))
+}
+
+export async function saveCommitment(
+  id: string,
+  userId: string | null,
+  input: {
+    runId: string | null
+    roleId: string | null
+    source: CommitmentSource
+    roleTitle: string
+    plainLanguageLine: string | null
+  },
+): Promise<TargetCommitment> {
+  const commitment: TargetCommitment = { id, userId, committedAt: new Date().toISOString(), ...input }
+
+  if (!usePg()) {
+    fileWriteCommitment(id, commitment)
+    return commitment
+  }
+
+  const { query } = await import('../db')
+  const rows = await query<{ committed_at: string }>(
+    `INSERT INTO discovery_target_commitment (id, user_id, run_id, role_id, source, role_title, plain_language_line)
+     VALUES ($1, $2, $3, $4, $5, $6, $7)
+     ON CONFLICT (id) DO UPDATE SET
+       run_id = EXCLUDED.run_id,
+       role_id = EXCLUDED.role_id,
+       source = EXCLUDED.source,
+       role_title = EXCLUDED.role_title,
+       plain_language_line = EXCLUDED.plain_language_line,
+       updated_at = NOW()
+     RETURNING committed_at`,
+    [id, userId, input.runId, input.roleId, input.source, input.roleTitle, input.plainLanguageLine],
+  )
+  return { ...commitment, committedAt: String(rows[0]?.committed_at ?? commitment.committedAt) }
+}
+
+export async function getCommitment(id: string): Promise<TargetCommitment | null> {
+  if (!usePg()) return fileReadCommitment(id)
+
+  const { query } = await import('../db')
+  const rows = await query<{
+    id: string
+    user_id: string | null
+    run_id: string | null
+    role_id: string | null
+    source: CommitmentSource
+    role_title: string
+    plain_language_line: string | null
+    committed_at: string
+  }>(
+    `SELECT id, user_id, run_id, role_id, source, role_title, plain_language_line, committed_at
+     FROM discovery_target_commitment WHERE id = $1`,
+    [id],
+  )
+  const row = rows[0]
+  if (!row) return null
+  return {
+    id: row.id,
+    userId: row.user_id,
+    runId: row.run_id,
+    roleId: row.role_id,
+    source: row.source,
+    roleTitle: row.role_title,
+    plainLanguageLine: row.plain_language_line,
+    committedAt: String(row.committed_at),
+  }
 }
