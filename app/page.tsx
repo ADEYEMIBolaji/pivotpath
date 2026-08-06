@@ -3,6 +3,7 @@ import { Nav } from '@/components/brand/Nav'
 import { TranslationArrow } from '@/components/brand/TranslationArrow'
 import { ConfidenceBadge } from '@/components/brand/ConfidenceBadge'
 import { SectionOverline, StepRow } from '@/components/brand/SectionRule'
+import { isDiscoveryEnabled } from '@/lib/discovery/access'
 import type { ConfidenceTier } from '@/lib/types'
 
 // Explicit canonical (resolved against metadataBase = https://www.pivotpath.uk)
@@ -79,7 +80,7 @@ function GridBackdrop({ maskPos }: { maskPos: string }) {
 }
 
 // ─── Hero ─────────────────────────────────────────────────────────────────────
-function HeroSection() {
+function HeroSection({ discoveryEnabled }: { discoveryEnabled: boolean }) {
   return (
     <section id="top" className="relative bg-navy text-offwhite overflow-hidden">
       <GridBackdrop maskPos="90% 70% at 70% 35%" />
@@ -93,6 +94,21 @@ function HeroSection() {
       >
         {/* Left: headline + CTAs */}
         <div className="min-w-0">
+          {discoveryEnabled && (
+            <Link
+              href="/start"
+              className="inline-flex items-center gap-[10px] mb-[18px] pl-[3px] pr-4 py-1.5 rounded-full border border-amber/35 hover:border-amber/60 transition-colors group"
+              style={{ background: 'rgba(232,168,56,0.08)' }}
+            >
+              <span className="font-mono text-[10.5px] font-semibold tracking-[0.08em] text-navy bg-amber rounded-full px-2 py-[3px]">
+                NEW
+              </span>
+              <span className="text-[13px] text-pp-text-body group-hover:text-offwhite transition-colors">
+                Don&rsquo;t know your target role yet? Try Discovery Mode
+              </span>
+              <span aria-hidden className="text-amber text-[13px]">→</span>
+            </Link>
+          )}
           <p className="font-mono text-[12px] tracking-[0.22em] text-amber uppercase mb-[26px]">
             Career Transition Intelligence
           </p>
@@ -603,10 +619,11 @@ function FooterSection() {
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default function HomePage() {
+  const discoveryEnabled = isDiscoveryEnabled()
   return (
     <>
       <Nav variant="landing" />
-      <HeroSection />
+      <HeroSection discoveryEnabled={discoveryEnabled} />
       <ThesisBand />
       <HowItWorksSection />
       <TranslationMapSection />
