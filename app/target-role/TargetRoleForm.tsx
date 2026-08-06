@@ -109,8 +109,8 @@ export function TargetRoleForm() {
           Not sure?{' '}
           <Link href="/discovery-test" className="text-amber underline">
             Try Discovery Mode instead
-          </Link>{' '}
-          — it works from evidence about what you&rsquo;re already good at, not a title you have to
+          </Link>
+          , it works from evidence about what you&rsquo;re already good at, not a title you have to
           already know.
         </p>
       </main>

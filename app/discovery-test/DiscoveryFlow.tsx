@@ -209,8 +209,8 @@ function IntakeForm({
       <Overline>Step 1 · Evidence</Overline>
       <Heading>Let&rsquo;s start with what you already do well.</Heading>
       <Sub>
-        No &ldquo;what do you want to do?&rdquo; — that question is the reason you&rsquo;re stuck.
-        Tap whatever sounds like you. Add a specific example under any chip if you want to —
+        No &ldquo;what do you want to do?&rdquo;, that question is the reason you&rsquo;re stuck.
+        Tap whatever sounds like you. Add a specific example under any chip if you want to,
         never required.
       </Sub>
 
@@ -239,7 +239,7 @@ function IntakeForm({
                     return (
                       <div key={p.chipId}>
                         <label className="block text-[12px] text-pp-text-faint mb-1">
-                          {chip.label} — add a specific example (optional)
+                          {chip.label}, add a specific example (optional)
                         </label>
                         <input
                           type="text"
@@ -247,7 +247,7 @@ function IntakeForm({
                           value={p.note ?? ''}
                           onChange={(e) => setChipNote(bank.id, p.chipId, e.target.value)}
                           className="w-full rounded-pp-m bg-navy-surface border border-pp-border-dark px-3 py-2 text-[13.5px] text-pp-text-bright placeholder:text-pp-text-ghost focus:outline-none focus:border-amber focus:shadow-pp-focus"
-                          placeholder="e.g. a specific instance — who, what, when"
+                          placeholder="e.g. a specific instance, who, what, when"
                         />
                       </div>
                     )
@@ -264,7 +264,7 @@ function IntakeForm({
           Anything else?
         </label>
         <p className="text-[13px] text-pp-text-faint mb-2">
-          Optional — anything that didn&rsquo;t fit above.
+          Optional, anything that didn&rsquo;t fit above.
         </p>
         <textarea
           id="other-notes"
@@ -309,7 +309,7 @@ function SkillsMapCards({
       <Overline>Step 2 · Functional skills map</Overline>
       <Heading>Here&rsquo;s what you&rsquo;re actually good at.</Heading>
       <Sub>
-        Not job titles — functions. These are the capabilities underneath your examples, and they&rsquo;re
+        Not job titles, functions. These are the capabilities underneath your examples, and they&rsquo;re
         what transfers across industries.
       </Sub>
 
@@ -364,7 +364,7 @@ function RoleDeck({
       <Overline>Step 3 · React, don&rsquo;t reflect</Overline>
       <Heading>Would you look twice at this?</Heading>
       <Sub>
-        Don&rsquo;t overthink it. Your gut reaction across the whole deck is the signal — we&rsquo;ll
+        Don&rsquo;t overthink it. Your gut reaction across the whole deck is the signal, we&rsquo;ll
         rank the shortlist from the pattern.
       </Sub>
 
@@ -423,7 +423,7 @@ function RoleDeck({
           reasoning — only the live-postings check is real data. See the
           TODO in lib/discovery/pipeline.ts. */}
       <p className="mt-6 font-mono text-[11px] text-pp-text-ghost">
-        Test build — role selection and fit reasoning are AI-generated. Live posting counts (where shown)
+        Test build, role selection and fit reasoning are AI-generated. Live posting counts (where shown)
         are real, from Adzuna.
       </p>
     </div>
@@ -463,8 +463,8 @@ function SamplePostings({ postings }: { postings: DiscoveryRole['samplePostings'
               {p.title}
             </a>
             <span className="text-pp-ink-meta">
-              {' '}
-              — {p.employer}, {p.location}
+              {', '}
+              {p.employer}, {p.location}
               {p.salaryMin && p.salaryMax ? ` · £${p.salaryMin.toLocaleString()}–£${p.salaryMax.toLocaleString()}` : ''}
             </span>
           </li>
@@ -497,11 +497,11 @@ function CompareAndChoose({
     <div className="animate-pp-fade">
       <Overline>Step 4 · Compare and choose</Overline>
       <Heading>
-        {entries.length > 0 ? 'Which one do you want to chase?' : 'Nothing landed — that’s useful too.'}
+        {entries.length > 0 ? 'Which one do you want to chase?' : 'Nothing landed, that’s useful too.'}
       </Heading>
       <Sub>
         {entries.length > 0
-          ? 'Liked roles first, then the ones you were unsure about. Pick one to commit to — you can change your mind later.'
+          ? 'Liked roles first, then the ones you were unsure about. Pick one to commit to, you can change your mind later.'
           : 'You passed on everything. Re-run the intake with more specific examples and the roles will get sharper.'}
       </Sub>
 
@@ -578,14 +578,14 @@ function CompareAndChoose({
           Demand is real (Adzuna) where a live-postings count was found for
           the role — see the TODO in lib/discovery/pipeline.ts. */}
       <p className="mt-6 font-mono text-[11px] text-pp-text-ghost">
-        Test build — day-to-day and entry-barrier are AI-generated. Demand figures are real UK
+        Test build, day-to-day and entry-barrier are AI-generated. Demand figures are real UK
         posting counts where available, otherwise AI-estimated.
       </p>
 
       {/* Follow-up, deliberately out of scope for this build: */}
       <p className="mt-8 text-[13px] leading-[1.6] text-pp-text-ghost border-t border-pp-border-darker pt-5">
         Not built yet: the info-interview kit (step 5 of the spec). Committing above hands off into the
-        real onboarding flow with your role pre-filled — applications, interview prep, outreach, and
+        real onboarding flow with your role pre-filled, applications, interview prep, outreach, and
         tracking beyond that still aren&rsquo;t built in this test branch.
       </p>
     </div>

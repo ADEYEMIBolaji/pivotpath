@@ -341,14 +341,14 @@ function Step2({
               </p>
               <p className="text-[16px] font-medium text-offwhite mb-2">{initialTarget.title}</p>
               <p className="text-[13px] leading-[1.6] text-pp-text-faint">
-                This is already captured — you can hit Continue as-is. We couldn&rsquo;t match it to one of
+                This is already captured, you can hit Continue as-is. We couldn&rsquo;t match it to one of
                 the listed roles below, so those dropdowns are optional: fill them in only if you want to
                 narrow the industry or function for a sharper translation.
               </p>
             </div>
           ) : (
             <p className="mb-6 text-[13px] leading-[1.6] text-pp-text-faint border border-pp-border-dark rounded-pp-m px-4 py-3">
-              We&rsquo;ve pre-filled this from what you told us — change it if it&rsquo;s not quite right.
+              We&rsquo;ve pre-filled this from what you told us, change it if it&rsquo;s not quite right.
             </p>
           )}
         </>
@@ -390,7 +390,7 @@ function Step2({
         {/* Role */}
         <div>
           <label className="block font-mono text-[11px] tracking-[0.08em] uppercase text-pp-text-faint mb-2">
-            Target role {initialTarget?.unmatched && <span className="normal-case text-pp-text-ghost">(optional — already captured above)</span>}
+            Target role {initialTarget?.unmatched && <span className="normal-case text-pp-text-ghost">(optional, already captured above)</span>}
           </label>
           <div className="relative">
             <select value={role} onChange={(e) => setRole(e.target.value)} disabled={!func} className={cn(SELECT_CLS, !func && 'opacity-40 cursor-not-allowed')} style={SELECT_STYLE}>
@@ -795,7 +795,7 @@ function OnboardingWizard() {
     if (!title) return null
     const plainLanguageLine = searchParams.get('plainLanguageLine')?.trim()
     const match = findClosestRole(title)
-    const description = plainLanguageLine ? `${title} — ${plainLanguageLine}` : title
+    const description = plainLanguageLine ? `${title}, ${plainLanguageLine}` : title
     if (match) {
       return { industry: match.industry, function: match.function, title: match.title, description }
     }

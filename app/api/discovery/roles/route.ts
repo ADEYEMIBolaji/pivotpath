@@ -39,7 +39,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
     const rate = await checkRateLimit(getClientIp(req), 'roles')
     if (!rate.allowed) {
-      return NextResponse.json({ error: 'Too many requests — try again later.' }, { status: 429 })
+      return NextResponse.json({ error: 'Too many requests, try again later.' }, { status: 429 })
     }
 
     const roles = await surfaceAdjacentRoles(runId, functions, intake.selections, intake.otherNotes)

@@ -34,7 +34,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     // idempotent-resume return above never does.
     const rate = await checkRateLimit(getClientIp(req), 'skills')
     if (!rate.allowed) {
-      return NextResponse.json({ error: 'Too many requests — try again later.' }, { status: 429 })
+      return NextResponse.json({ error: 'Too many requests, try again later.' }, { status: 429 })
     }
 
     const functions = await extractSkillsMap(intake.selections, intake.otherNotes)

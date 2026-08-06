@@ -122,7 +122,7 @@ export function TargetCommitted() {
 
             <p className="mt-10 text-[13px] leading-[1.6] text-pp-text-ghost border-t border-pp-border-darker pt-5">
               &ldquo;Continue to positioning&rdquo; takes you into the real onboarding flow with this role
-              pre-filled — you&rsquo;ll still need to upload or paste your background, since the translation
+              pre-filled, you&rsquo;ll still need to upload or paste your background, since the translation
               map needs it. Not built yet: applications, interview prep, outreach, and tracking.
             </p>
           </div>

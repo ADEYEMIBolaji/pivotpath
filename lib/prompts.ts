@@ -32,7 +32,7 @@ export const INGEST_TOOL = {
                   text: { type: 'string' },
                   flag: {
                     type: 'string',
-                    description: 'Set to a short warning message if the bullet is too vague to translate (e.g., "Too vague — add specific outcome or metric")',
+                    description: 'Set to a short warning message if the bullet is too vague to translate (e.g., "Too vague, add specific outcome or metric")',
                   },
                 },
                 required: ['text'],
@@ -67,8 +67,9 @@ export function buildIngestPrompt(rawText: string): string {
 Rules:
 - Extract every role, bullet point, skill, and education item verbatim (paraphrase only to fix obvious OCR/formatting artefacts)
 - Flag any bullet with \`flag\` if it is too vague to translate (e.g. "Responsible for operations" with no specifics)
-- Skills: list unique, specific skills — remove generic filler like "Microsoft Office", "communication"
+- Skills: list unique, specific skills, remove generic filler like "Microsoft Office", "communication"
 - If a field is absent, omit it rather than guessing
+- Never use an em dash (—) anywhere in your output. Use a comma, period, or parentheses instead.
 
 Résumé text:
 <resume>
@@ -101,7 +102,7 @@ export const TRANSLATE_TOOL = {
       readiness: {
         type: 'object',
         properties: {
-          score: { type: 'number', description: 'Pivot readiness 0–100 (be calibrated — most pivots are 45–75)' },
+          score: { type: 'number', description: 'Pivot readiness 0–100 (be calibrated, most pivots are 45–75)' },
           confidence: { type: 'string', enum: ['low', 'medium', 'high'] },
           label: { type: 'string', description: 'One sentence: "[Confidence]. [Reason why this score]."' },
           strongestAsset: { type: 'string' },
@@ -111,10 +112,10 @@ export const TRANSLATE_TOOL = {
       },
       competenciesHave: { type: 'number', description: 'How many of the target role\'s core competencies the user already has' },
       competenciesTotal: { type: 'number', description: 'Total core competencies for the target role (typically 10–14)' },
-      summaryCopy: { type: 'string', description: 'e.g. "You have 8 of 12 core Product competencies — stronger than most career-switchers at this stage."' },
+      summaryCopy: { type: 'string', description: 'e.g. "You have 8 of 12 core Product competencies, stronger than most career-switchers at this stage."' },
       gaps: {
         type: 'array',
-        description: 'Gap cards — 3 tiers',
+        description: 'Gap cards, 3 tiers',
         items: {
           type: 'object',
           properties: {
@@ -171,10 +172,11 @@ Target: ${target.title} in ${target.function} / ${target.industry}${jdSection}
 Rules:
 - HIGH tier: direct transfer, language can be swapped with minimal framing
 - PARTIAL tier: real experience exists but needs reframing to land in the target context
-- FRAME tier: weak evidence or missing — honest to include but needs building
+- FRAME tier: weak evidence or missing, honest to include but needs building
 - Readiness score: be honest. If they're a strong match, say so. If there are real gaps, reflect that.
 - Never invent experience. Only map what's actually in the profile.
-- Gap cards: include ALL three tiers. Disqualifying = would screen them out immediately. Closable = can be addressed in 1–3 months. Nice-to-have = wouldn't hurt to develop.`
+- Gap cards: include ALL three tiers. Disqualifying = would screen them out immediately. Closable = can be addressed in 1–3 months. Nice-to-have = wouldn't hurt to develop.
+- Never use an em dash (—) anywhere in your output. Use a comma, period, or parentheses instead.`
 }
 
 // ─── Rewrite ──────────────────────────────────────────────────────────────────
@@ -245,7 +247,7 @@ Profile:
 ${JSON.stringify({ roles: profile.roles, skills: profile.skills }, null, 2).slice(0, 6000)}
 </profile>
 
-Target: ${target.title} — ${target.function} / ${target.industry}
+Target: ${target.title}, ${target.function} / ${target.industry}
 
 Translation map (use this vocabulary):
 <map>
@@ -253,12 +255,13 @@ ${translationMap.rows.map((r) => `${r.from} → ${r.to} [${r.tier}]`).join('\n')
 </map>
 
 Rules:
-- Every repositioned bullet must be traceable to the original — no invented facts
+- Every repositioned bullet must be traceable to the original, no invented facts
 - Use the action verbs, frameworks, and vocabulary of the target field
 - Summary should lead with pivot narrative, not "results-driven professional"
-- missingItems must match the gap scorecard — don't invent new gaps
+- missingItems must match the gap scorecard, don't invent new gaps
 - newSkills: reframe existing skills in target language (e.g. "Triage prioritisation" → "Prioritisation under ambiguity")
-- Keep bullets specific and metric-backed where the original has metrics`
+- Keep bullets specific and metric-backed where the original has metrics
+- Never use an em dash (—) anywhere in your output. Use a comma, period, or parentheses instead.`
 }
 
 // ─── Strategy Brief ───────────────────────────────────────────────────────────
@@ -341,7 +344,7 @@ export function buildStrategyPrompt(
   return `You are a senior career coach writing a personalised transition strategy.
 
 Profile background: ${profile.roles.map((r) => `${r.title} at ${r.company}`).join(', ')}
-Target role: ${target.title} — ${target.function} / ${target.industry}
+Target role: ${target.title}, ${target.function} / ${target.industry}
 Readiness score: ${readiness.score}/100 (${readiness.confidence} confidence)
 Strongest asset: ${readiness.strongestAsset}
 Biggest gap: ${readiness.biggestGap}
@@ -351,5 +354,6 @@ ${gapSummary}
 
 Write a concrete, honest strategy brief. Avoid generic advice. Make it specific to their background and target.
 The plan should address the disqualifying gaps first. The bridge roles should be realistic, not aspirational.
-The origin advantage should highlight what makes someone from their specific background valuable in the target field.`
+The origin advantage should highlight what makes someone from their specific background valuable in the target field.
+Never use an em dash (—) anywhere in your output. Use a comma, period, or parentheses instead.`
 }

@@ -28,6 +28,27 @@ function getClient(): Anthropic {
   return new Anthropic({ apiKey: key })
 }
 
+/**
+ * Strips em dashes from every string in an LLM response, recursively. See the
+ * identical function in lib/pipeline.ts, this is the same guarantee applied
+ * to Discovery Mode's own AI-generated text (plain-language lines, day-to-day
+ * descriptions, demand notes).
+ */
+function stripEmDash<T>(value: T): T {
+  if (typeof value === 'string') {
+    return value.replace(/\s*—\s*/g, ', ') as unknown as T
+  }
+  if (Array.isArray(value)) {
+    return value.map((item) => stripEmDash(item)) as unknown as T
+  }
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(
+      Object.entries(value).map(([k, v]) => [k, stripEmDash(v)]),
+    ) as T
+  }
+  return value
+}
+
 async function callClaude<T>(tool: AnthropicTool, prompt: string, maxTokens: number): Promise<T> {
   const response = await getClient().messages.create({
     model: CLAUDE_MODEL,
@@ -42,7 +63,7 @@ async function callClaude<T>(tool: AnthropicTool, prompt: string, maxTokens: num
       `Claude did not call the expected tool. Response: ${JSON.stringify(response.content).slice(0, 500)}`,
     )
   }
-  return block.input as T
+  return stripEmDash(block.input as T)
 }
 
 // ─── Step 2 ───────────────────────────────────────────────────────────────────

@@ -69,7 +69,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
   if (chipCount < MIN_CHIPS) {
     return NextResponse.json(
-      { error: `Select at least ${MIN_CHIPS} chips across the prompts — the skills map needs evidence to work from.` },
+      { error: `Select at least ${MIN_CHIPS} chips across the prompts, the skills map needs evidence to work from.` },
       { status: 400 },
     )
   }

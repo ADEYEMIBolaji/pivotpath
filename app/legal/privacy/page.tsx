@@ -75,8 +75,8 @@ export default function PrivacyPage() {
           <section>
             <h2>4. AI processing and third-party providers</h2>
             <p>
-              Your CV text and target role information — and, if you use Discovery Mode, your intake
-              selections and any notes you add — are sent to one of the following AI providers to
+              Your CV text and target role information, and, if you use Discovery Mode, your intake
+              selections and any notes you add, are sent to one of the following AI providers to
               generate your analysis:
             </p>
             <ul>
@@ -90,7 +90,7 @@ export default function PrivacyPage() {
             <p>
               If you use Discovery Mode, the role titles it surfaces are also checked against{' '}
               <strong>Adzuna</strong>&apos;s UK jobs database, to show how many real, live postings currently
-              exist for a suggested role. Only the role title itself is sent — never any of your personal or
+              exist for a suggested role. Only the role title itself is sent, never any of your personal or
               career information. See{' '}
               <a href="https://www.adzuna.co.uk/privacy-policy" target="_blank" rel="noopener noreferrer">adzuna.co.uk/privacy-policy</a>.
             </p>
@@ -120,7 +120,7 @@ export default function PrivacyPage() {
               Discovery Mode and direct target-role entry can be used without creating an account. That
               data is retained under the session or commitment identifier generated for it, for as long as
               is useful to you across visits. Because there is no account to delete it through, contact us
-              (Section 11) to request deletion — quoting the identifier from your browser&apos;s address bar
+              (Section 11) to request deletion, quoting the identifier from your browser&apos;s address bar
               or local storage if you still have it, so we can locate the right record.
             </p>
           </section>
@@ -145,7 +145,7 @@ export default function PrivacyPage() {
             </p>
             <p>
               If you used Discovery Mode or set a target role without an account, the in-app tools above
-              won&apos;t apply — there&apos;s no account to sign into. Email us instead, quoting your session
+              won&apos;t apply, there&apos;s no account to sign into. Email us instead, quoting your session
               or commitment identifier if you have it, and we will action the request manually.
             </p>
           </section>

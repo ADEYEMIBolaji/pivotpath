@@ -61,7 +61,7 @@ export function StartChoice() {
           Do you know what role you&rsquo;re targeting?
         </h1>
         <p className="text-[15px] leading-[1.6] text-pp-text-body mb-10 max-w-pp-narrow">
-          Answer honestly — there&rsquo;s no wrong answer, and it changes nothing about how seriously
+          Answer honestly, there&rsquo;s no wrong answer, and it changes nothing about how seriously
           we take your background either way.
         </p>
 
@@ -76,7 +76,7 @@ export function StartChoice() {
           <ChoiceCard
             eyebrow="I'm not sure yet"
             title="I don't know what to target"
-            description="Answer a few questions about what you're already good at — we'll work outward from evidence, not a guess, and surface roles you'd likely never have searched for."
+            description="Answer a few questions about what you're already good at, we'll work outward from evidence, not a guess, and surface roles you'd likely never have searched for."
             href="/discovery-test"
             cta="Start Discovery Mode"
           />

@@ -34,7 +34,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   // any work happens, not just before a fresh generation.
   const rate = await checkRateLimit(getClientIp(req), 'compare')
   if (!rate.allowed) {
-    return NextResponse.json({ error: 'Too many requests — try again later.' }, { status: 429 })
+    return NextResponse.json({ error: 'Too many requests, try again later.' }, { status: 429 })
   }
 
   try {
