@@ -180,12 +180,6 @@ Rules:
 
 // ─── Bridge: shortlist comparison (before committing to one role) ────────────
 
-/**
- * TODO (blocks production): entry-barrier and demand content here are Claude
- * reasoning from general knowledge, not live market data. Before this ships,
- * replace demandNote with something sourced from real postings volume (the
- * same job-board data source noted as a TODO in pipeline.ts would cover both).
- */
 export const ROLE_COMPARISON_TOOL = {
   name: 'output_role_comparison',
   description:
@@ -212,7 +206,7 @@ export const ROLE_COMPARISON_TOOL = {
             demandNote: {
               type: 'string',
               description:
-                'A short, honestly-hedged note on how commonly organisations hire for this role right now, reasoned from general knowledge — explicitly not live market data.',
+                'When a real UK live-postings count is given for this role, state it plainly and let it speak for itself (e.g. "47 live UK postings right now — one of the more available roles on your shortlist") — do not add a hedge to a real number. When no count is given, fall back to a short, honestly-hedged note reasoned from general knowledge, explicitly not live data.',
             },
           },
           required: ['roleId', 'dayToDay', 'entryBarrier', 'demandNote'],
@@ -226,13 +220,16 @@ export const ROLE_COMPARISON_TOOL = {
 export function buildRoleComparisonPrompt(roles: DiscoveryRole[], functions: FunctionalSkill[]): string {
   const functionsText = functions.map((f) => `- ${f.name}: ${f.summary}`).join('\n')
   const rolesText = roles
-    .map(
-      (r) =>
-        `- roleId: ${r.id}\n  title: ${r.title}\n  plain-language line: ${r.plainLanguageLine}\n  why it fits: ${r.whyFits}\n  their honest gap: ${r.gap}`,
-    )
+    .map((r) => {
+      const liveData =
+        r.postingCount === null
+          ? '  live UK postings: not available — reason from general knowledge instead'
+          : `  live UK postings right now: ${r.postingCount} (real Adzuna data — state this number directly in demandNote, don't hedge it)`
+      return `- roleId: ${r.id}\n  title: ${r.title}\n  plain-language line: ${r.plainLanguageLine}\n  why it fits: ${r.whyFits}\n  their honest gap: ${r.gap}\n${liveData}`
+    })
     .join('\n')
 
-  return `This person is choosing ONE role from a shortlist to commit to as their pivot target. For each role below, give them the information they'd actually want before picking one: what the day-to-day looks like, how hard it would be for *them specifically* to break in, and a rough honest sense of how often it's hired for.
+  return `This person is choosing ONE role from a shortlist to commit to as their pivot target. For each role below, give them the information they'd actually want before picking one: what the day-to-day looks like, how hard it would be for *them specifically* to break in, and how often it's actually hired for.
 
 Their functional skills:
 <skills>
@@ -247,6 +244,6 @@ ${rolesText}
 Rules:
 - dayToDay must be concrete and specific to this role — what they'd actually spend most days doing, not marketing copy.
 - entryBarrier should reference their actual stated gap where it's relevant, not a generic difficulty rating.
-- demandNote must be explicitly hedged as reasoning from general knowledge, not live data — never imply precision you don't have.
+- demandNote: where a real live-postings count is given, state it plainly as the answer — that IS the demand signal, don't also add a hedge on top of it. Only fall back to hedged general-knowledge reasoning for roles with no count given.
 - Return exactly one entry per role, using the roleId values given verbatim.`
 }

@@ -379,6 +379,7 @@ function RoleDeck({
           {role.industry}
         </p>
         <h2 className="font-display text-[27px] leading-[1.2] text-pp-ink mb-2">{role.title}</h2>
+        <PostingsBadge postingCount={role.postingCount} />
         <p className="text-[14.5px] leading-[1.55] text-pp-ink-meta italic mb-5">
           {role.plainLanguageLine}
         </p>
@@ -401,6 +402,8 @@ function RoleDeck({
           </p>
           <p className="text-[13.5px] leading-[1.55] text-pp-ink-body">{role.gap}</p>
         </div>
+
+        <SamplePostings postings={role.samplePostings} />
       </div>
 
       <div className="mt-6 grid grid-cols-3 gap-3">
@@ -415,10 +418,57 @@ function RoleDeck({
         </Button>
       </div>
 
-      {/* STUB: these roles are AI-reasoned, not live postings. See lib/discovery/pipeline.ts. */}
+      {/* STUB: which roles get suggested, and how well they fit, is still AI
+          reasoning — only the live-postings check is real data. See the
+          TODO in lib/discovery/pipeline.ts. */}
       <p className="mt-6 font-mono text-[11px] text-pp-text-ghost">
-        Test build — roles are AI-generated, not live job postings.
+        Test build — role selection and fit reasoning are AI-generated. Live posting counts (where shown)
+        are real, from Adzuna.
       </p>
+    </div>
+  )
+}
+
+/** Real (Adzuna) or absent — never a guessed number. Zero is shown plainly, not hidden. */
+function PostingsBadge({ postingCount }: { postingCount: number | null }) {
+  if (postingCount === null) return null
+  return (
+    <p className="text-[12.5px] font-mono mb-3">
+      {postingCount > 0 ? (
+        <span className="text-teal">{postingCount} live UK posting{postingCount === 1 ? '' : 's'} right now</span>
+      ) : (
+        <span className="text-pp-ink-meta">No live UK postings found for this exact title right now</span>
+      )}
+    </p>
+  )
+}
+
+function SamplePostings({ postings }: { postings: DiscoveryRole['samplePostings'] }) {
+  if (!postings || postings.length === 0) return null
+  return (
+    <div className="mt-4 border-t border-pp-border-lighter pt-4">
+      <p className="font-mono text-[10.5px] tracking-[0.12em] uppercase text-pp-ink-meta mb-2">
+        Real postings right now
+      </p>
+      <ul className="space-y-2">
+        {postings.map((p, i) => (
+          <li key={i} className="text-[13px] leading-[1.5]">
+            <a
+              href={p.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-pp-ink-soft underline hover:text-amber"
+            >
+              {p.title}
+            </a>
+            <span className="text-pp-ink-meta">
+              {' '}
+              — {p.employer}, {p.location}
+              {p.salaryMin && p.salaryMax ? ` · £${p.salaryMin.toLocaleString()}–£${p.salaryMax.toLocaleString()}` : ''}
+            </span>
+          </li>
+        ))}
+      </ul>
     </div>
   )
 }
@@ -499,7 +549,7 @@ function CompareAndChoose({
                     </div>
                     <div>
                       <dt className="font-mono text-[10.5px] tracking-[0.1em] uppercase text-pp-text-faint mb-1">
-                        Demand (est.)
+                        Demand{entry.role.postingCount === null ? ' (est.)' : ''}
                       </dt>
                       <dd className="text-[13px] leading-[1.5] text-pp-text-body">{enrich.demandNote}</dd>
                     </div>
@@ -523,11 +573,12 @@ function CompareAndChoose({
         </Button>
       </div>
 
-      {/* STUB: day-to-day / entry-barrier / demand content is Claude reasoning
-          from general knowledge, not live market data. See the TODO in
-          lib/discovery/pipeline.ts. */}
+      {/* STUB: day-to-day and entry-barrier content are still Claude reasoning.
+          Demand is real (Adzuna) where a live-postings count was found for
+          the role — see the TODO in lib/discovery/pipeline.ts. */}
       <p className="mt-6 font-mono text-[11px] text-pp-text-ghost">
-        Test build — comparison details are AI-generated, not sourced from real market data.
+        Test build — day-to-day and entry-barrier are AI-generated. Demand figures are real UK
+        posting counts where available, otherwise AI-estimated.
       </p>
 
       {/* Follow-up, deliberately out of scope for this build: */}

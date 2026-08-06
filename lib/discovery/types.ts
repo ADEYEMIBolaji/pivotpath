@@ -65,6 +65,16 @@ export interface SkillsMap {
 
 // ─── Step 3: adjacent roles ───────────────────────────────────────────────────
 
+/** One real, live UK posting — from Adzuna, via lib/discovery/postings.ts. */
+export interface RolePosting {
+  title: string
+  employer: string
+  location: string
+  url: string
+  salaryMin: number | null
+  salaryMax: number | null
+}
+
 export interface DiscoveryRole {
   id: string
   runId: string
@@ -87,6 +97,16 @@ export interface DiscoveryRole {
   functionsUsed: string[]
   /** One honest gap or translation challenge. Not oversold. */
   gap: string
+  /**
+   * Real-world grounding for a title Claude proposed — how many live UK
+   * postings currently match it, via Adzuna (lib/discovery/postings.ts). Null
+   * when Adzuna isn't configured or the lookup failed — never a fabricated
+   * number. Zero is a real, meaningful answer (the title may be too narrow or
+   * genuinely rare) and is shown as such, not hidden.
+   */
+  postingCount: number | null
+  /** Up to 3 real sample postings for this title, if any were found. */
+  samplePostings: RolePosting[]
 }
 
 // ─── Step 4: reactions + shortlist ────────────────────────────────────────────

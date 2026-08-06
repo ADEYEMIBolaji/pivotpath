@@ -150,8 +150,8 @@ export async function saveRoles(runId: string, roles: DiscoveryRole[]): Promise<
     await client.query('DELETE FROM discovery_roles WHERE run_id = $1', [runId])
     for (const r of roles) {
       await client.query(
-        `INSERT INTO discovery_roles (id, run_id, rank, title, industry, plain_language_line, why_fits, functions_used, gap)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+        `INSERT INTO discovery_roles (id, run_id, rank, title, industry, plain_language_line, why_fits, functions_used, gap, posting_count, sample_postings)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
         [
           r.id,
           r.runId,
@@ -162,6 +162,8 @@ export async function saveRoles(runId: string, roles: DiscoveryRole[]): Promise<
           r.whyFits,
           JSON.stringify(r.functionsUsed),
           r.gap,
+          r.postingCount,
+          JSON.stringify(r.samplePostings ?? []),
         ],
       )
     }
@@ -188,8 +190,10 @@ export async function getRoles(runId: string): Promise<DiscoveryRole[]> {
     why_fits: string
     functions_used: string[]
     gap: string
+    posting_count: number | null
+    sample_postings: DiscoveryRole['samplePostings']
   }>(
-    `SELECT id, run_id, rank, title, industry, plain_language_line, why_fits, functions_used, gap
+    `SELECT id, run_id, rank, title, industry, plain_language_line, why_fits, functions_used, gap, posting_count, sample_postings
      FROM discovery_roles WHERE run_id = $1 ORDER BY rank ASC`,
     [runId],
   )
@@ -203,6 +207,8 @@ export async function getRoles(runId: string): Promise<DiscoveryRole[]> {
     whyFits: r.why_fits,
     functionsUsed: r.functions_used,
     gap: r.gap,
+    postingCount: r.posting_count,
+    samplePostings: r.sample_postings ?? [],
   }))
 }
 
