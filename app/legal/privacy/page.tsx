@@ -7,7 +7,7 @@ export const metadata = {
   alternates: { canonical: '/legal/privacy' },
 }
 
-const LAST_UPDATED = '29 June 2026'
+const LAST_UPDATED = '6 August 2026'
 const PRIVACY_EMAIL = 'pivotpath01@gmail.com'
 
 export default function PrivacyPage() {
@@ -46,9 +46,11 @@ export default function PrivacyPage() {
             <ul>
               <li><strong>Account data</strong>, your name and email address, provided directly or via Google OAuth.</li>
               <li><strong>CV / career background</strong>, text you paste or upload. We extract the text content only; we never store the original file.</li>
-              <li><strong>Target role information</strong>, the job title and industry you are pivoting toward.</li>
+              <li><strong>Target role information</strong>, the job title and industry you are pivoting toward, whether entered directly or arrived at through Discovery Mode.</li>
               <li><strong>Analysis outputs</strong>, your Translation Map, rewritten resume content, and career strategy brief generated during a pivot session.</li>
-              <li><strong>Usage data</strong>, anonymised logs for debugging (e.g. error traces). We do not use third-party analytics trackers.</li>
+              <li><strong>Discovery Mode responses</strong>, if you use our guided &quot;Discovery Mode&quot; flow: the pointer-phrases you tap, any short example or note you optionally add under one, your reactions (like/pass/unsure) to suggested roles, and the role you ultimately choose. This can be provided without creating an account.</li>
+              <li><strong>Usage data</strong>, product analytics (page views and in-product events, such as completing a step of a flow) via Vercel Analytics, plus anonymised logs for debugging (e.g. error traces). We do not use third-party advertising or cross-site tracking.</li>
+              <li><strong>Rate-limiting data</strong>, a one-way cryptographic hash of your IP address, used only to prevent automated abuse of our free AI-powered features. We never store the IP address itself, and this hash cannot be reversed to recover it.</li>
               <li><strong>Session data</strong>, a secure session cookie (JWT) to keep you signed in.</li>
             </ul>
           </section>
@@ -62,8 +64,9 @@ export default function PrivacyPage() {
               <tbody>
                 <tr><td>Providing the pivot analysis service</td><td>Contract performance (Art. 6(1)(b))</td></tr>
                 <tr><td>Saving your sessions so you can return to them</td><td>Contract performance (Art. 6(1)(b))</td></tr>
+                <tr><td>Running Discovery Mode: inferring transferable skills and suggesting roles (available without an account)</td><td>Legitimate interests / consent (Art. 6(1)(f)/(a))</td></tr>
                 <tr><td>Sending product update emails (if opted in)</td><td>Consent (Art. 6(1)(a))</td></tr>
-                <tr><td>Preventing fraud and securing accounts</td><td>Legitimate interests (Art. 6(1)(f))</td></tr>
+                <tr><td>Preventing fraud, abuse, and securing accounts and free features</td><td>Legitimate interests (Art. 6(1)(f))</td></tr>
                 <tr><td>Complying with legal obligations</td><td>Legal obligation (Art. 6(1)(c))</td></tr>
               </tbody>
             </table>
@@ -72,15 +75,24 @@ export default function PrivacyPage() {
           <section>
             <h2>4. AI processing and third-party providers</h2>
             <p>
-              Your CV text and target role information are sent to one of the following AI providers to generate your pivot analysis:
+              Your CV text and target role information — and, if you use Discovery Mode, your intake
+              selections and any notes you add — are sent to one of the following AI providers to
+              generate your analysis:
             </p>
             <ul>
               <li><strong>Anthropic (Claude)</strong>, your text is processed under Anthropic&apos;s API terms. Anthropic does not use API inputs to train models by default. See <a href="https://www.anthropic.com/privacy" target="_blank" rel="noopener noreferrer">anthropic.com/privacy</a>.</li>
               <li><strong>xAI (Grok)</strong>, your text is processed under xAI&apos;s API terms. See <a href="https://x.ai/privacy-policy" target="_blank" rel="noopener noreferrer">x.ai/privacy-policy</a>.</li>
             </ul>
             <p>
-              We send only the minimum data required for analysis (career background text + target role).
-              We do not send your email, name, or account details to AI providers.
+              We send only the minimum data required for analysis (career background text, target role, or
+              Discovery Mode selections). We do not send your email, name, or account details to AI providers.
+            </p>
+            <p>
+              If you use Discovery Mode, the role titles it surfaces are also checked against{' '}
+              <strong>Adzuna</strong>&apos;s UK jobs database, to show how many real, live postings currently
+              exist for a suggested role. Only the role title itself is sent — never any of your personal or
+              career information. See{' '}
+              <a href="https://www.adzuna.co.uk/privacy-policy" target="_blank" rel="noopener noreferrer">adzuna.co.uk/privacy-policy</a>.
             </p>
           </section>
 
@@ -104,6 +116,13 @@ export default function PrivacyPage() {
               If you delete your account, all associated data is permanently erased within 30 days.
               Anonymised aggregated usage statistics (no personal data) may be retained indefinitely.
             </p>
+            <p>
+              Discovery Mode and direct target-role entry can be used without creating an account. That
+              data is retained under the session or commitment identifier generated for it, for as long as
+              is useful to you across visits. Because there is no account to delete it through, contact us
+              (Section 11) to request deletion — quoting the identifier from your browser&apos;s address bar
+              or local storage if you still have it, so we can locate the right record.
+            </p>
           </section>
 
           <section>
@@ -123,6 +142,11 @@ export default function PrivacyPage() {
               <a href={`mailto:${PRIVACY_EMAIL}`}>{PRIVACY_EMAIL}</a>.
               We will respond within 30 days. You also have the right to lodge a complaint with the
               Information Commissioner&apos;s Office (ICO) at <a href="https://ico.org.uk" target="_blank" rel="noopener noreferrer">ico.org.uk</a>.
+            </p>
+            <p>
+              If you used Discovery Mode or set a target role without an account, the in-app tools above
+              won&apos;t apply — there&apos;s no account to sign into. Email us instead, quoting your session
+              or commitment identifier if you have it, and we will action the request manually.
             </p>
           </section>
 
