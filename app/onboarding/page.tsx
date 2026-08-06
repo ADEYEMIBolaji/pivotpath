@@ -310,13 +310,28 @@ function Step2({
     setRole('')
   }
 
-  const canContinue = !!(industry && func && role)
+  // A Discovery Mode / direct-entry hand-off already answered "where are you
+  // headed" — that's the whole point of those flows. Re-forcing industry and
+  // function here, which the person may genuinely not know (that's *why*
+  // they used Discovery Mode), would trap them exactly where it was supposed
+  // to prevent them from getting stuck. industry/function are never
+  // validated against this taxonomy anywhere downstream — they're purely
+  // freeform context for the Claude prompts and a display label (see
+  // lib/prompts.ts) — so leaving them blank is safe, not a data-quality risk.
+  //
+  // `role` gets reset to '' by handleIndustryChange/handleFuncChange as soon
+  // as someone so much as opens the (optional, for this case) dropdowns —
+  // falling back to the originally-captured title keeps that exploration
+  // from silently discarding the target that was already locked in.
+  const arrivedWithTarget = Boolean(initialTarget?.title)
+  const effectiveTitle = role.trim() || initialTarget?.title || ''
+  const canContinue = arrivedWithTarget ? Boolean(effectiveTitle) : !!(industry && func && role)
 
   function handleContinue() {
     onContinue({
-      industry,
-      function: func,
-      title: role,
+      industry: industry || 'Unspecified',
+      function: func || 'Unspecified',
+      title: effectiveTitle,
       userDescription: desc.trim() || undefined,
       jobDescription: showJD && jd.trim() ? jd.trim() : undefined,
     })
@@ -337,24 +352,32 @@ function Step2({
       </p>
 
       {initialTarget?.title && (
-        <p className="mb-6 text-[13px] leading-[1.6] text-pp-text-faint border border-pp-border-dark rounded-pp-m px-4 py-3">
+        <>
           {initialTarget.unmatched ? (
-            <>
-              You told us you&rsquo;re targeting &ldquo;{initialTarget.title}&rdquo; — we couldn&rsquo;t match it
-              to one of our listed roles, so we&rsquo;ve added it to the description below. Pick the closest
-              industry, function, and role from the lists so we know how to translate against it.
-            </>
+            <div className="mb-6 rounded-pp-m border border-amber/40 bg-amber/10 px-4 py-4">
+              <p className="font-mono text-[10px] tracking-[0.1em] uppercase text-amber mb-1.5">
+                Your target role
+              </p>
+              <p className="text-[16px] font-medium text-offwhite mb-2">{initialTarget.title}</p>
+              <p className="text-[13px] leading-[1.6] text-pp-text-faint">
+                This is already captured — you can hit Continue as-is. We couldn&rsquo;t match it to one of
+                the listed roles below, so those dropdowns are optional: fill them in only if you want to
+                narrow the industry or function for a sharper translation.
+              </p>
+            </div>
           ) : (
-            <>We&rsquo;ve pre-filled this from what you told us — change it if it&rsquo;s not quite right.</>
+            <p className="mb-6 text-[13px] leading-[1.6] text-pp-text-faint border border-pp-border-dark rounded-pp-m px-4 py-3">
+              We&rsquo;ve pre-filled this from what you told us — change it if it&rsquo;s not quite right.
+            </p>
           )}
-        </p>
+        </>
       )}
 
       <div className="space-y-4">
         {/* Industry */}
         <div>
           <label className="block font-mono text-[11px] tracking-[0.08em] uppercase text-pp-text-faint mb-2">
-            Industry
+            Industry {initialTarget?.unmatched && <span className="normal-case text-pp-text-ghost">(optional)</span>}
           </label>
           <div className="relative">
             <select value={industry} onChange={(e) => handleIndustryChange(e.target.value)} className={SELECT_CLS} style={SELECT_STYLE}>
@@ -370,7 +393,7 @@ function Step2({
         {/* Function */}
         <div>
           <label className="block font-mono text-[11px] tracking-[0.08em] uppercase text-pp-text-faint mb-2">
-            Function
+            Function {initialTarget?.unmatched && <span className="normal-case text-pp-text-ghost">(optional)</span>}
           </label>
           <div className="relative">
             <select value={func} onChange={(e) => handleFuncChange(e.target.value)} disabled={!industry} className={cn(SELECT_CLS, !industry && 'opacity-40 cursor-not-allowed')} style={SELECT_STYLE}>
@@ -386,7 +409,7 @@ function Step2({
         {/* Role */}
         <div>
           <label className="block font-mono text-[11px] tracking-[0.08em] uppercase text-pp-text-faint mb-2">
-            Target role
+            Target role {initialTarget?.unmatched && <span className="normal-case text-pp-text-ghost">(optional — already captured above)</span>}
           </label>
           <div className="relative">
             <select value={role} onChange={(e) => setRole(e.target.value)} disabled={!func} className={cn(SELECT_CLS, !func && 'opacity-40 cursor-not-allowed')} style={SELECT_STYLE}>
