@@ -7,53 +7,43 @@
 
 // ─── Step 1: evidence intake ──────────────────────────────────────────────────
 
-export interface IntakeQuestion {
+/**
+ * A single selectable pointer chip. `signal` is a hidden mapping to a likely
+ * functional-skill hint — it never renders in the UI, but it means Step 2 has
+ * structured signal to reason from even before any free text is written.
+ *
+ * Chip ids are persisted (as part of a stored intake run), so treat them as
+ * stable once shipped — add new chips freely, but don't repurpose an id.
+ */
+export interface ChipOption {
+  id: string
+  label: string
+  /** A likely functional-skill hint, e.g. "systems thinking" — a pointer for Claude, not a verdict. */
+  signal: string
+}
+
+export interface PromptBank {
   id: string
   /** The question as shown to the user — deliberately evidence-based, never aspirational. */
   prompt: string
-  hint: string
+  chips: ChipOption[]
 }
 
-/** The intake questions. Ids are persisted, so treat them as stable. */
-export const INTAKE_QUESTIONS: IntakeQuestion[] = [
-  {
-    id: 'asked_for_help',
-    prompt: 'What do people ask you for help with, unprompted?',
-    hint: 'Colleagues, friends, family — whoever comes to you without being asked.',
-  },
-  {
-    id: 'praised_for',
-    prompt: "What have you been praised for in the last 2 years?",
-    hint: 'Give a specific instance — who said it, and what had you just done?',
-  },
-  {
-    id: 'fix_unasked',
-    prompt: 'What problems do you fix without being asked?',
-    hint: "The things you quietly sort out because they're bothering you.",
-  },
-  {
-    id: 'not_real_work',
-    prompt: "What's a task you do that doesn't feel like \"real work\" to you?",
-    hint: 'Often the thing you\'re best at — it feels too easy to count.',
-  },
-  {
-    id: 'lose_track_of_time',
-    prompt: 'When did you last lose track of time at work? What were you doing?',
-    hint: 'Absorption is evidence. Describe the actual task, not the job title.',
-  },
-  {
-    id: 'others_avoid',
-    prompt: "What do other people find hard that you don't?",
-    hint: 'Something colleagues dread, put off, or hand to you.',
-  },
-]
+/** A chip the user tapped, plus their optional one-line example for it. */
+export interface SelectedChip {
+  chipId: string
+  note?: string
+}
 
-export type IntakeAnswers = Record<string, string>
+/** Keyed by PromptBank.id. */
+export type IntakeSelections = Record<string, SelectedChip[]>
 
 export interface DiscoveryIntake {
   id: string
   userId: string | null
-  answers: IntakeAnswers
+  selections: IntakeSelections
+  /** The final open "anything else?" field — always optional. */
+  otherNotes: string | null
   createdAt: string
 }
 

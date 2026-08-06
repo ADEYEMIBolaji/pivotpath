@@ -11,7 +11,7 @@ import type {
   DiscoveryIntake,
   DiscoveryRole,
   FunctionalSkill,
-  IntakeAnswers,
+  IntakeSelections,
   Reaction,
   ShortlistEntry,
 } from './types'
@@ -53,12 +53,14 @@ function fileWrite(runId: string, run: FileRun): void {
 export async function saveIntake(
   runId: string,
   userId: string | null,
-  answers: IntakeAnswers,
+  selections: IntakeSelections,
+  otherNotes: string | null,
 ): Promise<DiscoveryIntake> {
   const intake: DiscoveryIntake = {
     id: runId,
     userId,
-    answers,
+    selections,
+    otherNotes,
     createdAt: new Date().toISOString(),
   }
 
@@ -69,11 +71,11 @@ export async function saveIntake(
 
   const { query } = await import('../db')
   const rows = await query<{ created_at: string }>(
-    `INSERT INTO discovery_intake (id, user_id, answers)
-     VALUES ($1, $2, $3)
-     ON CONFLICT (id) DO UPDATE SET answers = EXCLUDED.answers, updated_at = NOW()
+    `INSERT INTO discovery_intake (id, user_id, selections, other_notes)
+     VALUES ($1, $2, $3, $4)
+     ON CONFLICT (id) DO UPDATE SET selections = EXCLUDED.selections, other_notes = EXCLUDED.other_notes, updated_at = NOW()
      RETURNING created_at`,
-    [runId, userId, JSON.stringify(answers)],
+    [runId, userId, JSON.stringify(selections), otherNotes],
   )
   return { ...intake, createdAt: String(rows[0]?.created_at ?? intake.createdAt) }
 }
@@ -85,15 +87,17 @@ export async function getIntake(runId: string): Promise<DiscoveryIntake | null> 
   const rows = await query<{
     id: string
     user_id: string | null
-    answers: IntakeAnswers
+    selections: IntakeSelections
+    other_notes: string | null
     created_at: string
-  }>('SELECT id, user_id, answers, created_at FROM discovery_intake WHERE id = $1', [runId])
+  }>('SELECT id, user_id, selections, other_notes, created_at FROM discovery_intake WHERE id = $1', [runId])
   const row = rows[0]
   if (!row) return null
   return {
     id: row.id,
     userId: row.user_id,
-    answers: row.answers,
+    selections: row.selections,
+    otherNotes: row.other_notes,
     createdAt: String(row.created_at),
   }
 }

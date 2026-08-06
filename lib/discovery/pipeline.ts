@@ -14,7 +14,7 @@ import {
   ADJACENT_ROLES_TOOL,
   buildAdjacentRolesPrompt,
 } from './prompts'
-import type { FunctionalSkill, IntakeAnswers, DiscoveryRole } from './types'
+import type { FunctionalSkill, IntakeSelections, DiscoveryRole } from './types'
 
 // Same model the main pipeline uses — keep these in sync.
 const CLAUDE_MODEL = 'claude-sonnet-4-6'
@@ -44,10 +44,13 @@ async function callClaude<T>(tool: AnthropicTool, prompt: string, maxTokens: num
 
 // ─── Step 2 ───────────────────────────────────────────────────────────────────
 
-export async function extractSkillsMap(answers: IntakeAnswers): Promise<FunctionalSkill[]> {
+export async function extractSkillsMap(
+  selections: IntakeSelections,
+  otherNotes: string | null,
+): Promise<FunctionalSkill[]> {
   const out = await callClaude<{ functions: FunctionalSkill[] }>(
     SKILLS_MAP_TOOL as AnthropicTool,
-    buildSkillsMapPrompt(answers),
+    buildSkillsMapPrompt(selections, otherNotes),
     2048,
   )
   return out.functions
@@ -67,11 +70,12 @@ export async function extractSkillsMap(answers: IntakeAnswers): Promise<Function
 export async function surfaceAdjacentRoles(
   runId: string,
   functions: FunctionalSkill[],
-  answers: IntakeAnswers,
+  selections: IntakeSelections,
+  otherNotes: string | null,
 ): Promise<DiscoveryRole[]> {
   const out = await callClaude<{ roles: Omit<DiscoveryRole, 'id' | 'runId' | 'rank'>[] }>(
     ADJACENT_ROLES_TOOL as AnthropicTool,
-    buildAdjacentRolesPrompt(functions, answers),
+    buildAdjacentRolesPrompt(functions, selections, otherNotes),
     4096,
   )
   return out.roles.map((r, i) => ({

@@ -10,10 +10,17 @@
 -- happens to be signed in.
 
 -- ─── Step 1: evidence intake ──────────────────────────────────────────────────
+-- Selection-first: users tap pointer chips (seeded in lib/discovery/chip-seed.ts,
+-- not this schema) rather than starting from a blank text box. `selections`
+-- stores only chip ids + optional one-line notes — labels and the hidden
+-- functional-skill signal are resolved server-side from the seed data, never
+-- trusted from the client. `other_notes` is the single free-standing optional
+-- field at the end of the form.
 CREATE TABLE IF NOT EXISTS discovery_intake (
   id           TEXT PRIMARY KEY,            -- the discovery run id
   user_id      TEXT,                        -- null for anonymous runs
-  answers      JSONB NOT NULL,              -- { [questionId]: answerText }
+  selections   JSONB NOT NULL,              -- { [promptId]: [{ chipId, note? }] }
+  other_notes  TEXT,                        -- optional final "anything else?" field
   created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );

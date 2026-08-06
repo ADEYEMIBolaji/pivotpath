@@ -14,11 +14,11 @@ import { useCallback, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { Logo } from '@/components/brand'
 import { cn } from '@/lib/utils'
+import { INTAKE_PROMPTS } from '@/lib/discovery/chip-seed'
 import {
-  INTAKE_QUESTIONS,
   type DiscoveryRole,
   type FunctionalSkill,
-  type IntakeAnswers,
+  type IntakeSelections,
   type Reaction,
   type ShortlistEntry,
 } from '@/lib/discovery/types'
@@ -140,17 +140,65 @@ function Loading({ label }: { label: string }) {
 
 // ─── Step 1: evidence intake ──────────────────────────────────────────────────
 
+const MIN_CHIPS = 3
+
+function ChipButton({
+  label,
+  selected,
+  onClick,
+}: {
+  label: string
+  selected: boolean
+  onClick: () => void
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={selected}
+      className={cn(
+        'rounded-pp-pill border px-3.5 py-2 text-[13.5px] font-medium text-left transition-colors',
+        selected
+          ? 'bg-pp-skill-hi-bg border-pp-skill-hi-bd text-amber'
+          : 'bg-navy-surface border-pp-border-dark text-pp-text-body hover:border-pp-border-input hover:text-pp-text-bright',
+      )}
+    >
+      {label}
+    </button>
+  )
+}
+
 function IntakeForm({
   onSubmit,
   busy,
   error,
 }: {
-  onSubmit: (answers: IntakeAnswers) => void
+  onSubmit: (selections: IntakeSelections, otherNotes: string) => void
   busy: boolean
   error: string | null
 }) {
-  const [answers, setAnswers] = useState<IntakeAnswers>({})
-  const answered = Object.values(answers).filter((v) => v.trim()).length
+  const [selections, setSelections] = useState<IntakeSelections>({})
+  const [otherNotes, setOtherNotes] = useState('')
+
+  const totalChips = Object.values(selections).reduce((sum, picks) => sum + picks.length, 0)
+
+  const toggleChip = (promptId: string, chipId: string) => {
+    setSelections((prev) => {
+      const picks = prev[promptId] ?? []
+      const isSelected = picks.some((p) => p.chipId === chipId)
+      const next = isSelected
+        ? picks.filter((p) => p.chipId !== chipId)
+        : [...picks, { chipId, note: undefined }]
+      return { ...prev, [promptId]: next }
+    })
+  }
+
+  const setChipNote = (promptId: string, chipId: string, note: string) => {
+    setSelections((prev) => ({
+      ...prev,
+      [promptId]: (prev[promptId] ?? []).map((p) => (p.chipId === chipId ? { ...p, note } : p)),
+    }))
+  }
 
   return (
     <div className="animate-pp-fade">
@@ -158,41 +206,81 @@ function IntakeForm({
       <Heading>Let&rsquo;s start with what you already do well.</Heading>
       <Sub>
         No &ldquo;what do you want to do?&rdquo; — that question is the reason you&rsquo;re stuck.
-        Answer at least three of these with specifics, and we&rsquo;ll work outwards from the
-        evidence.
+        Tap whatever sounds like you. Add a specific example under any chip if you want to —
+        never required.
       </Sub>
 
-      <div className="space-y-7">
-        {INTAKE_QUESTIONS.map((q) => (
-          <div key={q.id}>
-            <label
-              htmlFor={q.id}
-              className="block text-[15px] font-semibold text-pp-text-bright mb-1"
-            >
-              {q.prompt}
-            </label>
-            <p className="text-[13px] text-pp-text-faint mb-2">{q.hint}</p>
-            <textarea
-              id={q.id}
-              rows={3}
-              maxLength={2000}
-              value={answers[q.id] ?? ''}
-              onChange={(e) => setAnswers((a) => ({ ...a, [q.id]: e.target.value }))}
-              className="w-full rounded-pp-m bg-navy-surface border border-pp-border-dark px-4 py-3 text-[14.5px] leading-[1.6] text-pp-text-bright placeholder:text-pp-text-ghost focus:outline-none focus:border-amber focus:shadow-pp-focus resize-y"
-              placeholder="Be specific — a real instance beats a summary."
-            />
-          </div>
-        ))}
+      <div className="space-y-9">
+        {INTAKE_PROMPTS.map((bank) => {
+          const picked = selections[bank.id] ?? []
+          return (
+            <div key={bank.id}>
+              <h2 className="text-[15px] font-semibold text-pp-text-bright mb-3">{bank.prompt}</h2>
+              <div className="flex flex-wrap gap-2">
+                {bank.chips.map((chip) => (
+                  <ChipButton
+                    key={chip.id}
+                    label={chip.label}
+                    selected={picked.some((p) => p.chipId === chip.id)}
+                    onClick={() => toggleChip(bank.id, chip.id)}
+                  />
+                ))}
+              </div>
+
+              {picked.length > 0 && (
+                <div className="mt-4 space-y-2.5 border-l-2 border-pp-border-darker pl-4">
+                  {picked.map((p) => {
+                    const chip = bank.chips.find((c) => c.id === p.chipId)
+                    if (!chip) return null
+                    return (
+                      <div key={p.chipId}>
+                        <label className="block text-[12px] text-pp-text-faint mb-1">
+                          {chip.label} — add a specific example (optional)
+                        </label>
+                        <input
+                          type="text"
+                          maxLength={300}
+                          value={p.note ?? ''}
+                          onChange={(e) => setChipNote(bank.id, p.chipId, e.target.value)}
+                          className="w-full rounded-pp-m bg-navy-surface border border-pp-border-dark px-3 py-2 text-[13.5px] text-pp-text-bright placeholder:text-pp-text-ghost focus:outline-none focus:border-amber focus:shadow-pp-focus"
+                          placeholder="e.g. a specific instance — who, what, when"
+                        />
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
+          )
+        })}
+      </div>
+
+      <div className="mt-9">
+        <label htmlFor="other-notes" className="block text-[15px] font-semibold text-pp-text-bright mb-1">
+          Anything else?
+        </label>
+        <p className="text-[13px] text-pp-text-faint mb-2">
+          Optional — anything that didn&rsquo;t fit above.
+        </p>
+        <textarea
+          id="other-notes"
+          rows={3}
+          maxLength={2000}
+          value={otherNotes}
+          onChange={(e) => setOtherNotes(e.target.value)}
+          className="w-full rounded-pp-m bg-navy-surface border border-pp-border-dark px-4 py-3 text-[14.5px] leading-[1.6] text-pp-text-bright placeholder:text-pp-text-ghost focus:outline-none focus:border-amber focus:shadow-pp-focus resize-y"
+          placeholder="Optional."
+        />
       </div>
 
       {error && <ErrorNote message={error} />}
 
       <div className="mt-9 flex items-center gap-4">
-        <Button onClick={() => onSubmit(answers)} disabled={busy || answered < 3}>
+        <Button onClick={() => onSubmit(selections, otherNotes)} disabled={busy || totalChips < MIN_CHIPS}>
           {busy ? 'Reading your answers…' : 'Build my skills map'}
         </Button>
         <span className="font-mono text-[11.5px] text-pp-text-faint">
-          {answered}/{INTAKE_QUESTIONS.length} answered · 3 minimum
+          {totalChips} selected · {MIN_CHIPS} minimum
         </span>
       </div>
     </div>
@@ -455,11 +543,14 @@ export function DiscoveryFlow() {
     })()
   }, [])
 
-  const startRun = useCallback(async (answers: IntakeAnswers) => {
+  const startRun = useCallback(async (selections: IntakeSelections, otherNotes: string) => {
     setBusy(true)
     setError(null)
     try {
-      const { runId: id } = await postJSON<{ runId: string }>('/api/discovery/intake', { answers })
+      const { runId: id } = await postJSON<{ runId: string }>('/api/discovery/intake', {
+        selections,
+        otherNotes,
+      })
       localStorage.setItem(RUN_KEY, id)
       setRunId(id)
 

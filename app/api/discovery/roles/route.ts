@@ -36,7 +36,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       return NextResponse.json({ error: 'Generate the skills map first.' }, { status: 409 })
     }
 
-    const roles = await surfaceAdjacentRoles(runId, functions, intake.answers)
+    const roles = await surfaceAdjacentRoles(runId, functions, intake.selections, intake.otherNotes)
     await saveRoles(runId, roles)
     return NextResponse.json({ roles, stubbed: true })
   } catch (err) {

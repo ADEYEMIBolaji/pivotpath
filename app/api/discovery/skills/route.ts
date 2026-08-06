@@ -29,7 +29,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     const intake = await getIntake(runId)
     if (!intake) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
-    const functions = await extractSkillsMap(intake.answers)
+    const functions = await extractSkillsMap(intake.selections, intake.otherNotes)
     await saveSkillsMap(runId, functions)
     return NextResponse.json({ functions })
   } catch (err) {

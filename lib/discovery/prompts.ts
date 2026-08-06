@@ -4,7 +4,37 @@
  * structured JSON.
  */
 
-import { INTAKE_QUESTIONS, type IntakeAnswers, type FunctionalSkill } from './types'
+import { INTAKE_PROMPTS } from './chip-seed'
+import type { IntakeSelections, FunctionalSkill } from './types'
+
+// ─── Shared: render structured intake into prompt text ────────────────────────
+
+/**
+ * Resolves chip ids back to their label + signal from the seed data (never
+ * trust a client-sent label/signal — see the intake route) and renders the
+ * whole intake as prompt text shared by steps 2 and 3.
+ */
+function formatIntake(selections: IntakeSelections, otherNotes: string | null): string {
+  const sections = INTAKE_PROMPTS.map((bank) => {
+    const picked = selections[bank.id] ?? []
+    if (picked.length === 0) return null
+
+    const lines = picked.map(({ chipId, note }) => {
+      const chip = bank.chips.find((c) => c.id === chipId)
+      if (!chip) return null
+      const noteText = note?.trim() ? ` — example given: "${note.trim()}"` : ''
+      return `  - "${chip.label}" (signal: ${chip.signal})${noteText}`
+    })
+
+    const validLines = lines.filter((l): l is string => l !== null)
+    if (validLines.length === 0) return null
+    return `Q: ${bank.prompt}\n${validLines.join('\n')}`
+  })
+
+  const body = sections.filter((s): s is string => s !== null).join('\n\n')
+  const other = otherNotes?.trim() ? `\n\nAnything else they added:\n"${otherNotes.trim()}"` : ''
+  return body + other
+}
 
 // ─── Step 2: functional skills extraction ─────────────────────────────────────
 
@@ -37,7 +67,7 @@ export const SKILLS_MAP_TOOL = {
               maxItems: 3,
               items: { type: 'string' },
               description:
-                "Short quotes or close paraphrases from the person's own answers that demonstrate this function.",
+                "Short quotes or close paraphrases from the person's own selections/examples that demonstrate this function.",
             },
           },
           required: ['name', 'summary', 'evidence'],
@@ -48,25 +78,22 @@ export const SKILLS_MAP_TOOL = {
   },
 }
 
-function formatAnswers(answers: IntakeAnswers): string {
-  return INTAKE_QUESTIONS.filter((q) => answers[q.id]?.trim())
-    .map((q) => `Q: ${q.prompt}\nA: ${answers[q.id].trim()}`)
-    .join('\n\n')
-}
-
-export function buildSkillsMapPrompt(answers: IntakeAnswers): string {
+export function buildSkillsMapPrompt(selections: IntakeSelections, otherNotes: string | null): string {
   return `You are analysing evidence a mid-career person has given about what they already do well. They do not know what role they want — that is the point. Your job is to name the *functions* underneath their examples, not to guess a job title.
+
+They answered by tapping pointer chips (each pre-tagged with a likely functional-skill signal) rather than writing free text, and optionally added a one-line example under a chip. Treat each chip's signal as a hint, not a verdict — several chips pointing at the same underlying signal, or a specific example that sharpens or contradicts the hint, should carry more weight than any single tag.
 
 Rules:
 - Output 4–6 functions. Fewer if the evidence genuinely doesn't support more.
 - Functions are capabilities, not jobs and not industries. "Coordination", "persuasion", "analysis", "teaching", "troubleshooting", "systems thinking", "relationship-building" are the right register. "Project manager", "healthcare", "Excel" are not.
-- Every function must be earned by something they actually wrote. Quote or closely paraphrase their words in the evidence — do not invent examples.
-- Pay particular attention to the things they describe as easy or as "not real work". Unconscious competence is usually the strongest signal and the one they discount.
-- Do not flatter. If two answers point at the same function, say it once with both pieces of evidence rather than padding the list.
+- Every function must be earned by something they actually selected or wrote. Quote or closely paraphrase their chip labels or examples in the evidence — do not invent examples.
+- Where several chips cluster around the same signal, that's a stronger signal than an isolated chip — say so implicitly by picking that function.
+- Pay particular attention to selections under "what doesn't feel like real work" — unconscious competence is usually the strongest signal and the one they'd discount themselves.
+- Do not flatter. If two chips point at the same function, name it once with both pieces of evidence rather than padding the list.
 
-Their answers:
+Their intake:
 <intake>
-${formatAnswers(answers)}
+${formatIntake(selections, otherNotes)}
 </intake>`
 }
 
@@ -93,7 +120,7 @@ export const ADJACENT_ROLES_TOOL = {
             whyFits: {
               type: 'string',
               description:
-                'One line tying the role to their stated evidence. Reference what they actually said, not generic role marketing.',
+                'One line tying the role to their stated evidence. Reference what they actually selected/wrote, not generic role marketing.',
             },
             functionsUsed: {
               type: 'array',
@@ -117,22 +144,23 @@ export const ADJACENT_ROLES_TOOL = {
 
 export function buildAdjacentRolesPrompt(
   functions: FunctionalSkill[],
-  answers: IntakeAnswers,
+  selections: IntakeSelections,
+  otherNotes: string | null,
 ): string {
   const map = functions
     .map((f) => `- ${f.name}: ${f.summary}\n  evidence: ${f.evidence.join(' | ')}`)
     .join('\n')
 
-  return `You are surfacing plausible-fit roles for someone mid-career who does not know what to target. You have their functional skills map and the raw evidence it was built from.
+  return `You are surfacing plausible-fit roles for someone mid-career who does not know what to target. You have their functional skills map and the raw intake it was built from.
 
 Their functional skills map:
 <skills_map>
 ${map}
 </skills_map>
 
-Their raw intake answers (for tone and context):
+Their raw intake (for tone and context):
 <intake>
-${formatAnswers(answers)}
+${formatIntake(selections, otherNotes)}
 </intake>
 
 Rules:
