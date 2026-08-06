@@ -27,6 +27,17 @@ const RUN_KEY = 'pp.discovery.runId'
 
 type Stage = 'intake' | 'skills' | 'swipe' | 'shortlist'
 
+/** Capitalize only the first letter — Claude returns lowercase function names. */
+function sentenceCase(s: string): string {
+  return s.charAt(0).toUpperCase() + s.slice(1)
+}
+
+/** Evidence quotes sometimes arrive already wrapped in quote marks; strip them
+ * before we wrap in our own curly quotes, or the two stack. */
+function stripQuotes(s: string): string {
+  return s.trim().replace(/^["“]+/, '').replace(/["”]+$/, '')
+}
+
 // ─── Shell ────────────────────────────────────────────────────────────────────
 
 function Shell({ stage, children }: { stage: Stage; children: React.ReactNode }) {
@@ -216,12 +227,12 @@ function SkillsMapCards({
             key={f.name}
             className="rounded-pp-l bg-navy-surface border border-pp-border-dark p-5 shadow-pp-card"
           >
-            <h3 className="font-display text-[19px] text-amber mb-2 capitalize">{f.name}</h3>
+            <h3 className="font-display text-[19px] text-amber mb-2">{sentenceCase(f.name)}</h3>
             <p className="text-[14px] leading-[1.6] text-pp-text-body mb-3">{f.summary}</p>
             <ul className="space-y-1.5 border-t border-pp-border-darker pt-3">
               {f.evidence.map((e, i) => (
                 <li key={i} className="text-[13px] leading-[1.55] text-pp-text-muted italic">
-                  &ldquo;{e}&rdquo;
+                  &ldquo;{stripQuotes(e)}&rdquo;
                 </li>
               ))}
             </ul>
@@ -283,9 +294,9 @@ function RoleDeck({
           {role.functionsUsed.map((f) => (
             <span
               key={f}
-              className="rounded-pp-pill bg-pp-skill-hi-bg border border-pp-skill-hi-bd px-3 py-1 text-[12.5px] font-medium text-pp-ink-soft capitalize"
+              className="rounded-pp-pill bg-pp-skill-hi-bg border border-pp-skill-hi-bd px-3 py-1 text-[12.5px] font-medium text-pp-ink-soft"
             >
-              {f}
+              {sentenceCase(f)}
             </span>
           ))}
         </div>
@@ -411,14 +422,30 @@ export function DiscoveryFlow() {
     setRunId(saved)
     ;(async () => {
       try {
-        const [skillsRes, rolesRes] = await Promise.all([
+        const [skillsRes, rolesRes, reactionsRes] = await Promise.all([
           fetch(`/api/discovery/skills?runId=${saved}`).then((r) => r.json()),
           fetch(`/api/discovery/roles?runId=${saved}`).then((r) => r.json()),
+          fetch(`/api/discovery/reactions?runId=${saved}`).then((r) => r.json()),
         ])
         if (skillsRes.functions) setFunctions(skillsRes.functions)
+        const reactedIds: string[] = reactionsRes.reactedRoleIds ?? []
+
         if (rolesRes.roles?.length) {
           setRoles(rolesRes.roles)
-          setStage('swipe')
+          const firstUnreacted = rolesRes.roles.findIndex(
+            (r: DiscoveryRole) => !reactedIds.includes(r.id),
+          )
+          if (firstUnreacted === -1) {
+            // Every card in the deck already has a reaction — the run is done.
+            const shortlistRes = await fetch(`/api/discovery/shortlist?runId=${saved}`).then((r) =>
+              r.json(),
+            )
+            setShortlist(shortlistRes.shortlist ?? [])
+            setStage('shortlist')
+          } else {
+            setIndex(firstUnreacted)
+            setStage('swipe')
+          }
         } else if (skillsRes.functions) {
           setStage('skills')
         }

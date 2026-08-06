@@ -1,5 +1,8 @@
 /**
  * POST /api/discovery/reactions — Discovery Mode step 4 (swipe reactions).
+ * GET  /api/discovery/reactions?runId=… — which roles already have a reaction,
+ * so the client can resume the deck at the first un-reacted card after a
+ * refresh instead of restarting it.
  *
  * Accepts: { runId, roleId, reaction: 'like' | 'pass' | 'unsure' }
  *
@@ -7,7 +10,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { getRoles, saveReaction } from '@/lib/discovery/store'
+import { getReactions, getRoles, saveReaction } from '@/lib/discovery/store'
 import { isDiscoveryEnabled, canAccessRun } from '@/lib/discovery/access'
 import type { Reaction } from '@/lib/discovery/types'
 
@@ -46,4 +49,16 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     console.error('[/api/discovery/reactions]', message)
     return NextResponse.json({ error: message }, { status: 500 })
   }
+}
+
+export async function GET(req: NextRequest): Promise<NextResponse> {
+  if (!isDiscoveryEnabled()) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+
+  const runId = req.nextUrl.searchParams.get('runId')
+  if (!runId || !(await canAccessRun(runId))) {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 })
+  }
+
+  const reactions = await getReactions(runId)
+  return NextResponse.json({ reactedRoleIds: Object.keys(reactions) })
 }
