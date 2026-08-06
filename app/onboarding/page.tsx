@@ -7,6 +7,7 @@ import { useSession } from 'next-auth/react'
 import { Logo, TranslationArrow } from '@/components/brand'
 import { cn } from '@/lib/utils'
 import { INDUSTRIES, FUNCTIONS, ROLES, findClosestRole } from '@/lib/role-taxonomy'
+import { canContinueStep2, resolveEffectiveTitle, type IncomingTarget } from '@/lib/onboarding-target'
 import type { ParsedProfile, TargetRole, ParsedRole } from '@/lib/types'
 
 // ─── Progress bar ─────────────────────────────────────────────────────────────
@@ -274,15 +275,6 @@ function Step1({
 
 // ─── Step 2 — Target role ─────────────────────────────────────────────────────
 
-interface IncomingTarget {
-  industry?: string
-  function?: string
-  title?: string
-  description?: string
-  /** True if we had a title to work with but couldn't match it to the taxonomy. */
-  unmatched?: boolean
-}
-
 function Step2({
   onContinue,
   initialTarget,
@@ -310,22 +302,11 @@ function Step2({
     setRole('')
   }
 
-  // A Discovery Mode / direct-entry hand-off already answered "where are you
-  // headed" — that's the whole point of those flows. Re-forcing industry and
-  // function here, which the person may genuinely not know (that's *why*
-  // they used Discovery Mode), would trap them exactly where it was supposed
-  // to prevent them from getting stuck. industry/function are never
-  // validated against this taxonomy anywhere downstream — they're purely
-  // freeform context for the Claude prompts and a display label (see
-  // lib/prompts.ts) — so leaving them blank is safe, not a data-quality risk.
-  //
-  // `role` gets reset to '' by handleIndustryChange/handleFuncChange as soon
-  // as someone so much as opens the (optional, for this case) dropdowns —
-  // falling back to the originally-captured title keeps that exploration
-  // from silently discarding the target that was already locked in.
-  const arrivedWithTarget = Boolean(initialTarget?.title)
-  const effectiveTitle = role.trim() || initialTarget?.title || ''
-  const canContinue = arrivedWithTarget ? Boolean(effectiveTitle) : !!(industry && func && role)
+  // See lib/onboarding-target.ts for why this is a hand-off-aware check
+  // rather than a flat "all three fields required" — and for the unit tests
+  // that cover it without a browser or a database.
+  const effectiveTitle = resolveEffectiveTitle({ industry, func, role }, initialTarget)
+  const canContinue = canContinueStep2({ industry, func, role }, initialTarget)
 
   function handleContinue() {
     onContinue({
