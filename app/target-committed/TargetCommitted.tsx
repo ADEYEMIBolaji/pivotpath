@@ -15,6 +15,7 @@
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
+import { track } from '@vercel/analytics'
 import { Logo } from '@/components/brand'
 
 const COMMITMENT_KEY = 'pp.target.commitmentId'
@@ -105,12 +106,14 @@ export function TargetCommitted() {
                   targetTitle: commitment.roleTitle,
                   ...(commitment.plainLanguageLine ? { plainLanguageLine: commitment.plainLanguageLine } : {}),
                 }).toString()}`}
+                onClick={() => track('Continue To Positioning Clicked', { source: commitment.source })}
                 className="inline-block px-6 py-3 rounded-pp font-semibold text-[14px] bg-amber text-navy hover:shadow-pp-amber transition-all"
               >
                 Continue to positioning
               </Link>
               <Link
                 href={`/target-role${commitmentId ? `?commitmentId=${commitmentId}` : ''}`}
+                onClick={() => track('Change Target Role Clicked', { source: commitment.source })}
                 className="inline-block px-6 py-3 rounded-pp font-semibold text-[14px] border border-pp-border-dark text-pp-text-dim hover:text-pp-text-bright transition-all"
               >
                 Change target role

@@ -10,9 +10,10 @@
  * starting over (and re-paying for the AI stages).
  */
 
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { track } from '@vercel/analytics'
 import { Logo } from '@/components/brand'
 import { cn } from '@/lib/utils'
 import { INTAKE_PROMPTS } from '@/lib/discovery/chip-seed'
@@ -618,6 +619,11 @@ export function DiscoveryFlow() {
   const [loadingLabel, setLoadingLabel] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
+  // Wall-clock start of the run — feeds the "time to shortlist" funnel metric
+  // from the PRD's success metrics. Not persisted; a resumed run (page
+  // reload) doesn't carry a start time, so that event is simply skipped.
+  const runStartedAtRef = useRef<number | null>(null)
+
   // Shared by the resume-effect and the end-of-deck transition: fetch the
   // ranked shortlist, show it, then fetch its (stubbed) comparison content.
   // Comparison failing is a nice-to-have, not a blocker — don't let it stop
@@ -627,6 +633,14 @@ export function DiscoveryFlow() {
     const list: ShortlistEntry[] = res.shortlist ?? []
     setShortlist(list)
     setStage('shortlist')
+
+    track('Discovery Shortlist Reached', {
+      shortlistSize: list.length,
+      ...(runStartedAtRef.current
+        ? { timeToShortlistSeconds: Math.round((Date.now() - runStartedAtRef.current) / 1000) }
+        : {}),
+    })
+
     if (list.length === 0) return
 
     setLoadingLabel('Comparing your options…')
@@ -683,6 +697,10 @@ export function DiscoveryFlow() {
     setBusy(true)
     setError(null)
     try {
+      runStartedAtRef.current = Date.now()
+      const chipCount = Object.values(selections).reduce((sum, picks) => sum + picks.length, 0)
+      track('Discovery Intake Submitted', { chipCount, hasOtherNotes: Boolean(otherNotes.trim()) })
+
       const { runId: id } = await postJSON<{ runId: string }>('/api/discovery/intake', {
         selections,
         otherNotes,
@@ -697,6 +715,7 @@ export function DiscoveryFlow() {
       )
       setFunctions(fns)
       setStage('skills')
+      track('Discovery Skills Map Generated', { functionCount: fns.length })
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err))
     } finally {
@@ -717,6 +736,10 @@ export function DiscoveryFlow() {
       setRoles(found)
       setIndex(0)
       setStage('swipe')
+      track('Discovery Roles Generated', {
+        roleCount: found.length,
+        groundedCount: found.filter((r) => r.postingCount !== null).length,
+      })
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err))
     } finally {
@@ -761,6 +784,7 @@ export function DiscoveryFlow() {
           roleTitle: role.title,
         })
         localStorage.setItem(COMMITMENT_KEY, commitmentId)
+        track('Target Role Committed', { source: 'discovery', roleTitle: role.title })
         router.push(`/target-committed?commitmentId=${commitmentId}`)
       } catch (err) {
         setError(err instanceof Error ? err.message : String(err))

@@ -15,6 +15,7 @@
 import { useCallback, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
+import { track } from '@vercel/analytics'
 import { Logo } from '@/components/brand'
 
 const COMMITMENT_KEY = 'pp.target.commitmentId'
@@ -45,6 +46,7 @@ export function TargetRoleForm() {
       const data = await res.json().catch(() => ({}))
       if (!res.ok) throw new Error(data.error ?? `Request failed (${res.status})`)
       localStorage.setItem(COMMITMENT_KEY, data.commitmentId)
+      track('Target Role Committed', { source: 'direct', roleTitle: trimmed, isChange: Boolean(commitmentId) })
       router.push(`/target-committed?commitmentId=${data.commitmentId}`)
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err))
