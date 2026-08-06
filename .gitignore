@@ -35,3 +35,8 @@ screenshots/
 
 # Discovery Mode local store (test build — dev only)
 .discovery/
+
+# Playwright test run output
+.next-test/
+test-results/
+playwright-report/
