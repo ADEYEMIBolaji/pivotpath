@@ -101,7 +101,10 @@ export function TargetCommitted() {
 
             <div className="flex flex-wrap gap-3">
               <Link
-                href={`/positioning?role=${encodeURIComponent(commitment.roleTitle)}`}
+                href={`/onboarding?${new URLSearchParams({
+                  targetTitle: commitment.roleTitle,
+                  ...(commitment.plainLanguageLine ? { plainLanguageLine: commitment.plainLanguageLine } : {}),
+                }).toString()}`}
                 className="inline-block px-6 py-3 rounded-pp font-semibold text-[14px] bg-amber text-navy hover:shadow-pp-amber transition-all"
               >
                 Continue to positioning
@@ -115,8 +118,9 @@ export function TargetCommitted() {
             </div>
 
             <p className="mt-10 text-[13px] leading-[1.6] text-pp-text-ghost border-t border-pp-border-darker pt-5">
-              Not built yet: positioning, applications, interview prep, outreach, and tracking. This
-              screen is the hand-off point where that funnel picks up.
+              &ldquo;Continue to positioning&rdquo; takes you into the real onboarding flow with this role
+              pre-filled — you&rsquo;ll still need to upload or paste your background, since the translation
+              map needs it. Not built yet: applications, interview prep, outreach, and tracking.
             </p>
           </div>
         )}

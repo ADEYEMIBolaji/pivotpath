@@ -150,21 +150,21 @@ The plain-language line exists because an unfamiliar-sounding title — "Impleme
 
 This is a **standing product principle**, not a one-off Discovery Mode detail: any future feature that surfaces a role to a user — Discovery Mode, a future job-matching feature, an alternate-path suggestion inside the Gap Scorecard (F4) — should carry both. Treat "formal title + plain-language line" as a required pair on any role-shaped output, the same way F3's translation map requires both a mapped skill *and* explanatory copy, not just a label.
 
-### Downstream funnel (planned, not built)
+### Downstream funnel (partly built, partly planned)
 
-The confirmation screen's CTA points at `/positioning`, which is a placeholder in this test branch — clicking it does not lead into a working feature. The intended shape of what comes after a committed target role, matching Section 5's existing flow:
+The confirmation screen's CTA now hands off into the real onboarding flow (Section 5, Step 1 onward) with the committed role pre-filled where it maps onto the existing industry/function/role taxonomy — a best-effort match, not a guarantee; an unmatched title (common, since Discovery Mode's titles are Claude-generated and open-ended) still carries the role forward as free text rather than being silently dropped. The user still has to supply their background (Step 1) — that requirement doesn't go away just because they arrived via Discovery Mode. The intended shape of what comes after that:
 
 ```
 Committed target role
   │
-  ├── Positioning        (Skills Translation Map + Gap Scorecard — F3/F4, already scoped)
+  ├── Positioning        (Skills Translation Map + Gap Scorecard — F3/F4, already built)
   ├── Applications        (not yet scoped)
   ├── Interview prep      (not yet scoped)
   ├── Outreach            (the info-interview kit from the Discovery Mode spec, Step 5 — deferred)
   └── Tracking            (not yet scoped)
 ```
 
-Positioning is not new work — it's Section 5's existing Step 3 onward (F3–F6), just now reachable from either persona rather than assuming Persona B's flow is the only entry point. Applications, interview prep, outreach, and tracking are named here as the intended shape of the roadmap, not as scoped features; none of them exist yet in any form, stubbed or otherwise.
+Positioning is not new work — it's Section 5's existing flow, now reachable from either persona rather than assuming Persona B's flow (a signed-in user who already knows their target) is the only entry point. Applications, interview prep, outreach, and tracking remain unbuilt in any form, stubbed or otherwise — named here as the intended shape of the roadmap, not as scoped features.
 
 ---
 

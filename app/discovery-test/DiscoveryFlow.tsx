@@ -532,8 +532,9 @@ function CompareAndChoose({
 
       {/* Follow-up, deliberately out of scope for this build: */}
       <p className="mt-8 text-[13px] leading-[1.6] text-pp-text-ghost border-t border-pp-border-darker pt-5">
-        Not built yet: the info-interview kit (step 5 of the spec). Committing above hands off to the
-        (also stubbed) positioning funnel — the rest of it isn&rsquo;t built in this test branch.
+        Not built yet: the info-interview kit (step 5 of the spec). Committing above hands off into the
+        real onboarding flow with your role pre-filled — applications, interview prep, outreach, and
+        tracking beyond that still aren&rsquo;t built in this test branch.
       </p>
     </div>
   )

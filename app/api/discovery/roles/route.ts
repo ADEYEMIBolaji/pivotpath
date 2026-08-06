@@ -13,6 +13,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { surfaceAdjacentRoles } from '@/lib/discovery/pipeline'
 import { getIntake, getRoles, getSkillsMap, saveRoles } from '@/lib/discovery/store'
 import { isDiscoveryEnabled, canAccessRun } from '@/lib/discovery/access'
+import { checkRateLimit, getClientIp } from '@/lib/discovery/rate-limit'
 
 export const runtime = 'nodejs'
 export const maxDuration = 120
@@ -34,6 +35,11 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     if (!intake) return NextResponse.json({ error: 'Not found' }, { status: 404 })
     if (!functions) {
       return NextResponse.json({ error: 'Generate the skills map first.' }, { status: 409 })
+    }
+
+    const rate = await checkRateLimit(getClientIp(req), 'roles')
+    if (!rate.allowed) {
+      return NextResponse.json({ error: 'Too many requests — try again later.' }, { status: 429 })
     }
 
     const roles = await surfaceAdjacentRoles(runId, functions, intake.selections, intake.otherNotes)

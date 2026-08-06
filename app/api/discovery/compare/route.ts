@@ -16,6 +16,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { enrichShortlistForComparison } from '@/lib/discovery/pipeline'
 import { getShortlist, getSkillsMap } from '@/lib/discovery/store'
 import { isDiscoveryEnabled, canAccessRun } from '@/lib/discovery/access'
+import { checkRateLimit, getClientIp } from '@/lib/discovery/rate-limit'
 
 export const runtime = 'nodejs'
 export const maxDuration = 60
@@ -26,6 +27,14 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   const { runId } = (await req.json()) as { runId?: string }
   if (!runId || !(await canAccessRun(runId))) {
     return NextResponse.json({ error: 'Not found' }, { status: 404 })
+  }
+
+  // Unlike skills/roles, this endpoint is never cached — every visit to the
+  // comparison screen re-pays for a real Claude call — so it's checked before
+  // any work happens, not just before a fresh generation.
+  const rate = await checkRateLimit(getClientIp(req), 'compare')
+  if (!rate.allowed) {
+    return NextResponse.json({ error: 'Too many requests — try again later.' }, { status: 429 })
   }
 
   try {

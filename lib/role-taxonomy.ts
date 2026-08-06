@@ -144,3 +144,29 @@ export const ROLES: Record<string, Record<string, string[]>> = {
     'Research & Analysis': ['Research Analyst', 'Evaluation Specialist'],
   },
 }
+
+/**
+ * Best-effort match for a role title that didn't come from this taxonomy —
+ * e.g. a title committed via Discovery Mode or typed freehand at
+ * /target-role. Used to pre-fill onboarding's Step 2 dropdowns; never a
+ * substitute for the user confirming their actual target, since an
+ * open-ended title (Claude-generated or freehand) frequently won't have an
+ * exact counterpart here. Returns null rather than a weak guess when nothing
+ * reasonable is found — the caller falls back to leaving the dropdowns empty.
+ */
+export function findClosestRole(query: string): { industry: string; function: string; title: string } | null {
+  const q = query.trim().toLowerCase()
+  if (!q) return null
+
+  const flat: { industry: string; function: string; title: string }[] = []
+  for (const [industry, functions] of Object.entries(ROLES)) {
+    for (const [func, titles] of Object.entries(functions)) {
+      for (const title of titles) flat.push({ industry, function: func, title })
+    }
+  }
+
+  const exact = flat.find((r) => r.title.toLowerCase() === q)
+  if (exact) return exact
+
+  return flat.find((r) => r.title.toLowerCase().includes(q) || q.includes(r.title.toLowerCase())) ?? null
+}

@@ -1,12 +1,12 @@
 'use client'
 
-import { useState, useCallback, useRef, useEffect } from 'react'
+import { useState, useCallback, useRef, useEffect, Suspense } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { Logo, TranslationArrow } from '@/components/brand'
 import { cn } from '@/lib/utils'
-import { INDUSTRIES, FUNCTIONS, ROLES } from '@/lib/role-taxonomy'
+import { INDUSTRIES, FUNCTIONS, ROLES, findClosestRole } from '@/lib/role-taxonomy'
 import type { ParsedProfile, TargetRole, ParsedRole } from '@/lib/types'
 
 // ─── Progress bar ─────────────────────────────────────────────────────────────
@@ -274,15 +274,26 @@ function Step1({
 
 // ─── Step 2 — Target role ─────────────────────────────────────────────────────
 
+interface IncomingTarget {
+  industry?: string
+  function?: string
+  title?: string
+  description?: string
+  /** True if we had a title to work with but couldn't match it to the taxonomy. */
+  unmatched?: boolean
+}
+
 function Step2({
   onContinue,
+  initialTarget,
 }: {
   onContinue: (target: TargetRole) => void
+  initialTarget?: IncomingTarget | null
 }) {
-  const [industry, setIndustry] = useState('')
-  const [func, setFunc] = useState('')
-  const [role, setRole] = useState('')
-  const [desc, setDesc] = useState('')
+  const [industry, setIndustry] = useState(initialTarget?.industry ?? '')
+  const [func, setFunc] = useState(initialTarget?.function ?? '')
+  const [role, setRole] = useState(initialTarget?.title ?? '')
+  const [desc, setDesc] = useState(initialTarget?.description ?? '')
   const [showJD, setShowJD] = useState(false)
   const [jd, setJD] = useState('')
 
@@ -324,6 +335,20 @@ function Step2({
       <p className="text-[15px] text-pp-text-body mb-8 leading-[1.6]">
         Choose the role you're targeting. The more specific you are, the sharper the translation.
       </p>
+
+      {initialTarget?.title && (
+        <p className="mb-6 text-[13px] leading-[1.6] text-pp-text-faint border border-pp-border-dark rounded-pp-m px-4 py-3">
+          {initialTarget.unmatched ? (
+            <>
+              You told us you&rsquo;re targeting &ldquo;{initialTarget.title}&rdquo; — we couldn&rsquo;t match it
+              to one of our listed roles, so we&rsquo;ve added it to the description below. Pick the closest
+              industry, function, and role from the lists so we know how to translate against it.
+            </>
+          ) : (
+            <>We&rsquo;ve pre-filled this from what you told us — change it if it&rsquo;s not quite right.</>
+          )}
+        </p>
+      )}
 
       <div className="space-y-4">
         {/* Industry */}
@@ -740,16 +765,38 @@ function AnalysisProgress({ stageKey, provider }: { stageKey: string; provider: 
 
 type WizardStep = 1 | 2 | 3 | 'running' | 'error' | 'quota'
 
-export default function OnboardingPage() {
+function OnboardingWizard() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { status } = useSession()
 
   // Require an account — the free trial (1 analysis) can only be enforced per-user.
+  // Preserve the full query string (targetTitle etc., from a Discovery Mode or
+  // /target-role hand-off) through the redirect, or it's lost the moment a
+  // signed-out visitor lands here.
   useEffect(() => {
     if (status === 'unauthenticated') {
-      router.replace(`/auth/signup?callbackUrl=${encodeURIComponent('/onboarding')}`)
+      const qs = searchParams.toString()
+      const callbackUrl = qs ? `/onboarding?${qs}` : '/onboarding'
+      router.replace(`/auth/signup?callbackUrl=${encodeURIComponent(callbackUrl)}`)
     }
-  }, [status, router])
+  }, [status, router, searchParams])
+
+  // Hand-off from Discovery Mode (/target-committed) or direct entry
+  // (/target-role) — best-effort pre-fill of Step 2, computed once from the
+  // URL. A title that doesn't match the taxonomy still isn't lost: it lands
+  // in the free-text description field instead (see IncomingTarget).
+  const [initialTarget] = useState<IncomingTarget | null>(() => {
+    const title = searchParams.get('targetTitle')?.trim()
+    if (!title) return null
+    const plainLanguageLine = searchParams.get('plainLanguageLine')?.trim()
+    const match = findClosestRole(title)
+    const description = plainLanguageLine ? `${title} — ${plainLanguageLine}` : title
+    if (match) {
+      return { industry: match.industry, function: match.function, title: match.title, description }
+    }
+    return { title, description, unmatched: true }
+  })
 
   const [wizardStep, setWizardStep] = useState<WizardStep>(1)
   const [ingestLoading, setIngestLoading] = useState(false)
@@ -988,7 +1035,7 @@ export default function OnboardingPage() {
         </>
       )}
       {wizardStep === 2 && (
-        <Step2 onContinue={handleStep2} />
+        <Step2 onContinue={handleStep2} initialTarget={initialTarget} />
       )}
       {wizardStep === 3 && profile && target && (
         <Step3 profile={profile} target={target} onConfirm={handleStep3} />
@@ -1000,5 +1047,13 @@ export default function OnboardingPage() {
         </div>
       )}
     </WizardShell>
+  )
+}
+
+export default function OnboardingPage() {
+  return (
+    <Suspense>
+      <OnboardingWizard />
+    </Suspense>
   )
 }
