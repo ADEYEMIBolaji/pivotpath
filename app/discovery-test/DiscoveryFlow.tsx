@@ -658,7 +658,17 @@ export function DiscoveryFlow() {
   }, [])
 
   // Resume an in-progress run after a refresh rather than restarting the flow.
+  // Anything that isn't an actual page reload (arriving via a Link from
+  // /start, /target-role, /target-committed, etc.) is a fresh attempt at
+  // Discovery Mode and should not inherit a previous run's data.
   useEffect(() => {
+    const [navEntry] = performance.getEntriesByType('navigation') as PerformanceNavigationTiming[]
+    const isReload = navEntry?.type === 'reload'
+    if (!isReload) {
+      localStorage.removeItem(RUN_KEY)
+      return
+    }
+
     const saved = localStorage.getItem(RUN_KEY)
     if (!saved) return
     setRunId(saved)
@@ -784,6 +794,7 @@ export function DiscoveryFlow() {
           roleTitle: role.title,
         })
         localStorage.setItem(COMMITMENT_KEY, commitmentId)
+        localStorage.removeItem(RUN_KEY)
         track('Target Role Committed', { source: 'discovery', roleTitle: role.title })
         router.push(`/target-committed?commitmentId=${commitmentId}`)
       } catch (err) {

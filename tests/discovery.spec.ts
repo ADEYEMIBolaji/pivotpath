@@ -118,6 +118,14 @@ test.describe('Persona A — Discovery Mode', () => {
     await expect(page.getByRole('heading', { name: /useful too|which one do you want to chase/i })).toBeVisible({
       timeout: 30_000,
     })
+
+    // Navigating back in (not reloading) is a second attempt at Discovery
+    // Mode, not a resume — it must start over at intake, not reuse the
+    // finished run's shortlist/comparison.
+    await page.goto('/discovery-test')
+    await expect(page.getByRole('heading', { name: /what you already do well/i })).toBeVisible({
+      timeout: 30_000,
+    })
   })
 })
 
