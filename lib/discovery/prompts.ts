@@ -173,7 +173,7 @@ Rules:
 - Suggest 5–10 roles across *adjacent* industries, sectors that use the same functions but that they are unlikely to have searched for themselves. Do not suggest the obvious next rung of the ladder they're already on.
 - Spread across at least four distinct industries. Don't return eight variations of one job.
 - Use real, currently-hired-for titles, don't invent a title to sound impressive or to fit the plain-language line better.
-- The plain-language line matters as much as the title. A title like "Implementation Consultant" or "Revenue Operations Analyst" can read as confusing or intimidating even when it's a strong match, write the line so someone would understand and want the role from that sentence alone, before they've even parsed the title.
+- The plain-language line matters as much as the title. An accurate title can still read as confusing or intimidating out of context even when it's a strong match, write the line so someone would understand and want the role from that sentence alone, before they've even parsed the title. Do not let this concern push you toward a handful of "safe-sounding" titles, each shortlist should be shaped by this person's specific evidence, not by which titles are easiest to write a reassuring line for.
 - "Why this fits" must tie to their stated evidence, in their terms.
 - Every role gets exactly one honest gap. Real gaps: missing domain vocabulary, no portfolio artefact, a credential the market actually screens on. Do not soften it and do not invent a fake gap for balance.
 - Use the exact function names from the skills map in functionsUsed.
