@@ -1,12 +1,13 @@
 'use client'
 
-import { useState, useCallback, useRef, useEffect } from 'react'
+import { useState, useCallback, useRef, useEffect, Suspense } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { Logo, TranslationArrow } from '@/components/brand'
 import { cn } from '@/lib/utils'
-import { INDUSTRIES, FUNCTIONS, ROLES } from '@/lib/role-taxonomy'
+import { INDUSTRIES, FUNCTIONS, ROLES, findClosestRole } from '@/lib/role-taxonomy'
+import { canContinueStep2, resolveEffectiveTitle, type IncomingTarget } from '@/lib/onboarding-target'
 import type { ParsedProfile, TargetRole, ParsedRole } from '@/lib/types'
 
 // ─── Progress bar ─────────────────────────────────────────────────────────────
@@ -276,13 +277,15 @@ function Step1({
 
 function Step2({
   onContinue,
+  initialTarget,
 }: {
   onContinue: (target: TargetRole) => void
+  initialTarget?: IncomingTarget | null
 }) {
-  const [industry, setIndustry] = useState('')
-  const [func, setFunc] = useState('')
-  const [role, setRole] = useState('')
-  const [desc, setDesc] = useState('')
+  const [industry, setIndustry] = useState(initialTarget?.industry ?? '')
+  const [func, setFunc] = useState(initialTarget?.function ?? '')
+  const [role, setRole] = useState(initialTarget?.title ?? '')
+  const [desc, setDesc] = useState(initialTarget?.description ?? '')
   const [showJD, setShowJD] = useState(false)
   const [jd, setJD] = useState('')
 
@@ -299,13 +302,17 @@ function Step2({
     setRole('')
   }
 
-  const canContinue = !!(industry && func && role)
+  // See lib/onboarding-target.ts for why this is a hand-off-aware check
+  // rather than a flat "all three fields required" — and for the unit tests
+  // that cover it without a browser or a database.
+  const effectiveTitle = resolveEffectiveTitle({ industry, func, role }, initialTarget)
+  const canContinue = canContinueStep2({ industry, func, role }, initialTarget)
 
   function handleContinue() {
     onContinue({
-      industry,
-      function: func,
-      title: role,
+      industry: industry || 'Unspecified',
+      function: func || 'Unspecified',
+      title: effectiveTitle,
       userDescription: desc.trim() || undefined,
       jobDescription: showJD && jd.trim() ? jd.trim() : undefined,
     })
@@ -325,11 +332,33 @@ function Step2({
         Choose the role you're targeting. The more specific you are, the sharper the translation.
       </p>
 
+      {initialTarget?.title && (
+        <>
+          {initialTarget.unmatched ? (
+            <div className="mb-6 rounded-pp-m border border-amber/40 bg-amber/10 px-4 py-4">
+              <p className="font-mono text-[10px] tracking-[0.1em] uppercase text-amber mb-1.5">
+                Your target role
+              </p>
+              <p className="text-[16px] font-medium text-offwhite mb-2">{initialTarget.title}</p>
+              <p className="text-[13px] leading-[1.6] text-pp-text-faint">
+                This is already captured, you can hit Continue as-is. We couldn&rsquo;t match it to one of
+                the listed roles below, so those dropdowns are optional: fill them in only if you want to
+                narrow the industry or function for a sharper translation.
+              </p>
+            </div>
+          ) : (
+            <p className="mb-6 text-[13px] leading-[1.6] text-pp-text-faint border border-pp-border-dark rounded-pp-m px-4 py-3">
+              We&rsquo;ve pre-filled this from what you told us, change it if it&rsquo;s not quite right.
+            </p>
+          )}
+        </>
+      )}
+
       <div className="space-y-4">
         {/* Industry */}
         <div>
           <label className="block font-mono text-[11px] tracking-[0.08em] uppercase text-pp-text-faint mb-2">
-            Industry
+            Industry {initialTarget?.unmatched && <span className="normal-case text-pp-text-ghost">(optional)</span>}
           </label>
           <div className="relative">
             <select value={industry} onChange={(e) => handleIndustryChange(e.target.value)} className={SELECT_CLS} style={SELECT_STYLE}>
@@ -345,7 +374,7 @@ function Step2({
         {/* Function */}
         <div>
           <label className="block font-mono text-[11px] tracking-[0.08em] uppercase text-pp-text-faint mb-2">
-            Function
+            Function {initialTarget?.unmatched && <span className="normal-case text-pp-text-ghost">(optional)</span>}
           </label>
           <div className="relative">
             <select value={func} onChange={(e) => handleFuncChange(e.target.value)} disabled={!industry} className={cn(SELECT_CLS, !industry && 'opacity-40 cursor-not-allowed')} style={SELECT_STYLE}>
@@ -361,7 +390,7 @@ function Step2({
         {/* Role */}
         <div>
           <label className="block font-mono text-[11px] tracking-[0.08em] uppercase text-pp-text-faint mb-2">
-            Target role
+            Target role {initialTarget?.unmatched && <span className="normal-case text-pp-text-ghost">(optional, already captured above)</span>}
           </label>
           <div className="relative">
             <select value={role} onChange={(e) => setRole(e.target.value)} disabled={!func} className={cn(SELECT_CLS, !func && 'opacity-40 cursor-not-allowed')} style={SELECT_STYLE}>
@@ -740,16 +769,38 @@ function AnalysisProgress({ stageKey, provider }: { stageKey: string; provider: 
 
 type WizardStep = 1 | 2 | 3 | 'running' | 'error' | 'quota'
 
-export default function OnboardingPage() {
+function OnboardingWizard() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { status } = useSession()
 
   // Require an account — the free trial (1 analysis) can only be enforced per-user.
+  // Preserve the full query string (targetTitle etc., from a Discovery Mode or
+  // /target-role hand-off) through the redirect, or it's lost the moment a
+  // signed-out visitor lands here.
   useEffect(() => {
     if (status === 'unauthenticated') {
-      router.replace(`/auth/signup?callbackUrl=${encodeURIComponent('/onboarding')}`)
+      const qs = searchParams.toString()
+      const callbackUrl = qs ? `/onboarding?${qs}` : '/onboarding'
+      router.replace(`/auth/signup?callbackUrl=${encodeURIComponent(callbackUrl)}`)
     }
-  }, [status, router])
+  }, [status, router, searchParams])
+
+  // Hand-off from Discovery Mode (/target-committed) or direct entry
+  // (/target-role) — best-effort pre-fill of Step 2, computed once from the
+  // URL. A title that doesn't match the taxonomy still isn't lost: it lands
+  // in the free-text description field instead (see IncomingTarget).
+  const [initialTarget] = useState<IncomingTarget | null>(() => {
+    const title = searchParams.get('targetTitle')?.trim()
+    if (!title) return null
+    const plainLanguageLine = searchParams.get('plainLanguageLine')?.trim()
+    const match = findClosestRole(title)
+    const description = plainLanguageLine ? `${title}, ${plainLanguageLine}` : title
+    if (match) {
+      return { industry: match.industry, function: match.function, title: match.title, description }
+    }
+    return { title, description, unmatched: true }
+  })
 
   const [wizardStep, setWizardStep] = useState<WizardStep>(1)
   const [ingestLoading, setIngestLoading] = useState(false)
@@ -988,7 +1039,7 @@ export default function OnboardingPage() {
         </>
       )}
       {wizardStep === 2 && (
-        <Step2 onContinue={handleStep2} />
+        <Step2 onContinue={handleStep2} initialTarget={initialTarget} />
       )}
       {wizardStep === 3 && profile && target && (
         <Step3 profile={profile} target={target} onConfirm={handleStep3} />
@@ -1000,5 +1051,13 @@ export default function OnboardingPage() {
         </div>
       )}
     </WizardShell>
+  )
+}
+
+export default function OnboardingPage() {
+  return (
+    <Suspense>
+      <OnboardingWizard />
+    </Suspense>
   )
 }

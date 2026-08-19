@@ -110,7 +110,65 @@ ONBOARDING
 
 ---
 
-## 6. Feature Specifications
+## 6. Discovery Mode & the Two-Persona Entry (Test Build)
+
+**Status:** Test/staging build behind the `DISCOVERY_MODE` flag, isolated from the flow above at `/discovery-test`, `/target-role`, and `/target-committed`. Not merged into the primary onboarding flow in Section 5, and not yet reflected in the MVP scope in Section 4.
+
+### Why this exists
+
+Section 5's onboarding flow assumes the user already has a target role in mind by Step 2. In practice, a meaningful share of both personas defined in Section 2 (the Mid-Career Pivoter and the Forced Pivoter) don't — they know they need to move, not where. Asking "what job do you want?" doesn't work for this group; they need to reason from evidence about themselves outward, not from aspiration inward. Discovery Mode is the free-tier entry point that does that reasoning for them and hands off a single committed target role to the flow in Section 5.
+
+This introduces a routing distinction that sits *in front of* the personas in Section 2, not a replacement for them — either persona from Section 2 can arrive as either of the following, depending on whether they know their target role going in:
+
+- **Persona A ("The Unsure")** — doesn't know their target role. Enters via Discovery Mode: evidence intake (selection-first chip tapping, not a blank text box) → functional skills map → adjacent-role surfacing → swipe-based shortlisting → commits to one role from the shortlist.
+- **Persona B ("The Decided")** — already knows their target role. Skips Discovery Mode entirely via a direct-entry form (`/target-role`) and commits immediately.
+
+Both personas converge on the same commitment record and the same confirmation screen before continuing into the rest of the funnel — see below.
+
+### The Discovery → Commitment bridge
+
+Discovery Mode's swipe step (Step 4) produces a *ranked shortlist*, not a single answer — but everything downstream (positioning, applications, interview prep) is written assuming ONE target role. Without an explicit bridge step, Persona A hits a dead end right after the shortlist: a ranked list isn't a decision.
+
+The bridge step runs immediately after the shortlist and turns it into that decision:
+
+1. Show the shortlisted roles (liked, then unsure, in original suggestion order) side by side, each with its formal title, plain-language line, a day-to-day summary, a rough entry-barrier read, and a rough demand note (see below — the latter three are Claude-reasoned stub content in this build, not real market data).
+2. The user picks exactly one via a "Choose this one" action.
+3. The choice is stored as a `discovery_target_commitment` row and the user lands on a confirmation screen: "Your target role: [X]," with a CTA into the (stubbed) downstream funnel.
+
+Persona B's direct-entry form writes into the *same* `discovery_target_commitment` shape and lands on the *same* confirmation screen — the two personas are visually and structurally identical from the bridge onward, which is what lets the rest of the product treat "target role" as one concept regardless of how the user arrived at it.
+
+Commitment is deliberately not framed as irreversible: the confirmation screen carries a "change target role" action (a stub in this build — it re-opens the direct-entry form pre-filled with the existing commitment id, so a change updates the same record rather than creating a new one). The product should not make a user feel locked into a pivot they're still testing.
+
+### Role relatability: a standing principle, not just a Discovery Mode detail
+
+Every role Discovery Mode surfaces carries two things, not one:
+
+- **A formal title** — the real, searchable title as it appears in postings. Never invented, never softened, because it has to survive contact with an actual job board.
+- **A plain-language line** — one sentence, in everyday language, on what the role actually involves day-to-day. Written the way you'd explain the job to a friend, not the way the posting would.
+
+The plain-language line exists because an unfamiliar-sounding title — "Implementation Consultant," "Revenue Operations Analyst" — can cause someone to dismiss a genuinely strong-fit role before they've understood what it is. ("Implementation Consultant," plain-language: *"Basically: you help a company actually get a new tool or system working the way it's supposed to, instead of just selling it to them."*) The title makes the role real and searchable; the line makes it legible. Neither one alone is sufficient — a title without the line risks losing the user at first glance, and a line without the title isn't something they can go search for.
+
+This is a **standing product principle**, not a one-off Discovery Mode detail: any future feature that surfaces a role to a user — Discovery Mode, a future job-matching feature, an alternate-path suggestion inside the Gap Scorecard (F4) — should carry both. Treat "formal title + plain-language line" as a required pair on any role-shaped output, the same way F3's translation map requires both a mapped skill *and* explanatory copy, not just a label.
+
+### Downstream funnel (partly built, partly planned)
+
+The confirmation screen's CTA now hands off into the real onboarding flow (Section 5, Step 1 onward) with the committed role pre-filled where it maps onto the existing industry/function/role taxonomy — a best-effort match, not a guarantee; an unmatched title (common, since Discovery Mode's titles are Claude-generated and open-ended) still carries the role forward as free text rather than being silently dropped. The user still has to supply their background (Step 1) — that requirement doesn't go away just because they arrived via Discovery Mode. The intended shape of what comes after that:
+
+```
+Committed target role
+  │
+  ├── Positioning        (Skills Translation Map + Gap Scorecard — F3/F4, already built)
+  ├── Applications        (not yet scoped)
+  ├── Interview prep      (not yet scoped)
+  ├── Outreach            (the info-interview kit from the Discovery Mode spec, Step 5 — deferred)
+  └── Tracking            (not yet scoped)
+```
+
+Positioning is not new work — it's Section 5's existing flow, now reachable from either persona rather than assuming Persona B's flow (a signed-in user who already knows their target) is the only entry point. Applications, interview prep, outreach, and tracking remain unbuilt in any form, stubbed or otherwise — named here as the intended shape of the roadmap, not as scoped features.
+
+---
+
+## 7. Feature Specifications
 
 ### F1 — Résumé / Profile Ingestion
 
@@ -225,7 +283,7 @@ ONBOARDING
 
 ---
 
-## 7. Technical Architecture (MVP)
+## 8. Technical Architecture (MVP)
 
 ```
 Frontend: React (Next.js)
@@ -259,7 +317,7 @@ Job Description Intelligence
 
 ---
 
-## 8. Design Principles
+## 9. Design Principles
 
 - **Honest over optimistic.** The product's credibility comes from telling people hard truths clearly. Never sugarcoat a low readiness score.
 - **Progress over paralysis.** Every screen should end with a clear next action. The user should never stare at a result and not know what to do.
@@ -268,7 +326,7 @@ Job Description Intelligence
 
 ---
 
-## 9. Claude Design Prompts
+## 10. Claude Design Prompts
 
 Use these prompts to generate UI designs for each screen.
 
@@ -492,7 +550,7 @@ Produce responsive HTML/CSS with real example content.
 
 ---
 
-## 10. Risks & Mitigations
+## 11. Risks & Mitigations
 
 | Risk | Likelihood | Impact | Mitigation |
 |---|---|---|---|
@@ -505,7 +563,7 @@ Produce responsive HTML/CSS with real example content.
 
 ---
 
-## 11. Open Questions
+## 12. Open Questions
 
 1. **Monetisation for MVP:** Free with email gate, or freemium (translation free, résumé download paid)? Recommendation: free with email, add a $12/mo paid tier at week 6.
 2. **LLM provider:** Single-provider (Anthropic) or multi-model routing? Recommendation: Anthropic only for MVP, add routing layer at scale.
@@ -514,7 +572,7 @@ Produce responsive HTML/CSS with real example content.
 
 ---
 
-## 12. Launch Plan
+## 13. Launch Plan
 
 | Phase | Timeframe | Goal |
 |---|---|---|

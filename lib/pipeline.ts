@@ -66,6 +66,27 @@ function toOpenAIFunction(tool: AnthropicTool): OpenAI.Chat.ChatCompletionTool {
 
 // ─── Call wrappers ────────────────────────────────────────────────────────────
 
+/**
+ * Strips em dashes from every string in an LLM response, recursively.
+ * Prompts ask for commas instead, but that's a request the model can ignore,
+ * so this is the actual guarantee: no pivot output (translation map, gap
+ * scorecard, rewritten résumé, strategy brief) can contain one.
+ */
+function stripEmDash<T>(value: T): T {
+  if (typeof value === 'string') {
+    return value.replace(/\s*—\s*/g, ', ') as unknown as T
+  }
+  if (Array.isArray(value)) {
+    return value.map((item) => stripEmDash(item)) as unknown as T
+  }
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(
+      Object.entries(value).map(([k, v]) => [k, stripEmDash(v)]),
+    ) as T
+  }
+  return value
+}
+
 async function callClaude<T>(
   tool: AnthropicTool,
   prompt: string,
@@ -83,7 +104,7 @@ async function callClaude<T>(
   if (!block || block.type !== 'tool_use') {
     throw new Error(`Claude did not call the expected tool. Response: ${JSON.stringify(response.content).slice(0, 500)}`)
   }
-  return block.input as T
+  return stripEmDash(block.input as T)
 }
 
 async function callGrok<T>(
@@ -105,7 +126,7 @@ async function callGrok<T>(
   if (!call) {
     throw new Error(`Grok did not call the expected function. Response: ${JSON.stringify(response.choices[0]?.message).slice(0, 500)}`)
   }
-  return JSON.parse(call.function.arguments) as T
+  return stripEmDash(JSON.parse(call.function.arguments) as T)
 }
 
 async function callLLM<T>(

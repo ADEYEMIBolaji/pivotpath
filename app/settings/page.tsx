@@ -223,6 +223,7 @@ export default function SettingsPage() {
 
   const [usage, setUsage] = useState<{ planName: string; planId: string; used: number; limit: number; remaining: number; expiresAt: string | null } | null>(null)
   const [pivots, setPivots] = useState<{ id: string; fromLabel: string; toLabel: string; readiness: number | null; createdAt: string }[] | null>(null)
+  const [discoveryEnabled, setDiscoveryEnabled] = useState(false)
 
   useEffect(() => {
     fetch('/api/account/usage')
@@ -232,6 +233,10 @@ export default function SettingsPage() {
     fetch('/api/account/sessions')
       .then((r) => r.json())
       .then((d) => { if (d.ok) setPivots(d.sessions) })
+      .catch(() => {})
+    fetch('/api/discovery/status')
+      .then((r) => r.json())
+      .then((d) => { if (d.ok) setDiscoveryEnabled(d.enabled) })
       .catch(() => {})
   }, [])
 
@@ -296,6 +301,30 @@ export default function SettingsPage() {
           <p className="font-mono text-[11px] tracking-[0.1em] uppercase text-amber mb-2">Settings</p>
           <h1 className="font-display text-[32px] font-medium text-offwhite">Account &amp; preferences</h1>
         </div>
+
+        {discoveryEnabled && (
+          <div
+            className="rounded-pp-l p-5 mb-8 flex items-start justify-between gap-4 flex-wrap"
+            style={{ background: 'rgba(232,168,56,0.07)', border: '1px solid rgba(232,168,56,0.3)' }}
+          >
+            <div>
+              <p className="font-mono text-[10.5px] font-semibold tracking-[0.08em] text-navy bg-amber inline-block rounded-full px-2 py-[3px] mb-2">
+                NEW
+              </p>
+              <p className="text-[14px] font-medium text-offwhite">Discovery Mode</p>
+              <p className="text-[13px] text-pp-text-faint mt-0.5 leading-[1.5] max-w-[440px]">
+                Don&apos;t know your target role yet? Answer a few questions about what you&apos;re
+                already good at and we&apos;ll surface roles worth chasing, grounded in real job postings.
+              </p>
+            </div>
+            <Link
+              href="/start"
+              className="flex-shrink-0 text-[13px] font-semibold text-navy bg-amber px-4 py-2 rounded-pp hover:bg-amber/90 transition-colors"
+            >
+              Try it →
+            </Link>
+          </div>
+        )}
 
         {/* ── Profile ── */}
         <Section title="Profile" description="Your public identity on PivotPath.">
